@@ -4,6 +4,8 @@ using namespace std;
 
 
 
+
+
 ///
 /// 04. 10
 /// 커서 받기 gotoxy, initConsole 등
@@ -26,12 +28,11 @@ SMALL_RECT _UImaxSize;
 
 /// <summary>
 /// 초기화
+/// 버퍼 받기 -> 나중에 콘솔창 크기 따로 설정하기
 /// </summary>
 void initConsole()
 {
-	// 화면 초기화
-	system("cls");
-
+	
 	// 커서 숨겨버리기 (안깜빡임! 안보임!)
 	HANDLE consonleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_CURSOR_INFO consoleCursor;
@@ -51,6 +52,10 @@ void initConsole()
 	_UImaxSize.Right = consoleScreenSize.Right - 2;
 	_UImaxSize.Bottom = consoleScreenSize.Bottom - 2;
 	_UImaxSize.Top = consoleScreenSize.Top + 2;
+
+	// 화면 초기화
+	system("cls");
+
 
 }
 
@@ -138,14 +143,13 @@ void DrawUpArrow(COORD pos, int color)
 	{
 		for (int j = 0; j < 5; j++)
 		{
-			// j는 가로 출력 (x), i는 세로 출력을 담당 (y)
+			// j 는 가로 출력 (x), i 는 세로 출력을 담당 (y)
 			// 가로는 세로보다 두배 출력해야함.. -> j*2
 			gotoXY(pos.X + 2 * j, pos.Y + i);
-			//if (arr[i][j] == 0)
-			//{
-			//	setColor(color_black);
-			//	//printf("  ");
-			//}	 없어도 무관
+			if (arr[i][j] == 0)
+			{
+				setColor(color_black);
+			}
 			if (arr[i][j] == 1)
 			{
 				setColor(color);
@@ -162,7 +166,10 @@ void DrawLeftArrow(COORD pos, int color)
 		for (int j = 0; j < 5; j++)
 		{
 			gotoXY(pos.X + 2 * i, pos.Y + j);
-
+			if (arr[i][j] == 0)
+			{
+				setColor(color_black);
+			}
 			if (arr[i][j] == 1)
 			{
 				setColor(color);
@@ -179,7 +186,10 @@ void DrawRightArrow(COORD pos, int color)
 		for (int j = 0; j < 5; j++)
 		{
 			gotoXY(pos.X + 8 - 2 * i, pos.Y + j);
-
+			if (arr[i][j] == 0)
+			{
+				setColor(color_black);
+			}
 			if (arr[i][j] == 1)
 			{
 				setColor(color);
@@ -196,7 +206,10 @@ void DrawDownArrow(COORD pos, int color)
 		for (int j = 0; j < 5; j++)
 		{
 			gotoXY(pos.X + 2 * j, pos.Y + 4 - i);
-
+			if (arr[i][j] == 0)
+			{
+				setColor(color_black);
+			}
 			if (arr[i][j] == 1)
 			{
 				setColor(color);
@@ -220,7 +233,7 @@ void DrawKeyInterface()
 	// 인터페이스 출력 좌표 지정 
 	// 5x5 크기의 화살표. 출력의 시작은 좌측 상단 끝
 	const int x = 8;
-	const int y = 1;
+	const int y = 2;
 
 	const int padding = 16;
 
@@ -249,16 +262,12 @@ void DrawKeyInterface()
 		colorUp = color_red;
 	}
 
-	DrawUpArrow(posUp, colorUp);
-
-
 	if (GetKeyTable(DOWN))
 	{
 		SetKeyTable(DOWN, false);
 		// 색상을 green으로 바꾼다
 		colorDown = color_green;
 	}
-	DrawDownArrow(posDown, colorDown);
 
 	if (GetKeyTable(LEFT))
 	{
@@ -266,7 +275,6 @@ void DrawKeyInterface()
 		// 색상을 skyblue으로 바꾼다
 		colorLeft = color_blue;
 	}
-	DrawLeftArrow(posLeft, colorLeft);
 
 	if (GetKeyTable(RIGHT))
 	{
@@ -274,8 +282,11 @@ void DrawKeyInterface()
 		// 색상을 yellow으로 바꾼다
 		colorRight = color_yellow;
 	}
-	DrawRightArrow(posRight, colorRight);
 
+	DrawUpArrow(posUp, colorUp);
+	DrawRightArrow(posRight, colorRight);
+	DrawDownArrow(posDown, colorDown);
+	DrawLeftArrow(posLeft, colorLeft);
 
 	/// 다른 함수로 정리함
 	{
@@ -395,6 +406,72 @@ void Interface()
 
 	
 }
+
+
+
+
+///
+/// 노트 출력, 이동
+
+///
+/// 일정한 시간마다 업데이트를 하도록 하자
+/// deltaTime 
+///
+
+// 이전 시간
+ULONGLONG previousTime;
+// 현재 시간
+ULONGLONG currentTime;
+// 이전시간 - 현재시간
+ULONGLONG deltaTime;
+
+int updateCount;
+int fixedUpdateCount;
+int scrollingspeed;
+
+/// <summary>
+/// 시간 초기화
+/// </summary>
+void InitTime()
+{
+	// 델타타임 = 0 (누적시간 0)
+	currentTime = previousTime = GetTickCount64();
+	// 1ms 단위로 반환
+}
+
+
+void UpdateTime()
+{
+	previousTime = currentTime;
+	currentTime = GetTickCount64();
+
+	deltaTime = currentTime - previousTime;
+}
+
+ULONGLONG GetDeltaTime()
+{
+	return deltaTime;								// 단위 : 1/1000 초
+}
+
+// y 축 한줄 씩 -1 시키기
+void DrawScrolling()
+{
+
+}
+
+
+void UpdateScrolling()
+{
+	static ULONGLONG elapsedTime;
+	elapsedTime += deltaTime;
+	if (elapsedTime >= scrollingspeed)
+	{
+		DrawScrolling();
+		elapsedTime -= scrollingspeed;
+	}
+}
+
+
 
 
 
