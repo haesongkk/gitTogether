@@ -1,3 +1,4 @@
+#define MAX_NOTE 6
 #include "main.h"
 
 using namespace std;
@@ -104,6 +105,7 @@ const int color_red = 12;
 const int color_yellow = 6;
 const int color_dark_white = 7;
 const int color_blue = 9;
+const int color_gray = 8;
 
 
 // 배경 색, 글꼴 색 지정
@@ -427,7 +429,8 @@ ULONGLONG deltaTime;
 
 int updateCount;
 int fixedUpdateCount;
-int scrollingspeed;
+const int noteSpeed = 50;
+const int BPM = 100;
 
 /// <summary>
 /// 시간 초기화
@@ -453,23 +456,70 @@ ULONGLONG GetDeltaTime()
 	return deltaTime;								// 단위 : 1/1000 초
 }
 
-// y 축 한줄 씩 -1 시키기
-void DrawScrolling()
-{
 
+int l_note[] = { 1,0,1,0,1,1 };
+COORD NotecurPos_l[] = { {8,30},{8,30},{8,30},{8,30},{8,30},{8,30} };
+COORD NoteprePos_l[] = { {8,30},{8,30},{8,30},{8,30},{8,30},{8,30} };
+
+///
+/// y 축 한줄 씩 -1 시키기
+/// _UIMaxSize.Bottom -1
+/// L(8) D(24) U(40) R(56)
+void UpdateNotePosition(int i)
+{
+	if (l_note[i] == 1)
+	{
+		NoteprePos_l[i] = NotecurPos_l[i];
+		DrawLeftArrow(NoteprePos_l[i], color_black);
+		NotecurPos_l[i].Y--;
+
+		// 만약 화살표가 화면을 벗어나면 그만 출력시킨다
+		// 판정 기능 구현 후
+		// 판정 안에 타격하면 UImaxSize 에서 리턴, 미스는 콘솔사이즈에서 리턴
+		if (NotecurPos_l[i].Y < consoleScreenSize.Top)
+		{
+			return;
+		}
+		DrawLeftArrow(NotecurPos_l[i], color_gray);
+	}
+	
+	if (l_note[i] == 0)
+		return;
 }
 
-
-void UpdateScrolling()
+void UpdateBPM()
 {
 	static ULONGLONG elapsedTime;
 	elapsedTime += deltaTime;
-	if (elapsedTime >= scrollingspeed)
+
+	for (int i = 0; i < MAX_NOTE; i++)
+
 	{
-		DrawScrolling();
-		elapsedTime -= scrollingspeed;
+		if (elapsedTime >= BPM * i)
+		{
+			UpdateNotePosition(i);
+			
+		}
 	}
+	
 }
+
+void UpdateNote()
+{
+	static ULONGLONG elapsedTime;
+	elapsedTime += deltaTime;
+	
+	if (elapsedTime >= noteSpeed)
+	{
+		UpdateBPM();
+		elapsedTime -= noteSpeed;
+	}
+	
+	
+}
+
+
+
 
 
 
@@ -502,10 +552,13 @@ void UpdateScrolling()
 int main()
 {
 	initConsole();
+	InitTime();
 	while (1)
 	{
+		UpdateTime();
 		UpdateInput();
 		DrawKeyInterface();
+		UpdateNote();
 
 		//system("cls");
 	}
