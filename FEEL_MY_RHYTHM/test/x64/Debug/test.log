@@ -1,0 +1,6 @@
+﻿  test.c
+D:\SVN\1반\DataStructureAndAlgorithm Assignment\Console Mini Project\FEEL_MY_RHYTHM\5_Proejct\FEEL_MY_RHYTHM1\FEEL_MY_RHYTHM\test\test.c(105,9): warning C4477: 'printf' : 서식 문자열 '%2d'에 'int' 형식의 인수가 필요하지만 variadic 인수 1의 형식이 'ULONGLONG'입니다.
+D:\SVN\1반\DataStructureAndAlgorithm Assignment\Console Mini Project\FEEL_MY_RHYTHM\5_Proejct\FEEL_MY_RHYTHM1\FEEL_MY_RHYTHM\test\test.c(105,9): message : 서식 문자열에서 '%lld'을(를) 사용하는 것이 좋습니다.
+D:\SVN\1반\DataStructureAndAlgorithm Assignment\Console Mini Project\FEEL_MY_RHYTHM\5_Proejct\FEEL_MY_RHYTHM1\FEEL_MY_RHYTHM\test\test.c(105,9): message : 서식 문자열에서 '%Id'을(를) 사용하는 것이 좋습니다.
+D:\SVN\1반\DataStructureAndAlgorithm Assignment\Console Mini Project\FEEL_MY_RHYTHM\5_Proejct\FEEL_MY_RHYTHM1\FEEL_MY_RHYTHM\test\test.c(105,9): message : 서식 문자열에서 '%I64d'을(를) 사용하는 것이 좋습니다.
+  test.vcxproj -> D:\SVN\1반\DataStructureAndAlgorithm Assignment\Console Mini Project\FEEL_MY_RHYTHM\5_Proejct\FEEL_MY_RHYTHM1\FEEL_MY_RHYTHM\x64\Debug\test.exe

@@ -1,0 +1,10 @@
+﻿  main.c
+D:\SVN\1반\DataStructureAndAlgorithm Assignment\Console Mini Project\FEEL_MY_RHYTHM\5_Proejct\FEEL_MY_RHYTHM1\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(290,47): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
+D:\SVN\1반\DataStructureAndAlgorithm Assignment\Console Mini Project\FEEL_MY_RHYTHM\5_Proejct\FEEL_MY_RHYTHM1\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(290,43): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+D:\SVN\1반\DataStructureAndAlgorithm Assignment\Console Mini Project\FEEL_MY_RHYTHM\5_Proejct\FEEL_MY_RHYTHM1\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(326,47): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
+D:\SVN\1반\DataStructureAndAlgorithm Assignment\Console Mini Project\FEEL_MY_RHYTHM\5_Proejct\FEEL_MY_RHYTHM1\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(326,43): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+D:\SVN\1반\DataStructureAndAlgorithm Assignment\Console Mini Project\FEEL_MY_RHYTHM\5_Proejct\FEEL_MY_RHYTHM1\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(361,51): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
+D:\SVN\1반\DataStructureAndAlgorithm Assignment\Console Mini Project\FEEL_MY_RHYTHM\5_Proejct\FEEL_MY_RHYTHM1\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(361,47): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+D:\SVN\1반\DataStructureAndAlgorithm Assignment\Console Mini Project\FEEL_MY_RHYTHM\5_Proejct\FEEL_MY_RHYTHM1\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(397,51): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
+D:\SVN\1반\DataStructureAndAlgorithm Assignment\Console Mini Project\FEEL_MY_RHYTHM\5_Proejct\FEEL_MY_RHYTHM1\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(397,47): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+  FEEL_MY_RHYTHM.vcxproj -> D:\SVN\1반\DataStructureAndAlgorithm Assignment\Console Mini Project\FEEL_MY_RHYTHM\5_Proejct\FEEL_MY_RHYTHM1\FEEL_MY_RHYTHM\x64\Debug\FEEL_MY_RHYTHM.exe
