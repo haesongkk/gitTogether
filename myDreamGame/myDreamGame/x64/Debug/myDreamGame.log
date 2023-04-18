@@ -1,4 +1,1 @@
-﻿  main.cpp
-D:\VS\myDreamGame\myDreamGame\main.cpp(68,19): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
-D:\VS\myDreamGame\myDreamGame\main.cpp(68,22): warning C4838: 'int'에서 'SHORT'(으)로의 변환에는 축소 변환이 필요합니다.
-  myDreamGame.vcxproj -> D:\VS\myDreamGame\x64\Debug\myDreamGame.exe
+﻿  myDreamGame.vcxproj -> D:\VS\gitTogether\myDreamGame\x64\Debug\myDreamGame.exe
