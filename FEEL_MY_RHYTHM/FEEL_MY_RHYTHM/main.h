@@ -7,12 +7,25 @@ void setColor(int, int);
 void ScreenDrawKeyInterface();
 void UpdateNote();
 void GenerateNote();
-void UpdateNotePosition(int);
+void UpdateNotePosition_left(int);
 void ScreenPrint(int x, int y, const char* str, int length);
+void PrintAsciiArt(const char*);
 
-int l_note[] = { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 };
-COORD NotecurPos_l[] = { {8,40},{8,40},{8,40},{8,40},{8,40},{8,40},{8,40},{8,40},{8,40},{8,40},{8,40},{8,40},{8,40},{8,40},{8,40},{8,40},{8,40},{8,40},{8,40},{8,40} };
+
+int l_note[] = { 1,1,1,1,1,1,1,1 };
+int d_note[] = { 1,1,1,1,1,1,1,1 };
+int u_note[] = { 1,1,1,1,1,1,1,1 };
+int r_note[] = { 1,1,1,1,1,1,1,1 };
+
+
 //COORD NoteprePos_l[] = { {8,40},{8,40},{8,40},{8,40},{8,40},{8,40} };
+COORD NotecurPos_l[] = { {8,45},{8,45},{8,45},{8,45},{8,45},{8,45},{8,45},{8,45} };
+COORD NotecurPos_d[] = { {24,45},{24,45},{24,45},{24,45},{24,45},{24,45},{24,45},{24,45} };
+COORD NotecurPos_u[] = { {40,45},{40,45},{40,45},{40,45},{40,45},{40,45},{40,45},{40,45} };
+COORD NotecurPos_r[] = { {56,45},{56,45},{56,45},{56,45},{56,45},{56,45},{56,45},{56,45} };
+
+
+char* asciiArtFilePath = "C:\\Users\\User\\Documents\\GitHub\\gitTogether\\FEEL_MY_RHYTHM\\x64\\Debug\\ascii_art_";
 
 /// <summary>
 /// »ö±ò ÆÈ·¹Æ®

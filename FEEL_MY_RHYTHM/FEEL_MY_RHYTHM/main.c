@@ -1,6 +1,6 @@
 #define MAX_NOTE 6
-#define ROW_SIZE 140
-#define COLUMN_SIZE 45
+#define ROW_SIZE 160
+#define COLUMN_SIZE 50
 #include "input.h"
 #include "main.h"
 
@@ -35,6 +35,7 @@ bool bScreenIndex;
 /// </summary>
 void initConsole()
 {
+	system("mode con cols=160 lines=50 | title FEEL_THE_RHYTHM");
 	// 더블 버퍼링.. 버퍼 두개 만들기
 	hScreen[0] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 	hScreen[1] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
@@ -417,10 +418,10 @@ void ScreenDrawKeyInterface()
 
 	const int padding = 16;
 
-	const COORD posLeft = { x + padding * 0, y };
-	const COORD posDown = { x + padding * 1, y };
-	const COORD posUp = { x + padding * 2, y };
-	const COORD posRight = { x + padding * 3, y };
+	const COORD posLeft = { x + padding * 0, y };	// 8
+	const COORD posDown = { x + padding * 1, y };	// 24
+	const COORD posUp = { x + padding * 2, y };		// 40
+	const COORD posRight = { x + padding * 3, y };	// 56
 
 	/// 안 누른 기본 상태는 흰색
 	// Up
@@ -598,6 +599,8 @@ void Interface()
 /// deltaTime 
 ///
 
+// 시작 시간
+ULONGLONG startTime;
 // 이전 시간
 ULONGLONG previousTime;
 // 현재 시간
@@ -608,7 +611,7 @@ ULONGLONG deltaTime;
 
 const ULONGLONG runningSpeed = 50;		// 0.01 초
 const ULONGLONG BPM = 120;				// 대충 120 bpm 기준이면?
-const ULONGLONG noteSpeed = 10000;
+const ULONGLONG noteSpeed = 100;
 
 
 /// <summary>
@@ -617,7 +620,7 @@ const ULONGLONG noteSpeed = 10000;
 void InitTime()
 {
 	// 델타타임 초기화 = 0 (누적시간 0)
-	currentTime = previousTime = GetTickCount64();
+	startTime = currentTime = previousTime = GetTickCount64();
 	// 1ms 단위로 반환
 }
 
@@ -643,7 +646,7 @@ void UpdateTime()
 /// y 축 한줄 씩 -1 시키기
 /// _UIMaxSize.Bottom -1
 /// L(8) D(24) U(40) R(56)
-void UpdateNotePosition(int i)
+void UpdateNotePosition_left(int i)
 {
 	/*static ULONGLONG elapsedTime;
 	elapsedTime += deltaTime;*/
@@ -652,6 +655,7 @@ void UpdateNotePosition(int i)
 	//ULONGLONG noteInterval = barTime / 8;
 
 	//ULONGLONG noteTime = noteInterval * i;
+	
 
 
 	if (l_note[i] == 1)
@@ -680,6 +684,58 @@ void UpdateNotePosition(int i)
 		return;
 }
 
+void UpdateNotePosition_down(int i)
+{
+	if (d_note[i] == 1)
+	{
+		NotecurPos_d[i].Y--;
+
+		if (NotecurPos_d[i].Y <= consoleScreenSize.Top)
+		{
+			return;
+		}
+		ScreenDrawDownArrow(NotecurPos_d[i], color_green);
+	}
+
+	if (d_note[i] == 0)
+		return;
+}
+
+void UpdateNotePosition_up(int i)
+{
+	if (u_note[i] == 1)
+	{
+		NotecurPos_u[i].Y--;
+
+		if (NotecurPos_u[i].Y <= consoleScreenSize.Top)
+		{
+			return;
+		}
+		ScreenDrawUpArrow(NotecurPos_u[i], color_red);
+	}
+
+	if (u_note[i] == 0)
+		return;
+}
+
+
+void UpdateNotePosition_right(int i)
+{
+	if (r_note[i] == 1)
+	{
+		NotecurPos_r[i].Y--;
+
+		if (NotecurPos_r[i].Y <= consoleScreenSize.Top)
+		{
+			return;
+		}
+		ScreenDrawRightArrow(NotecurPos_r[i], color_dark_yellow);
+	}
+
+	if (r_note[i] == 0)
+		return;
+}
+
 
 void GenerateNote()
 {
@@ -696,8 +752,10 @@ void GenerateNote()
 	{
 		if (elapsedTime >= noteInterval * i)
 		{
-			//NotecurPos_l[i].Y--;
-			UpdateNotePosition(i);
+			UpdateNotePosition_left(i);
+			UpdateNotePosition_down(i);
+			UpdateNotePosition_up(i);
+			UpdateNotePosition_right(i);
 		}
 	}
 
@@ -733,19 +791,120 @@ void UpdateRender()
 
 		// 새로 출력할 내용을 작성한다
 		ScreenDrawKeyInterface();
-		//UpdateNote();
 		GenerateNote();
+		//UpdateNote();
+		PrintAsciiArt(asciiArtFilePath);
 
 
 		// 앞 뒤 버퍼를 뒤집는다
 		ScreenFlipping();
 
-		UpdateNote();
-
 		elapsedTime -= runningSpeed;
 	}
 	
 }
+
+
+///
+/// 애니메이션 출력
+/// 
+
+// 아스키 아트가 존재하는 txt 파일을 찾아 버퍼에 저장한다
+void FindAsciiArt(const char* asciiArtFilePath)
+{
+	FILE* fp;
+	char buffer[256];
+	int line = 0;
+	int index = 0;
+	char** asciiArt = (char**)malloc(sizeof(char*) * 4); 
+	int artCount = 0;
+
+	// 네 개의 아스키 아트 파일 읽기
+	for (int i = 0; i < 4; i++) 
+	{
+		asciiArt[i] = (char*)malloc(sizeof(char) * 5000);
+		snprintf(buffer, 256, "%s%d.txt", asciiArtFilePath, i);
+		errno_t err = fopen_s(&fp, buffer, "r");
+		if (err != 0) {
+			//printf("아스키 아트 파일을 찾을 수 없습니다.");
+			exit(1);
+		}
+		int readSize = fread(asciiArt[i], sizeof(char), 5000, fp);
+		asciiArt[i][readSize] = '\0'; // 마지막에 널 문자 추가
+		fclose(fp);
+		artCount++;
+	}
+}
+
+
+// 버퍼에 저장된 아스키 아트를 출력한다
+void PrintAsciiArt(const char* asciiArtFilePath)
+{
+
+	FILE* fp;
+	char buffer[256];
+	int line = 0;
+	int index = 0;
+	char** asciiArt = (char**)malloc(sizeof(char*) * 4);
+	int artCount = 0;
+
+	// 네 개의 아스키 아트 파일 읽기
+	for (int i = 0; i < 4; i++)
+	{
+		asciiArt[i] = (char*)malloc(sizeof(char) * 5000);
+		snprintf(buffer, 256, "%s%d.txt", asciiArtFilePath, i);
+		errno_t err = fopen_s(&fp, buffer, "r");
+		if (err != 0) {
+			//printf("아스키 아트 파일을 찾을 수 없습니다.");
+			exit(1);
+		}
+		int readSize = fread(asciiArt[i], sizeof(char), 5000, fp);
+		asciiArt[i][readSize] = '\0'; // 마지막에 널 문자 추가
+		fclose(fp);
+		artCount++;
+	}
+
+	for (int i = 0; i < artCount; i++)
+	{
+		int line = 0;
+		int index = 0;
+		int x = 80;
+		int y = 1;   // posX와 posY에 현재 출력 위치 저장
+
+
+		//printf("\033[%d;%dH", y + line++, x); // 커서 위치 지정
+		while (asciiArt[i][index] != '\0') {
+			//putchar(asciiArt[i][index++]);
+			setColor(color_black, color_white);
+			ScreenPrint(x, y + line++, asciiArt[i][index++], 1);
+			if (asciiArt[i][index] == '\n') {
+				index++;
+				y++;   // 다음 줄로 이동할 때마다 증가
+				//printf("\033[%d;%dH", posY, posX); // 다음 줄로 이동
+				//ScreenPrint(x, y + line++, NULL, 0);
+			}
+		}
+		//Sleep(delay); // 딜레이 시간만큼 대기
+	}
+	
+
+	// 동적할당 해제
+	for (int i = 0; i < 4; i++) {
+		free(asciiArt[i]);
+	}
+	free(asciiArt);
+
+}
+
+
+
+
+
+
+
+
+
+
 
 
 ///
@@ -761,7 +920,6 @@ int main()
 	initConsole();
 	InitTime();
 	system("cls");
-	
 
 	while (1)
 	{
