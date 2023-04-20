@@ -425,13 +425,13 @@ void ScreenDrawKeyInterface()
 
 	/// 안 누른 기본 상태는 흰색
 	// Up
-	int colorUp = color_dark_white;
+	int colorUp = color_white;
 	// Down
-	int colorDown = color_dark_white;
+	int colorDown = color_white;
 	// Left
-	int colorLeft = color_dark_white;
+	int colorLeft = color_white;
 	// Right
-	int colorRight = color_dark_white;
+	int colorRight = color_white;
 
 
 	// 키가 눌리면?
@@ -454,7 +454,7 @@ void ScreenDrawKeyInterface()
 	{
 		SetKeyTable(LEFT, false);
 		// 색상을 skyblue으로 바꾼다
-		colorLeft = color_dark_blue;
+		colorLeft = color_blue;
 	}
 
 	if (GetKeyTable(RIGHT))
@@ -648,28 +648,11 @@ void UpdateTime()
 /// L(8) D(24) U(40) R(56)
 void UpdateNotePosition_left(int i)
 {
-	/*static ULONGLONG elapsedTime;
-	elapsedTime += deltaTime;*/
-
-	//ULONGLONG barTime = 60000 / BPM * 4;
-	//ULONGLONG noteInterval = barTime / 8;
-
-	//ULONGLONG noteTime = noteInterval * i;
-	
-
-
 	if (l_note[i] == 1)
 	{
-		//NoteprePos_l[i] = NotecurPos_l[i];
-		//ScreenDrawLeftArrow(NoteprePos_l[i], color_black);
-		/*if (elapsedTime >= 50)
-		{
-			
-			elapsedTime -= 50;
-		}*/
-
+		HitBox(i);
 		NotecurPos_l[i].Y --;
-
+		
 		// 만약 화살표가 화면을 벗어나면 그만 출력시킨다
 		// 판정 기능 구현 후
 		// 판정 안에 타격하면 UImaxSize 에서 리턴, 미스는 콘솔사이즈에서 리턴
@@ -724,7 +707,7 @@ void UpdateNotePosition_right(int i)
 	if (r_note[i] == 1)
 	{
 		NotecurPos_r[i].Y--;
-
+		
 		if (NotecurPos_r[i].Y <= consoleScreenSize.Top)
 		{
 			return;
@@ -736,6 +719,10 @@ void UpdateNotePosition_right(int i)
 		return;
 }
 
+/// <summary>
+///  ㅋㅋ 노트 인덱스 전역변수 때리기
+/// </summary>
+int note_Index = 0;
 
 void GenerateNote()
 {
@@ -745,44 +732,54 @@ void GenerateNote()
 	ULONGLONG barTime = 60000 / BPM * 4;
 	ULONGLONG noteInterval = barTime / 16;
 
-	int i = 0;
+	
 	int noteCount = sizeof(l_note) / sizeof(int);
 
-	for (i = 0; i < noteCount; i++)
+	for (note_Index = 0; note_Index < noteCount; note_Index++)
 	{
-		if (elapsedTime >= noteInterval * i)
+		
+		if (elapsedTime >= noteInterval * note_Index)
 		{
-			UpdateNotePosition_left(i);
-			UpdateNotePosition_down(i);
-			UpdateNotePosition_up(i);
-			UpdateNotePosition_right(i);
+			UpdateNotePosition_left(note_Index);
+			UpdateNotePosition_down(note_Index);
+			UpdateNotePosition_up(note_Index);
+			UpdateNotePosition_right(note_Index);
 		}
+		
 	}
-
+	
 }
 
 
-void UpdateNote()
-{
-	static ULONGLONG elapsedTime;
-	elapsedTime += deltaTime;
+//void UpdateNote()
+//{
+//	static ULONGLONG elapsedTime;
+//	elapsedTime += deltaTime;
+//
+//	if (elapsedTime >= noteSpeed)
+//	{
+//		GenerateNote();
+//		elapsedTime -= noteSpeed;
+//	}
+//
+//}
 
-	if (elapsedTime >= noteSpeed)
-	{
-		GenerateNote();
-		elapsedTime -= noteSpeed;
-	}
-
-}
-
+// 아스키 아트
+char** asciiArt;
+char** asciiArt2;
 
 
 
 /// 렌더 (직접적인 출력 부분) 뒷 버퍼 기준
 void UpdateRender()
 {
+	int anim1_frame = 10;
+	int anim2_frame = 10;
 	static ULONGLONG elapsedTime;
 	elapsedTime += deltaTime;
+	
+	static int i = 0;
+	static int j = 0;
 
 	if (elapsedTime >= runningSpeed)
 	{
@@ -793,13 +790,24 @@ void UpdateRender()
 		ScreenDrawKeyInterface();
 		GenerateNote();
 		//UpdateNote();
-		PrintAsciiArt(asciiArtFilePath);
-
+		HitBox(note_Index);
+		PrintAsciiArt(asciiArt, i, anim1_frame, 120, 15);
+		//PrintAsciiArt(asciiArt[1], j, anim2_frame, 90, 13);
 
 		// 앞 뒤 버퍼를 뒤집는다
 		ScreenFlipping();
 
 		elapsedTime -= runningSpeed;
+		i++;
+		j++;
+	}
+	if (i == anim1_frame)
+	{
+		i = 0;
+	}
+	if (j == anim2_frame)
+	{
+		j = 0;
 	}
 	
 }
@@ -809,18 +817,18 @@ void UpdateRender()
 /// 애니메이션 출력
 /// 
 
-// 아스키 아트가 존재하는 txt 파일을 찾아 버퍼에 저장한다
-void FindAsciiArt(const char* asciiArtFilePath)
+// 파일 경로, 해당 애니메이션을 출력하는데에 필요한 파일의 개수 입력받기
+void FindAsciiArt(const char* asciiArtFilePath, int n)
 {
 	FILE* fp;
 	char buffer[256];
 	int line = 0;
 	int index = 0;
-	char** asciiArt = (char**)malloc(sizeof(char*) * 4); 
-	int artCount = 0;
+	asciiArt = (char**)malloc(sizeof(char*) * n);
 
-	// 네 개의 아스키 아트 파일 읽기
-	for (int i = 0; i < 4; i++) 
+
+	// n 개의 아스키 아트 파일 읽기
+	for (int i = 0; i < n; i++)
 	{
 		asciiArt[i] = (char*)malloc(sizeof(char) * 5000);
 		snprintf(buffer, 256, "%s%d.txt", asciiArtFilePath, i);
@@ -830,66 +838,57 @@ void FindAsciiArt(const char* asciiArtFilePath)
 			exit(1);
 		}
 		int readSize = fread(asciiArt[i], sizeof(char), 5000, fp);
-		asciiArt[i][readSize] = '\0'; // 마지막에 널 문자 추가
+		asciiArt[i][readSize] = '\0'; // 마지막에 널 문자 추가 > 이거 걍 파일 하나 당의 아스키 아트 문자 개수
 		fclose(fp);
-		artCount++;
 	}
+
 }
 
 
-// 버퍼에 저장된 아스키 아트를 출력한다
-void PrintAsciiArt(const char* asciiArtFilePath)
+
+
+// 버퍼에 저장된 아스키 아트를 출력한다 , 아스키 아트의 종류, 파일 개수 세는 변수, 파일 개수, x,y 좌표
+void PrintAsciiArt(char** asciiArt, int i, int n, int posx, int posy)
 {
 
-	FILE* fp;
-	char buffer[256];
-	int line = 0;
-	int index = 0;
-	char** asciiArt = (char**)malloc(sizeof(char*) * 4);
-	int artCount = 0;
+	int x = posx;
+	int y = posy;   // 현재 출력 위치 저장
 
-	// 네 개의 아스키 아트 파일 읽기
-	for (int i = 0; i < 4; i++)
-	{
-		asciiArt[i] = (char*)malloc(sizeof(char) * 5000);
-		snprintf(buffer, 256, "%s%d.txt", asciiArtFilePath, i);
-		errno_t err = fopen_s(&fp, buffer, "r");
-		if (err != 0) {
-			//printf("아스키 아트 파일을 찾을 수 없습니다.");
-			exit(1);
-		}
-		int readSize = fread(asciiArt[i], sizeof(char), 5000, fp);
-		asciiArt[i][readSize] = '\0'; // 마지막에 널 문자 추가
-		fclose(fp);
-		artCount++;
-	}
 
-	for (int i = 0; i < artCount; i++)
+	// i = 0 부터 i = 3 은 파일의 인덱스를 의미
+	//for (int i = 0; i < 1; i++)
 	{
 		int line = 0;
 		int index = 0;
-		int x = 80;
-		int y = 1;   // posX와 posY에 현재 출력 위치 저장
-
-
-		//printf("\033[%d;%dH", y + line++, x); // 커서 위치 지정
-		while (asciiArt[i][index] != '\0') {
-			//putchar(asciiArt[i][index++]);
-			setColor(color_black, color_white);
-			ScreenPrint(x, y + line++, asciiArt[i][index++], 1);
-			if (asciiArt[i][index] == '\n') {
+		
+		
+		// while 문은 readSize 로 읽어온 아스키 문자수의 마지막에 추가한 널문자를 만나기 전까지 돌린다
+		while (asciiArt[i][index] != '\0') 
+		{
+			setColor(color_black, color_dark_white);
+			ScreenPrint(x , y, asciiArt[i][index++], 1);
+			x++;
+			if (asciiArt[i][index] == '\n') 
+			{
+				x = posx;
 				index++;
 				y++;   // 다음 줄로 이동할 때마다 증가
-				//printf("\033[%d;%dH", posY, posX); // 다음 줄로 이동
-				//ScreenPrint(x, y + line++, NULL, 0);
-			}
+				ScreenPrint(x, y, NULL, 0);
+				
+			}	
 		}
-		//Sleep(delay); // 딜레이 시간만큼 대기
 	}
-	
 
+}
+
+
+
+// n 개의 파일에 대한 아스키 아트 해제
+void CloseAsciiFile(char** asciiArt, int n)
+{
 	// 동적할당 해제
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < n; i++) 
+	{
 		free(asciiArt[i]);
 	}
 	free(asciiArt);
@@ -904,32 +903,72 @@ void PrintAsciiArt(const char* asciiArtFilePath)
 
 
 
-
-
-
 ///
-/// 04.18
+/// 04.20
 /// 판정 함수
 /// 특정 구간에 입력을 받았는가,, 를 판정한다
 /// 
+
+void HitBox(int i)
+{
+	setColor(color_green, color_red);
+	//ScreenPrint(100, 2, 'MISS', 4);
+	static bool good;
+	good = false;
+	// y = 2
+	//if (l_note[i] == 1)
+	{
+		if (NotecurPos_l[i].Y >= 1 && NotecurPos_l[i].Y <= 9)
+		{
+			if (GetKeyTable(LEFT))
+			{
+				SetKeyTable(LEFT, false);
+				good = true;
+				setColor(color_green, color_red);
+				ScreenPrint(100, 2, 'GOOD', 4);
+			}
+		}
+	}
+
+}
+
+
+
+
+
+
+
 
 
 
 int main()
 {
+	// game setting
 	initConsole();
 	InitTime();
-	system("cls");
-
+	//system("cls");
+	FindAsciiArt(asciiArtFilePath1, 10, 0);
+	//FindAsciiArt(asciiArtFilePath2, 10, 1);
+	// title & menu
 	while (1)
 	{
-		UpdateTime();
-		UpdateInput();
-		
+		// title & title sound
 
-		UpdateRender();
 
-		
 
+		// if game started - game song
+		while (1)
+		{
+			UpdateTime();
+			UpdateInput();
+			
+
+			UpdateRender();
+
+		}
+		// 동적할당 해제
+		CloseAsciiFile(asciiArt, 10);
 	}
+
+	
 }

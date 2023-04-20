@@ -10,6 +10,7 @@ void GenerateNote();
 void UpdateNotePosition_left(int);
 void ScreenPrint(int x, int y, const char* str, int length);
 void PrintAsciiArt(const char*);
+void HitBox(int);
 
 
 int l_note[] = { 1,1,1,1,1,1,1,1 };
@@ -25,7 +26,9 @@ COORD NotecurPos_u[] = { {40,45},{40,45},{40,45},{40,45},{40,45},{40,45},{40,45}
 COORD NotecurPos_r[] = { {56,45},{56,45},{56,45},{56,45},{56,45},{56,45},{56,45},{56,45} };
 
 
-char* asciiArtFilePath = "C:\\Users\\User\\Documents\\GitHub\\gitTogether\\FEEL_MY_RHYTHM\\x64\\Debug\\ascii_art_";
+const char* asciiArtFilePath2 = "D:\\SVN\\GA2023\\DataStructureAndAlgorithm Assignment\\Console Mini Project\\FEEL_MY_RHYTHM\\4_Resources\\ascii_art\\fanclub\\ascii_art_";
+const char* asciiArtFilePath1 = "D:\\SVN\\GA2023\\DataStructureAndAlgorithm Assignment\\Console Mini Project\\FEEL_MY_RHYTHM\\4_Resources\\fanclub_ascii\\ascii_art_ ";
+
 
 /// <summary>
 /// »ö±ò ÆÈ·¹Æ®
