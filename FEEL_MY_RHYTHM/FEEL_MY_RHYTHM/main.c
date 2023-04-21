@@ -192,6 +192,37 @@ void gotoXY(int x, int y)
 
 
 
+///
+/// 노트 카운트, 노트 초기위치 초기화
+/// 
+
+COORD NotecurPos_l[17];
+COORD NotecurPos_d[17];
+COORD NotecurPos_u[17];
+COORD NotecurPos_r[17];
+
+
+
+
+void SetNotePosition(int y)
+{
+	noteCount = sizeof(l_note) / sizeof(int);
+	for (int i = 0; i < noteCount; i++)
+	{
+		NotecurPos_l[i].X = 8;
+		NotecurPos_d[i].X = 24;
+		NotecurPos_u[i].X = 40;
+		NotecurPos_r[i].X = 56;
+
+		NotecurPos_l[i].Y = y;
+		NotecurPos_d[i].Y = y;
+		NotecurPos_u[i].Y = y;
+		NotecurPos_r[i].Y = y;
+	}
+}
+
+
+
 
 
 
@@ -414,7 +445,7 @@ void ScreenDrawKeyInterface()
 	// 인터페이스 출력 좌표 지정 
 	// 5x5 크기의 화살표. 출력의 시작은 좌측 상단 끝
 	const int x = 8;
-	const int y = 2;
+	const int y = 3;
 
 	const int padding = 16;
 
@@ -438,30 +469,30 @@ void ScreenDrawKeyInterface()
 	if (GetKeyTable(UP))
 	{
 		// 한번만 입력받기 위해 false 처리
-		SetKeyTable(UP, false);
+		//SetKeyTable(UP, false);
 		// 색상을 빨강으로 바꾼다
-		colorUp = color_red;
+		colorUp = color_gray;
 	}
 
 	if (GetKeyTable(DOWN))
 	{
-		SetKeyTable(DOWN, false);
+		//SetKeyTable(DOWN, false);
 		// 색상을 green으로 바꾼다
-		colorDown = color_green;
+		colorDown = color_gray;
 	}
 
 	if (GetKeyTable(LEFT))
 	{
-		SetKeyTable(LEFT, false);
+		//SetKeyTable(LEFT, false);
 		// 색상을 skyblue으로 바꾼다
-		colorLeft = color_blue;
+		colorLeft = color_gray;
 	}
 
 	if (GetKeyTable(RIGHT))
 	{
-		SetKeyTable(RIGHT, false);
+		//SetKeyTable(RIGHT, false);
 		// 색상을 yellow으로 바꾼다
-		colorRight = color_dark_yellow;
+		colorRight = color_gray;
 	}
 
 	ScreenDrawUpArrow(posUp, colorUp);
@@ -650,13 +681,16 @@ void UpdateNotePosition_left(int i)
 {
 	if (l_note[i] == 1)
 	{
-		HitBox(i);
-		NotecurPos_l[i].Y --;
 		
+		NotecurPos_l[i].Y --;
+		//HitBox(NotecurPos_l[i].Y, i, LEFT);
+
+
+
 		// 만약 화살표가 화면을 벗어나면 그만 출력시킨다
 		// 판정 기능 구현 후
 		// 판정 안에 타격하면 UImaxSize 에서 리턴, 미스는 콘솔사이즈에서 리턴
-		if (NotecurPos_l[i].Y <= consoleScreenSize.Top)
+		if ( HitBox(NotecurPos_l[i].Y, i, LEFT) || NotecurPos_l[i].Y <= consoleScreenSize.Top)
 		{
 			return;
 		}
@@ -664,7 +698,21 @@ void UpdateNotePosition_left(int i)
 	}
 
 	if (l_note[i] == 0)
+	{
+		/*if (GetKeyTable(LEFT))
+		{
+			SetKeyTable(LEFT, false);
+		}*/
 		return;
+	}
+
+	// 마지막 인덱스에 2를 넣어서 키 입력을 막아버린다
+	else 
+	{
+		SetKeyTable(LEFT, false);
+	}
+	
+		
 }
 
 void UpdateNotePosition_down(int i)
@@ -672,8 +720,8 @@ void UpdateNotePosition_down(int i)
 	if (d_note[i] == 1)
 	{
 		NotecurPos_d[i].Y--;
-
-		if (NotecurPos_d[i].Y <= consoleScreenSize.Top)
+		
+		if ( HitBox(NotecurPos_d[i].Y, i, DOWN) || NotecurPos_d[i].Y <= consoleScreenSize.Top)
 		{
 			return;
 		}
@@ -682,6 +730,12 @@ void UpdateNotePosition_down(int i)
 
 	if (d_note[i] == 0)
 		return;
+
+	else
+	{
+		SetKeyTable(DOWN, false);
+	}
+
 }
 
 void UpdateNotePosition_up(int i)
@@ -690,7 +744,8 @@ void UpdateNotePosition_up(int i)
 	{
 		NotecurPos_u[i].Y--;
 
-		if (NotecurPos_u[i].Y <= consoleScreenSize.Top)
+
+		if ( HitBox(NotecurPos_u[i].Y, i, UP) || NotecurPos_u[i].Y <= consoleScreenSize.Top)
 		{
 			return;
 		}
@@ -699,6 +754,13 @@ void UpdateNotePosition_up(int i)
 
 	if (u_note[i] == 0)
 		return;
+
+
+	else
+	{
+		SetKeyTable(UP, false);
+	}
+
 }
 
 
@@ -707,8 +769,9 @@ void UpdateNotePosition_right(int i)
 	if (r_note[i] == 1)
 	{
 		NotecurPos_r[i].Y--;
+
 		
-		if (NotecurPos_r[i].Y <= consoleScreenSize.Top)
+		if ( HitBox(NotecurPos_r[i].Y, i, RIGHT) || NotecurPos_r[i].Y <= consoleScreenSize.Top)
 		{
 			return;
 		}
@@ -717,12 +780,24 @@ void UpdateNotePosition_right(int i)
 
 	if (r_note[i] == 0)
 		return;
+
+
+	else
+	{
+		SetKeyTable(RIGHT, false);
+	}
+
+
 }
+
+
+
 
 /// <summary>
 ///  ㅋㅋ 노트 인덱스 전역변수 때리기
 /// </summary>
 int note_Index = 0;
+
 
 void GenerateNote()
 {
@@ -733,7 +808,7 @@ void GenerateNote()
 	ULONGLONG noteInterval = barTime / 16;
 
 	
-	int noteCount = sizeof(l_note) / sizeof(int);
+	
 
 	for (note_Index = 0; note_Index < noteCount; note_Index++)
 	{
@@ -744,6 +819,7 @@ void GenerateNote()
 			UpdateNotePosition_down(note_Index);
 			UpdateNotePosition_up(note_Index);
 			UpdateNotePosition_right(note_Index);
+			
 		}
 		
 	}
@@ -765,8 +841,8 @@ void GenerateNote()
 //}
 
 // 아스키 아트
-char** asciiArt;
-char** asciiArt2;
+char** asciiArt[2];
+//char** asciiArt2;
 
 
 
@@ -790,9 +866,9 @@ void UpdateRender()
 		ScreenDrawKeyInterface();
 		GenerateNote();
 		//UpdateNote();
-		HitBox(note_Index);
-		PrintAsciiArt(asciiArt, i, anim1_frame, 120, 15);
-		//PrintAsciiArt(asciiArt[1], j, anim2_frame, 90, 13);
+		
+		PrintAsciiArt(asciiArt[1], i, anim1_frame, 120, 15);
+		PrintAsciiArt(asciiArt[0], j, anim2_frame, 90, 13);
 
 		// 앞 뒤 버퍼를 뒤집는다
 		ScreenFlipping();
@@ -818,27 +894,27 @@ void UpdateRender()
 /// 
 
 // 파일 경로, 해당 애니메이션을 출력하는데에 필요한 파일의 개수 입력받기
-void FindAsciiArt(const char* asciiArtFilePath, int n)
+void FindAsciiArt(const char* asciiArtFilePath, int fileNum, int asciiNum)
 {
 	FILE* fp;
 	char buffer[256];
 	int line = 0;
 	int index = 0;
-	asciiArt = (char**)malloc(sizeof(char*) * n);
+	asciiArt[asciiNum] = (char**)malloc(sizeof(char*) * fileNum);
 
 
 	// n 개의 아스키 아트 파일 읽기
-	for (int i = 0; i < n; i++)
+	for (int i = 0; i < fileNum; i++)
 	{
-		asciiArt[i] = (char*)malloc(sizeof(char) * 5000);
+		asciiArt[asciiNum][i] = (char*)malloc(sizeof(char) * 5000);
 		snprintf(buffer, 256, "%s%d.txt", asciiArtFilePath, i);
 		errno_t err = fopen_s(&fp, buffer, "r");
 		if (err != 0) {
 			//printf("아스키 아트 파일을 찾을 수 없습니다.");
 			exit(1);
 		}
-		int readSize = fread(asciiArt[i], sizeof(char), 5000, fp);
-		asciiArt[i][readSize] = '\0'; // 마지막에 널 문자 추가 > 이거 걍 파일 하나 당의 아스키 아트 문자 개수
+		int readSize = fread(asciiArt[asciiNum][i], sizeof(char), 5000, fp);
+		asciiArt[asciiNum][i][readSize] = '\0'; // 마지막에 널 문자 추가 > 이거 걍 파일 하나 당의 아스키 아트 문자 개수
 		fclose(fp);
 	}
 
@@ -863,12 +939,12 @@ void PrintAsciiArt(char** asciiArt, int i, int n, int posx, int posy)
 		
 		
 		// while 문은 readSize 로 읽어온 아스키 문자수의 마지막에 추가한 널문자를 만나기 전까지 돌린다
-		while (asciiArt[i][index] != '\0') 
+		while (asciiArt[i][index] != '\0')
 		{
 			setColor(color_black, color_dark_white);
 			ScreenPrint(x , y, asciiArt[i][index++], 1);
 			x++;
-			if (asciiArt[i][index] == '\n') 
+			if (asciiArt[i][index] == '\n')
 			{
 				x = posx;
 				index++;
@@ -906,33 +982,106 @@ void CloseAsciiFile(char** asciiArt, int n)
 ///
 /// 04.20
 /// 판정 함수
-/// 특정 구간에 입력을 받았는가,, 를 판정한다
+/// y 값의 특정 구간에 입력을 받았는가,, 를 판정한다
+/// 판정 구간 내에 있는 내내 콤보가 올라가고..
+/// 판정 구간 밖에 있는 내내 미스 카운트가 올라간다..
+/// 따로 bool 변수로 제어할 필요가 있다
+/// is Good, is Miss
 /// 
 
-void HitBox(int i)
+
+
+/// <summary>
+/// 판정
+/// </summary>
+/// <param name="y">판정의 기준이 되는 y값의 위치</param>
+/// <param name="i">노트 배열의 index</param>
+/// <param name="key">상하좌우 중 무슨 키인지</param>
+/// <returns>isGood 에 대한 반환값</returns>
+bool HitBox(int y, int i, int key)
 {
-	setColor(color_green, color_red);
-	//ScreenPrint(100, 2, 'MISS', 4);
-	static bool good;
-	good = false;
-	// y = 2
-	//if (l_note[i] == 1)
+	//LEFT = 1;
+	//RIGHT = 2;
+	//UP = 3;
+	//DOWN = 4;
+
+	/// 맞춤 판정 변수 나중에 노트 개수랑 맞춰주기
+	// 4 는 좌우상하 키 개수, 100 은 노트 개수
+	static bool isGood[4][100];
+	static bool isMiss[4][100];	
+	
+	
+	if (y >= 2 && y <= 5)
 	{
-		if (NotecurPos_l[i].Y >= 1 && NotecurPos_l[i].Y <= 9)
+		if (GetKeyTable(key)&&!isGood[key][i])
 		{
-			if (GetKeyTable(LEFT))
-			{
-				SetKeyTable(LEFT, false);
-				good = true;
-				setColor(color_green, color_red);
-				ScreenPrint(100, 2, 'GOOD', 4);
-			}
+			SetKeyTable(key, false);
+			isGood[key][i] = true;
+			setColor(color_green, color_red);
+			ScreenPrint(100, 2, 'DOOG', 4);
+			combo++;
+		}
+		/*if (isGood)
+		{
+			SetKeyTable(LEFT, false);
+			setColor(color_green, color_red);
+			ScreenPrint(100, 2, 'GOOD', 4);
+		}*/
+
+		else
+		{
+			SetKeyTable(key, false);
 		}
 	}
 
+	else if (y < 2 && !isGood[key][i] && !isMiss[key][i])
+	{
+		
+		{
+			missCount++;
+
+			setColor(color_green, color_red);
+			ScreenPrint(100, 3, 'SSiM', 4);
+			isMiss[key][i] = true;
+			isGood[key][i] = false;
+		}
+		
+	}
+	
+	// 콤보, 미스 개수 확인 출력용 코드
+	{
+		char convertMiss[20] = { 0 };
+		char convertCombo[20] = { 0 };
+
+		snprintf(convertCombo, sizeof(convertCombo), "%d", combo);
+		const char* constCombo = convertCombo;
+
+
+		snprintf(convertMiss, sizeof(convertMiss), "%d", missCount);
+		const char* constMiss = convertMiss;
+		setColor(color_yellow, color_blue);
+
+		ScreenPrint(90, 4, 'MOC', 3);
+		ScreenPrint(90, 6, 'SSIM', 4);
+		for (int i = 0; i < 5; i++)
+		{
+			ScreenPrint(100 + i, 4, convertCombo[i], 1);
+			ScreenPrint(100 + i, 6, convertMiss[i], 1);
+		}
+	}
+	
+	
+	// 판정 값 반환해서 노트 포지션 함수에서 노트 출력 지우는데에 쓰자
+	return isGood[key][i];
 }
 
 
+
+
+///
+/// 04.21
+/// hp 게이지 & 점수 계산
+/// 
 
 
 
@@ -946,9 +1095,12 @@ int main()
 	// game setting
 	initConsole();
 	InitTime();
+	SetNotePosition(45);
 	//system("cls");
 	FindAsciiArt(asciiArtFilePath1, 10, 0);
-	//FindAsciiArt(asciiArtFilePath2, 10, 1);
+	FindAsciiArt(asciiArtFilePath2, 10, 1);	
+	
+	
 	// title & menu
 	while (1)
 	{
@@ -961,14 +1113,16 @@ int main()
 		{
 			UpdateTime();
 			UpdateInput();
-			
 
 			UpdateRender();
 
 		}
-		// 동적할당 해제
-		CloseAsciiFile(asciiArt, 10);
+		
+		
 	}
+	// 동적할당 해제
+	CloseAsciiFile(asciiArt[0], 10);
+	CloseAsciiFile(asciiArt[1], 10);
 
 	
 }
