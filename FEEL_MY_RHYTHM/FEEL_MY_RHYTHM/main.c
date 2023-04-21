@@ -114,6 +114,20 @@ void ScreenClear()
 	FillConsoleOutputAttribute(GetScreenHandle(), wColors, dwConSize, coordScreen, &dwConSize);
 }
 
+void ScreenClear1(int text_color, int back_color)
+{
+	COORD coordScreen = { 0, 0 };
+	DWORD dwConSize;
+
+
+	// 콘솔 창을 공백으로 채우기
+	FillConsoleOutputCharacterW(GetScreenHandle(), L' ', dwConSize, coordScreen, &dwConSize);
+
+	// 색상 속성을 지정하여 콘솔 창을 지우기
+	WORD wColors = ((WORD)back_color << 4) | (WORD)text_color; // 흰색 글자색, 검정 배경색
+	FillConsoleOutputAttribute(GetScreenHandle(), wColors, dwConSize, coordScreen, &dwConSize);
+}
+
 //void ScreenClear()
 //{
 //	COORD coor = { 0,0 };
@@ -657,10 +671,10 @@ void InitTime()
 
 void UpdateTime()
 {
-	previousTime = currentTime;
 	currentTime = GetTickCount64();
-
 	deltaTime = currentTime - previousTime;
+	previousTime = currentTime;
+	
 }
 
 //
@@ -856,7 +870,7 @@ void UpdateRender()
 	
 	static int i = 0;
 	static int j = 0;
-
+	
 	if (elapsedTime >= runningSpeed)
 	{
 		// 이전 출력 내용을 지운다
@@ -975,6 +989,94 @@ void CloseAsciiFile(char** asciiArt, int n)
 
 
 
+///
+/// 타이틀 메뉴 출력
+/// (10,2)
+
+// 타이틀 아스키를 출력하는 함수입니다.
+void PrintTitle(int posx, int posy)
+{
+	char* print_temp;
+	FILE* rfp;
+	errno_t err = fopen_s(&rfp, "FMR_title.txt", "rt");
+	print_temp = (char*)malloc(sizeof(char) * 3000);
+
+	int x = posx;
+	int y = posy;
+	static int color = color_blue;
+	int index = 0;
+
+	
+
+	if (err != 0)
+	{
+		//printf("파일 불러오기에 실패했습니다.\n");
+		exit(1);
+	}
+	// 마지막 문자에 널문자 추가
+	int readSize = fread(print_temp, sizeof(char), 3000, rfp);
+	print_temp[readSize] = '\0';
+	fclose(rfp);
+	
+	color = (color + 1) % 12 + 1;
+	while (print_temp[index] != '\0')
+	{
+		color = (color + 1) % 12 + 1;
+		setColor(color_black, color);
+		
+		ScreenPrint(x, y, print_temp[index++], 1);
+		x++;
+		if (print_temp[index] == '\n')
+		{
+			x = posx;
+			//index++;
+			y++;   // 다음 줄로 이동할 때마다 증가
+			//setColor(color_black, color);
+			//ScreenPrint(x, y, NULL, 0);
+		}
+	}
+	//puts("");
+
+	//
+}
+
+
+void TitleAnim()
+{
+	static ULONGLONG elapsedTime;
+	elapsedTime += deltaTime;
+
+	if (elapsedTime >= runningSpeed)
+	{
+		ScreenClear();
+
+		PrintTitle(20, 2);
+
+		ScreenFlipping();
+
+		elapsedTime -= runningSpeed;
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1036,7 +1138,9 @@ bool HitBox(int y, int i, int key)
 
 	else if (y < 2 && !isGood[key][i] && !isMiss[key][i])
 	{
-		
+		// 미스이펙트 넣고싶당...
+		//ScreenClear1(color_white, color_dark_purple);
+		//ScreenClear1(color_white, color_dark_purple);
 		{
 			missCount++;
 
@@ -1078,13 +1182,22 @@ bool HitBox(int y, int i, int key)
 
 
 
+
+
 ///
 /// 04.21
 /// hp 게이지 & 점수 계산
 /// 
 
 
+void gLoop()
+{
+	UpdateTime();
+	UpdateInput();
 
+	UpdateRender();
+
+}
 
 
 
@@ -1101,22 +1214,19 @@ int main()
 	FindAsciiArt(asciiArtFilePath2, 10, 1);	
 	
 	
+	
 	// title & menu
 	while (1)
 	{
 		// title & title sound
-
+		TitleAnim();
+		UpdateTime();
 
 
 		// if game started - game song
-		while (1)
-		{
-			UpdateTime();
-			UpdateInput();
-
-			UpdateRender();
-
-		}
+		//InitTime();
+		//gLoop();
+		
 		
 		
 	}
