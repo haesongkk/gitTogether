@@ -38,8 +38,11 @@ void UpdateInput()
 
 	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
 	{
+		
 		SetKeyTable(SPACE, true);
+		
 	}
+
 
 	//static bool tempL;
 	//static bool isDownL;
@@ -302,4 +305,56 @@ void UpdateInput()
 	}
 
 }
+
+
+void UpdateMenuInput()
+{
+	static bool tempS;
+	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
+	{
+		if (!tempS)
+		{
+			SetKeyTable(SPACE, true);
+		}
+		tempS = true;
+	}
+	else
+	{
+		tempS = false;
+	}
+
+
+	static bool tempL;
+	if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+	{
+		if (!tempL)
+		{
+			SetKeyTable(LEFT, true);
+		}
+		tempL = true;
+	}
+	else
+	{
+		tempL = false;
+	}
+
+
+	static bool tempR;
+	if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+	{
+		if (!tempR)
+		{
+			SetKeyTable(RIGHT, true);
+		}
+		tempR = true;
+	}
+	else
+	{
+		tempR = false;
+	}
+
+
+}
+
+
 

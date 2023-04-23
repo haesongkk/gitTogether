@@ -5,14 +5,21 @@
 void ScreenDrawUpArrow(COORD pos, int color);
 void setColor(int, int);
 void ScreenDrawKeyInterface();
-void UpdateNote();
+//void UpdateNote();
+HANDLE GetScreenHandle();
 void GenerateNote();
 void UpdateNotePosition_left(int);
 void ScreenPrint(int x, int y, const char* str, int length);
-void PrintAsciiArt(char**, int , int , int , int );
+void PrintAsciiArt(char**, int , int , int , int, int);
 bool HitBox(int, int, int);
 void SetNotePosition(int );
-
+void PlayAnim1(int, int, int);
+int GetSelectedMenu();
+void DrawMenuList(int);
+void PlayAnim2(int, int, int);
+void PlayAnim3(int, int, int);
+void CopyPrintAsciiArt(int, int, int , int, int);
+void FindAsciiArt(const char* asciiArtFilePath, int fileNum, int asciiNum);
 
 /// <summary>
 /// 상하좌우 방향키 노트 

@@ -35,7 +35,7 @@ bool bScreenIndex;
 /// </summary>
 void initConsole()
 {
-	system("mode con cols=160 lines=50 | title FEEL_THE_RHYTHM");
+	//system("mode con cols=160 lines=50 | title FEEL_THE_RHYTHM");
 	// 더블 버퍼링.. 버퍼 두개 만들기
 	hScreen[0] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 	hScreen[1] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
@@ -55,6 +55,8 @@ void initConsole()
 	// 화면 사이즈 받아오기 (버퍼값 받아서 ScreenSize 에 대입)
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+	GetConsoleScreenBufferInfo(hScreen[0], &csbi);
+	GetConsoleScreenBufferInfo(hScreen[1], &csbi);
 	consoleScreenSize.Left = csbi.srWindow.Left;
 	consoleScreenSize.Right = csbi.srWindow.Right;
 	consoleScreenSize.Bottom = csbi.srWindow.Bottom;
@@ -161,18 +163,50 @@ void ScreenClear1(int text_color, int back_color)
 //}
 
 
-/// 버퍼에 그림그리기 (공백 두 칸 찍기)
+/// 버퍼에 그림그리기 (공백 두 칸 찍기) 
 void ScreenPrint(int x, int y, const char* str, int length)
 {
 	DWORD dw;	// unsigned long 구조체
 	COORD CursorPosition = { x, y };
-	//char buffer[10];
-	//sprintf_s(buffer, "%c", c);
+	
+
 
 	SetConsoleCursorPosition(GetScreenHandle(), CursorPosition);
 	// 2 는 문자열 길이
+
+	
+
+
+
 	WriteFile(GetScreenHandle(), &str, length, &dw, NULL);
 }
+
+
+///
+/// 다시 만듬
+/// 긴 문자열 출력용..gg
+void ScreenDraw(int x, int y, const char* str)
+{
+	DWORD dw;
+	COORD Cur = { x, y };
+
+	SetConsoleCursorPosition(GetScreenHandle(), Cur);
+
+	// 문자열의 길이를 for 루프를 사용하여 계산
+	int strLen = 0;
+	while (str[strLen] != '\0')
+	{
+		strLen++;
+	}
+
+	
+
+	WriteFile(GetScreenHandle(), str, strLen, &dw, NULL);
+}
+
+
+
+
 
 
 
@@ -854,9 +888,12 @@ void GenerateNote()
 //
 //}
 
+
+
 // 아스키 아트
-char** asciiArt[2];
-//char** asciiArt2;
+char** asciiArt[3];
+//char** copyAnim[5];
+
 
 
 
@@ -880,9 +917,13 @@ void UpdateRender()
 		ScreenDrawKeyInterface();
 		GenerateNote();
 		//UpdateNote();
-		
-		PrintAsciiArt(asciiArt[1], i, anim1_frame, 120, 15);
-		PrintAsciiArt(asciiArt[0], j, anim2_frame, 90, 13);
+		FindAsciiArt(asciiArtFilePath1, 10, 0);
+		FindAsciiArt(asciiArtFilePath2, 10, 2);
+		PrintAsciiArt(asciiArt[2], i, anim1_frame, 120, 15, color_dark_white);
+		PrintAsciiArt(asciiArt[0], j, anim2_frame, 90, 13, color_dark_white);
+
+		//CopyPrintAsciiArt(1, i, anim1_frame, 120, 15, color_dark_white);
+		//CopyPrintAsciiArt(0, j, anim2_frame, 90, 13, color_dark_white);
 
 		// 앞 뒤 버퍼를 뒤집는다
 		ScreenFlipping();
@@ -907,7 +948,7 @@ void UpdateRender()
 /// 애니메이션 출력
 /// 
 
-// 파일 경로, 해당 애니메이션을 출력하는데에 필요한 파일의 개수 입력받기
+// 파일 경로, 해당 애니메이션을 출력하는데에 필요한 파일의 개수, 몇번째 아스키 아트인지
 void FindAsciiArt(const char* asciiArtFilePath, int fileNum, int asciiNum)
 {
 	FILE* fp;
@@ -934,11 +975,162 @@ void FindAsciiArt(const char* asciiArtFilePath, int fileNum, int asciiNum)
 
 }
 
+size_t starlen(const char* str)
+{
+	const char* s;
+	for (s = str; *s; ++s);
+	return(s - str);
+}
 
+
+// 파일 경로, 해당 애니메이션을 출력하는데에 필요한 파일의 개수, 몇번째 아스키 아트인지
+//void CopyFindAsciiArt(const char* asciiArtFilePath, int fileNum, int asciiNum)
+//{
+//	FILE* fp;
+//	char buffer[256];
+//	//int line = 0;
+//	//int index = 0;
+//	char** asciiArt;
+//	asciiArt= (char**)malloc(sizeof(char*) * fileNum);
+//	copyAnim[asciiNum] = (char**)malloc(sizeof(char*) * fileNum);
+//
+//
+//	// n 개의 아스키 아트 파일 읽기
+//	for (int i = 0; i < fileNum; i++)
+//	{
+//		asciiArt[i] = (char*)malloc(sizeof(char) * 3000);
+//		copyAnim[asciiNum][i] = (char*)malloc(sizeof(char) * 3000);
+//		
+//
+//		snprintf(buffer, 256, "%s%d.txt", asciiArtFilePath, i);
+//		// fopen 함수는 파일 읽기를 성공하면 0을 반환한다. 때문에 0 이 아니면 파일을 읽지 못한 경우임
+//		errno_t err = fopen_s(&fp, buffer, "r");
+//		if (err != 0) {
+//			//printf("아스키 아트 파일을 찾을 수 없습니다.");
+//			exit(1);
+//		}
+//		
+//
+//		
+//	}
+//
+//	// 동적할당 해제
+//	for (int i = 0; i < fileNum; i++)
+//	{
+//		free(asciiArt[i]);
+//	}
+//	free(asciiArt);
+//
+//}
+
+
+
+
+
+
+/// 파일 경로, 해당 애니메이션을 출력하는데에 필요한 파일의 개수, 몇번째 아스키 아트인지
+//void CopyFindAsciiArt1(const char* asciiArtFilePath, int fileNum, int asciiNum, int posx, int posy)
+//{
+//	FILE* fp;
+//	char buffer[256];
+//	//int line = 0;
+//	//int index = 0;
+//	char** asciiArt;
+//	asciiArt = (char**)malloc(sizeof(char*) * fileNum);
+//	copyAnim[asciiNum] = (char**)malloc(sizeof(char*) * fileNum);
+//
+//
+//	char line[3000];
+//	int readSize = 0;
+//
+//	// n 개의 아스키 아트 파일 읽기
+//	for (int i = 0; i < fileNum; i++)
+//	{
+//		int index = 0;
+//		asciiArt[i] = (char*)malloc(sizeof(char) * 3000);
+//		copyAnim[asciiNum][i] = (char*)malloc(sizeof(char) * 3000);
+//
+//
+//		snprintf(buffer, 256, "%s%d.txt", asciiArtFilePath, i);
+//		// fopen 함수는 파일 읽기를 성공하면 0을 반환한다. 때문에 0 이 아니면 파일을 읽지 못한 경우임
+//		errno_t err = fopen_s(&fp, buffer, "r");
+//		if (err != 0) {
+//			//printf("아스키 아트 파일을 찾을 수 없습니다.");
+//			exit(1);
+//		}
+//
+//
+//		if (fp != NULL)
+//		{
+//			while (fgets(line, sizeof(line), fp) != NULL)
+//			{
+//				strcat_s(asciiArt[i], 3000, line);
+//			}
+//
+//		}
+//
+//		//int readSize = fread(asciiArt[i], sizeof(char), 3000, fp);
+//		//// 마지막에 널 문자 추가 > 이거 걍 파일 하나 당의 아스키 아트 문자 개수
+//		//asciiArt[i][readSize] = '\0'; 
+//		//int length = starlen(asciiArt[i]);
+//		//fclose(fp);
+//
+//		//memcpy(copyAnim[asciiNum][i], asciiArt[i], sizeof(char) * (length + 1));
+//		
+//		
+//		
+//
+//
+//		// 마지막에 널 문자 추가 > 이거 걍 파일 하나 당의 아스키 아트 문자 개수
+//		asciiArt[i][starlen(asciiArt[i])] = '\0';
+//		int length = starlen(asciiArt[i]);
+//
+//		memcpy(copyAnim[asciiNum][i], asciiArt[i], sizeof(char) * (length + 1));
+//		fclose(fp);
+//
+//	}
+//
+//	// 동적할당 해제
+//	for (int i = 0; i < fileNum; i++)
+//	{
+//		free(asciiArt[i]);
+//	}
+//	free(asciiArt);
+//
+//	/*int x = posx;
+//	int y = posy;*/   // 현재 출력 위치 저장
+//
+//
+//	// i = 0 부터 i = 3 은 파일의 인덱스를 의미
+//	//for (int i = 0; i < fileNum; i++)
+//	//{
+//	//	int line = 0;
+//	//	int index = 0;
+//
+//
+//	//	// while 문은 readSize 로 읽어온 아스키 문자수의 마지막에 추가한 널문자를 만나기 전까지 돌린다
+//	//	while (copyAnim[asciiNum][index] != '\0')
+//	//	{
+//	//		setColor(color_black, color_white);
+//	//		ScreenPrint(x, y, (char)copyAnim[asciiNum][index++], 1);
+//	//		x++;
+//	//		if (copyAnim[asciiNum][index] == '\n')
+//	//		{
+//	//			x = posx;
+//	//			index++;
+//	//			y++;   // 다음 줄로 이동할 때마다 증가
+//	//			ScreenPrint(x, y, NULL, 0);
+//
+//	//		}
+//	//	}
+//	//}
+//
+//
+//}
 
 
 // 버퍼에 저장된 아스키 아트를 출력한다 , 아스키 아트의 종류, 파일 개수 세는 변수, 파일 개수, x,y 좌표
-void PrintAsciiArt(char** asciiArt, int i, int n, int posx, int posy)
+void PrintAsciiArt(char** asciiArt, int i, int n, int posx, int posy, int textcolor)
 {
 
 	int x = posx;
@@ -955,7 +1147,7 @@ void PrintAsciiArt(char** asciiArt, int i, int n, int posx, int posy)
 		// while 문은 readSize 로 읽어온 아스키 문자수의 마지막에 추가한 널문자를 만나기 전까지 돌린다
 		while (asciiArt[i][index] != '\0')
 		{
-			setColor(color_black, color_dark_white);
+			setColor(color_black, textcolor);
 			ScreenPrint(x , y, asciiArt[i][index++], 1);
 			x++;
 			if (asciiArt[i][index] == '\n')
@@ -969,15 +1161,8 @@ void PrintAsciiArt(char** asciiArt, int i, int n, int posx, int posy)
 		}
 	}
 
-}
-
-
-
-// n 개의 파일에 대한 아스키 아트 해제
-void CloseAsciiFile(char** asciiArt, int n)
-{
 	// 동적할당 해제
-	for (int i = 0; i < n; i++) 
+	for (int i = 0; i < n; i++)
 	{
 		free(asciiArt[i]);
 	}
@@ -986,47 +1171,146 @@ void CloseAsciiFile(char** asciiArt, int n)
 }
 
 
+// 버퍼에 저장된 아스키 아트를 출력한다 , 아스키 아트의 종류, 파일 개수 세는 변수, 파일 개수, x,y 좌표
+//void CopyPrintAsciiArt( int i, int n, int posx, int posy, int textcolor)
+//{
+//
+//	int x = posx;
+//	int y = posy;   // 현재 출력 위치 저장
+//
+//
+//	// i = 0 부터 i = 3 은 파일의 인덱스를 의미
+//	//for (int i = 0; i < 1; i++)
+//	{
+//		int line = 0;
+//		static int index = 0;
+//		int c = 0;
+//
+//		// while 문은 readSize 로 읽어온 아스키 문자수의 마지막에 추가한 널문자를 만나기 전까지 돌린다
+//		//while (copyAnim[i][index][c] != '\0')
+//		while (true)
+//		{
+//			if (c == 1) break;
+//			setColor(color_black, textcolor);
+//			ScreenPrint(x, y, copyAnim[i][index][c], 1);
+//			x++;
+//			if (copyAnim[i][index][c] == '\n')
+//			{
+//				x = posx;
+//				c++;
+//				y++;   // 다음 줄로 이동할 때마다 증가
+//				ScreenPrint(x, y, NULL, 0);
+//
+//			}
+//		}
+//
+//		index = (index + 1) % n;
+//	}
+//
+//
+//}
 
 
 
-///
-/// 타이틀 메뉴 출력
-/// (10,2)
 
-// 타이틀 아스키를 출력하는 함수입니다.
-void PrintTitle(int posx, int posy)
+
+
+
+
+
+
+
+
+
+
+
+
+
+char* copy_temp[4];
+
+/// <summary>
+/// 동적할당 메모리 복사하는 함수
+/// 혹시나 버벅버벅에 도움이 되나
+/// 왜이럴까
+/// </summary>
+/// <param name="str"></param>
+/// <param name="index"></param>
+void Copy(const char* str, int index)
 {
 	char* print_temp;
 	FILE* rfp;
-	errno_t err = fopen_s(&rfp, "FMR_title.txt", "rt");
+	errno_t err = fopen_s(&rfp, str, "rt");
 	print_temp = (char*)malloc(sizeof(char) * 3000);
+	copy_temp[index] = (char*)malloc(sizeof(char) * 3000);
 
-	int x = posx;
-	int y = posy;
-	static int color = color_blue;
-	int index = 0;
 
-	
+	// a 에 있는 값을 b로 복사한다
+	//memcpy(b, a, n * sizeof(int));
+	memcpy(copy_temp[index], print_temp, sizeof(print_temp));
 
 	if (err != 0)
 	{
 		//printf("파일 불러오기에 실패했습니다.\n");
 		exit(1);
 	}
+
 	// 마지막 문자에 널문자 추가
-	int readSize = fread(print_temp, sizeof(char), 3000, rfp);
-	print_temp[readSize] = '\0';
+	int readSize = fread(copy_temp[index], sizeof(char), 3000, rfp);
+	copy_temp[index][readSize] = '\0';
 	fclose(rfp);
+
+	free(print_temp);
+
+}
+
+
+
+
+
+
+///
+/// 
+/// 타이틀 메뉴 출력 함수
+/// 좌표는 대충 (10,2)
+
+// 타이틀 아스키를 출력하는 함수입니다.
+void DrawTitle(int posx, int posy)
+{
+	//char* print_temp;
+	//FILE* rfp;
+	//errno_t err = fopen_s(&rfp, "FMR_title.txt", "rt");
+	//print_temp = (char*)malloc(sizeof(char) * 3000);
+
+	//
+	//if (err != 0)
+	//{
+	//	//printf("파일 불러오기에 실패했습니다.\n");
+	//	exit(1);
+	//}
+	//// 마지막 문자에 널문자 추가
+	//int readSize = fread(print_temp, sizeof(char), 3000, rfp);
+	//print_temp[readSize] = '\0';
+	//fclose(rfp);
+
+	
+
+
+	int x = posx;
+	int y = posy;
+	static int color = color_blue;
+	int index = 0;
+
+
 	
 	color = (color + 1) % 12 + 1;
-	while (print_temp[index] != '\0')
+	while (copy_temp[0][index] != '\0')
 	{
 		color = (color + 1) % 12 + 1;
 		setColor(color_black, color);
 		
-		ScreenPrint(x, y, print_temp[index++], 1);
+		ScreenPrint(x, y, copy_temp[0][index++], 1);
 		x++;
-		if (print_temp[index] == '\n')
+		if (copy_temp[0][index] == '\n')
 		{
 			x = posx;
 			//index++;
@@ -1035,14 +1319,141 @@ void PrintTitle(int posx, int posy)
 			//ScreenPrint(x, y, NULL, 0);
 		}
 	}
-	//puts("");
 
-	//
+	//free(print_temp);
+	
 }
 
 
-void TitleAnim()
+
+
+/// 
+/// y=32 ~ 40, 출력 컬러 지정
+/// 아무키나 눌러 진행.. 같은걸 애니메이션으로 만들고 싶다
+void DrawSubtitle(int posx, int posy, int printcolor, int backcolor)
 {
+	// 바탕용 변수임
+	int x = posx;
+	int y = posy;
+
+	// 글씨용임
+	int x2 = posx + 15;
+	int y2 = posy + 2;
+
+
+	static ULONGLONG elapsedTime;
+	elapsedTime += deltaTime;
+
+
+	/*char* print_temp;
+	FILE* rfp;
+	errno_t err = fopen_s(&rfp, "subTitle2.txt", "rt");
+	print_temp = (char*)malloc(sizeof(char) * 5000);*/
+
+
+	int index = 0;
+
+
+	//if (err != 0)
+	//{
+	//	//printf("파일 불러오기에 실패했습니다.\n");
+	//	exit(1);
+	//}
+
+	//// 마지막 문자에 널문자 추가
+	//int readSize = fread(print_temp, sizeof(char), 5000, rfp);
+	//print_temp[readSize] = '\0';
+	//fclose(rfp);
+
+
+
+	// 회색 바탕 출력 코드
+	for (int j = 0; j <11; j++)
+	{
+		// 일단 화면 크기 확정된거 아니니까 화면 버퍼사이즈에 맞게 출력되도록 설정해놓음
+		for (int i = 0; i < consoleScreenSize.Right - consoleScreenSize.Left + 1; i++)
+		{
+			setColor(backcolor, color_white);
+			ScreenPrint(x, y, ' ', 1);
+			x++;
+		}
+		y++;
+	}
+
+
+
+	// 글자를 깜박거리게 하고싶다
+
+	// 글자 상태 변수
+	static bool setPrint = true;
+	
+	if (setPrint == true)
+	{
+		while (copy_temp[1][index] != '\0')
+		{
+			// # 문자를 공백으로 출력하는게 이쁜거같다
+			char c = copy_temp[1][index];
+
+			// # 인경우
+			if (c == '#')
+			{
+				setColor(printcolor, color_black);
+				ScreenPrint(x2, y2, ' ', 1);
+				x2++;
+			}
+			//setColor(color_gray, color_black);
+
+			// 줄바꿈이면 y 축 변경, x 축은 원래 포지션으로 이동
+			if (c == '\n')
+			{
+				x2 = posx + 12;
+				y2++;   // 다음 줄로 이동할 때마다 증가
+				setColor(backcolor, color_black);
+				ScreenPrint(x2, y2, ' ', 1);
+			}
+
+			// 기존 파일의 공백을 만나면 색바꿔서 아무것도 안보이게
+			if (c == ' ')
+			{
+				setColor(backcolor, color_black);
+				ScreenPrint(x2, y2, c, 1);
+				x2++;
+			}
+			index++;
+		}
+
+
+	}
+	// 대충 1 초 간격으로 안보임 ㅎㅎ
+	if (elapsedTime >= 1000)
+	{
+		setPrint = false;
+
+		elapsedTime -= 1000;
+	}
+	else
+	{
+		setPrint = true;
+	}
+	
+
+
+	//free(print_temp);
+
+}
+
+
+/// <summary>
+/// 타이틀에 출력될 모든 함수를 더블버퍼링 렌더
+/// </summary>
+void TitleRender(bool isPlaying)
+{
+	if (isPlaying == false)
+	{
+		return;
+	}
+
+
 	static ULONGLONG elapsedTime;
 	elapsedTime += deltaTime;
 
@@ -1050,12 +1461,128 @@ void TitleAnim()
 	{
 		ScreenClear();
 
-		PrintTitle(20, 2);
+
+
+
+		DrawTitle(20, 3);
+		DrawSubtitle(0, 35, color_dark_yellow, color_black);
+
 
 		ScreenFlipping();
 
 		elapsedTime -= runningSpeed;
 	}
+
+	
+
+}
+
+
+
+///
+/// 곡 선택 메뉴를 그리자
+/// 
+/// 해당 곡으로 커서가 이동하면
+/// 1. 멈춰있던 그 곡에 대한 아스키 아트 애니메이션이 움직이고
+/// 2. 해당 곡이 플레이되게..!
+/// 하입보이 팬클럽 하드모드 하나 더
+/// 
+
+
+int GetSelectedMenu()
+{
+	// 1~3 번 곡중 어떤 곡인지 확인하는 변수
+	static int menunumber = 1;
+
+	// 입력 값을 처리하는 부분..
+	{
+
+		if (menunumber < 1)
+		{
+			menunumber = 3;
+		}
+		if (menunumber > 3)
+		{
+			menunumber = 1;
+		}
+
+
+		if (GetKeyTable(RIGHT))
+		{
+			SetKeyTable(RIGHT, false);
+			menunumber++;
+		}
+		if (GetKeyTable(LEFT))
+		{
+			SetKeyTable(LEFT, false);
+			menunumber--;
+		}
+		if (GetKeyTable(SPACE))
+		{
+			//SetKeyTable(SPACE, false);
+			return menunumber;
+		}
+
+
+	}
+
+	return menunumber;
+}
+
+
+
+
+
+
+
+/// 만약 해당 메뉴바에 커서를 갖다대면 글자색이 바뀜 + (노래나올 예정)
+void DrawMenuList(int menunumber)
+{
+
+	static int menucolor1 = color_white;
+	static int menucolor2 = color_white;
+	static int menucolor3 = color_white;
+
+
+	if (menunumber == 1)
+	{
+		menucolor1 = color_dark_yellow;
+	}
+	else
+	{
+		menucolor1 = color_white;
+
+	}
+	if (menunumber == 2)
+	{
+		menucolor2 = color_dark_yellow;
+	}
+	else
+	{
+		menucolor2 = color_white;
+
+	}
+	if (menunumber == 3)
+	{
+		menucolor3 = color_dark_yellow;
+
+	}
+	else
+	{
+		menucolor3 = color_white;
+
+	}
+	
+
+	setColor(color_black, menucolor1);
+	ScreenDraw(15, 38, "< H Y P E  B O Y > - N E W  J E A N S");
+
+	setColor(color_black, menucolor2);
+	ScreenDraw(65, 38, "< 이 게 바 로  사 랑 일 까 ? > - 리 듬 세 상");
+
+	setColor(color_black, menucolor3);
+	ScreenDraw(125, 38, " 준 비 중 . . .");
+
 
 }
 
@@ -1064,6 +1591,178 @@ void TitleAnim()
 
 
 
+
+
+
+
+///
+/// 어떤 곡 선택했는지 리턴값으로 반환
+void DrawMenu()
+{
+
+	// 메뉴를 활성화하는 변수
+	static bool isPlaying = false;
+
+	static ULONGLONG elapsedTime;
+	elapsedTime += deltaTime;
+	
+	int menunumber = GetSelectedMenu();
+	
+	//isPlaying = true;
+
+	
+
+	if (elapsedTime >= runningSpeed)
+	{
+
+		ScreenClear();
+
+		GetSelectedMenu();
+		PlayAnim1(menunumber, 10, 3);
+		PlayAnim2(menunumber, 75, 3);
+		PlayAnim3(menunumber, 120, 10);
+		DrawMenuList(menunumber);
+
+
+		int combo = GetSelectedMenu();
+		char convertCombo[20] = { 0 };
+		snprintf(convertCombo, sizeof(convertCombo), "%d", combo);
+		const char* constCombo = convertCombo;
+
+
+		setColor(color_yellow, color_blue);
+		ScreenDraw(130, 5, constCombo);
+
+
+		ScreenFlipping();
+
+
+		elapsedTime -= runningSpeed;
+	}
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+///
+/// 팬클럽 애니 재생
+/// bool 변수는 애니를 재생하는가에 대한 변수, x y 는 좌표
+void PlayAnim2(int menunumber, int posx, int posy)
+{
+	int anim_frame = 10;
+
+	static int i = 0;
+
+	FindAsciiArt("ascii_art_", anim_frame, 0);
+	
+
+	if (menunumber == 2)
+	{
+		PrintAsciiArt(asciiArt[0], i, anim_frame, posx, posy, color_yellow);
+		//CopyPrintAsciiArt(0, anim_frame, posx, posy, color_yellow);
+		i++;
+	}
+	else
+	{
+		//CopyPrintAsciiArt(0, anim_frame, posx, posy, color_dark_white);
+		PrintAsciiArt(asciiArt[0], i, anim_frame, posx, posy, color_dark_white);
+	}
+
+	if (i == anim_frame)
+	{
+		i = 0;
+	}
+
+}
+
+
+/// 버니
+void PlayAnim1(int menunumber, int posx, int posy)
+{
+	int anim_frame = 4;
+
+	static int i = 0;
+
+	FindAsciiArt("bunny_", anim_frame, 1);
+
+
+	if (menunumber == 1)
+	{
+		PrintAsciiArt(asciiArt[1], i, anim_frame, posx, posy, color_yellow);
+		//CopyPrintAsciiArt(2, anim_frame, posx, posy, color_yellow);
+		i++;
+	}
+	else
+	{
+		//CopyPrintAsciiArt(2, anim_frame, posx, posy, color_white);
+		PrintAsciiArt(asciiArt[1], i, anim_frame, posx, posy, color_white);
+	}
+
+	if (i == anim_frame)
+	{
+		i = 0;
+	}
+
+}
+
+
+void PlayAnim3(int menunumber, int posx, int posy)
+{
+	int x = posx;
+	int y = posy;
+	//const char* str = "                                 ";
+
+
+	if (menunumber == 3)
+	{
+		setColor(color_dark_white, color_black);
+		ScreenDraw(x , y++, "                               ");
+		setColor(color_dark_white, color_black);
+		ScreenDraw(x , y++, "     개 발 팀 : 레 드 벨 벳    ");
+		setColor(color_dark_white, color_black);
+		ScreenDraw(x , y++, "                               ");
+		setColor(color_dark_white, color_black);
+		ScreenDraw(x, y++, "                               ");
+		setColor(color_dark_white, color_black);
+		ScreenDraw(x, y++, "          게  임  명           ");
+		setColor(color_dark_white, color_black);
+		ScreenDraw(x, y++, "                               ");
+		setColor(color_dark_white, color_black);
+		ScreenDraw(x , y++, " < F E E L  M Y  R H Y T H M > ");
+		setColor(color_dark_white, color_black);
+		ScreenDraw(x , y++, "                               ");
+		setColor(color_dark_white, color_black);
+		ScreenDraw(x, y++, "                               ");
+	}
+	
+
+
+}
 
 
 
@@ -1165,7 +1864,7 @@ bool HitBox(int y, int i, int key)
 		const char* constMiss = convertMiss;
 		setColor(color_yellow, color_blue);
 
-		ScreenPrint(90, 4, 'MOC', 3);
+		ScreenPrint(90, 4, 'MOC', 6);
 		ScreenPrint(90, 6, 'SSIM', 4);
 		for (int i = 0; i < 5; i++)
 		{
@@ -1190,11 +1889,9 @@ bool HitBox(int y, int i, int key)
 /// 
 
 
-void gLoop()
+void gLoop2()
 {
 	UpdateTime();
-	UpdateInput();
-
 	UpdateRender();
 
 }
@@ -1209,30 +1906,87 @@ int main()
 	initConsole();
 	InitTime();
 	SetNotePosition(45);
-	//system("cls");
-	FindAsciiArt(asciiArtFilePath1, 10, 0);
-	FindAsciiArt(asciiArtFilePath2, 10, 1);	
-	
-	
-	
+	Copy("FMR_title.txt", 0);
+	Copy("subTitle2.txt", 1);
+	//CopyFindAsciiArt("bunny_", 4, 2);
+	//CopyFindAsciiArt(asciiArtFilePath1, 10, 0);
+	//CopyFindAsciiArt(asciiArtFilePath2, 10, 1);
+
+
+	// 타이틀 출력 상태 조절 변수
+	bool bTitle = true;
+
+	// 선택지 저장 변수
+	int selectedNum = GetSelectedMenu();
+
+
 	// title & menu
 	while (1)
 	{
 		// title & title sound
-		TitleAnim();
 		UpdateTime();
+		UpdateMenuInput();
+		TitleRender(bTitle);
 
+		if (GetKeyTable(SPACE))
+		{
+			SetKeyTable(SPACE, false);
+			// 동적할당 해제
+			free(copy_temp[0]);
+			free(copy_temp[1]);
+			break;
+		}
 
-		// if game started - game song
-		//InitTime();
-		//gLoop();
-		
-		
-		
 	}
-	// 동적할당 해제
-	CloseAsciiFile(asciiArt[0], 10);
-	CloseAsciiFile(asciiArt[1], 10);
+
+	// menu
+	while (1)
+	{
+
+		UpdateTime();
+		UpdateMenuInput();
+
+		DrawMenu();
+		if (GetKeyTable(SPACE))
+		{
+			selectedNum = GetSelectedMenu();
+			SetKeyTable(SPACE, false);
+			break;
+		}
+
+	}
+
+	switch (selectedNum)
+	{
+	case 1:
+		// gLoop1
+		break;
+		
+	case 2:
+
+		
+
+
+		while (1)
+		{
+			UpdateTime();
+			UpdateInput();
+
+			
+			gLoop2();
+
+		}
+
+		break;
+
+	}
+
+
+	// if game started - game song 1
+	//InitTime();
+	//FindAsciiArt(asciiArtFilePath1, 10, 0);
+	//FindAsciiArt(asciiArtFilePath2, 10, 1);
+	//gLoop();
 
 	
 }
