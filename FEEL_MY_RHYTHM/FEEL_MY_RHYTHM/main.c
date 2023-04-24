@@ -3,8 +3,7 @@
 #define COLUMN_SIZE 50
 #include "input.h"
 #include "main.h"
-
-//using namespace std;
+#include "audio.h"
 
 
 
@@ -27,6 +26,28 @@ SMALL_RECT _UImaxSize;
 // 버퍼(화면) 2개 설정
 HANDLE hScreen[2];
 bool bScreenIndex;
+
+// 디버그용 수치 기록 버퍼
+int g_ms_ForDebugA[255] = { 0, };
+int g_ms_ForDebugAd[255] = { 0, };
+
+int g_ms_ForDebugB[255] = { 0, };
+int g_ms_ForDebugBd[255] = { 0, };
+
+int g_ms_ForDebug2[255] = { 0, };
+int g_ms_ForDebug2d[255] = { 0, };
+
+ULONGLONG g_ms_ForDebug_OriginalElaspedTime[10000] = { 0, };
+
+
+
+// song1 용 elapsed Time
+ULONGLONG g_elapsedTimeA = 0;
+ULONGLONG g_elapsedTimeB = 0;
+
+ULONGLONG g_elapsedTime_Note = 0;
+
+ULONGLONG g_deltaTime = 0;
 
 
 /// <summary>
@@ -67,10 +88,12 @@ void initConsole()
 	_UImaxSize.Bottom = consoleScreenSize.Bottom - 2;
 	_UImaxSize.Top = consoleScreenSize.Top + 2;
 
-	// 화면 초기화
-	//system("cls");
 
+	// 변수들 초기화
+	g_elapsedTimeA = 0;
+	g_elapsedTimeB = 0;
 
+	g_elapsedTime_Note = 0;
 }
 
 HANDLE GetScreenHandle()
@@ -345,10 +368,6 @@ void DrawUpArrow(COORD pos, int color)
 	}
 }
 
-//void ScreenInfoSave(int n)
-//{
-//	memcpy(arr, )
-//}
 
 
 void ScreenDrawUpArrow(COORD pos, int color)
@@ -661,15 +680,6 @@ void ScreenDrawKeyInterface()
 
 
 
-void Interface()
-{
-
-
-}
-
-
-
-
 ///
 /// 노트 출력, 이동
 
@@ -677,6 +687,7 @@ void Interface()
 /// 일정한 시간마다 업데이트를 하도록 하자
 /// deltaTime 
 ///
+
 
 // 시작 시간
 ULONGLONG startTime;
@@ -691,6 +702,8 @@ ULONGLONG deltaTime;
 const ULONGLONG runningSpeed = 50;		// 0.01 초
 const ULONGLONG BPM = 120;				// 대충 120 bpm 기준이면?
 const ULONGLONG noteSpeed = 100;
+
+int g_countU = 0;
 
 
 /// <summary>
@@ -708,7 +721,9 @@ void UpdateTime()
 	currentTime = GetTickCount64();
 	deltaTime = currentTime - previousTime;
 	previousTime = currentTime;
-	
+
+	g_ms_ForDebug_OriginalElaspedTime[g_countU] = deltaTime;
+	g_countU++;
 }
 
 //
@@ -753,7 +768,6 @@ void UpdateNotePosition_left(int i)
 		}*/
 		return;
 	}
-
 	// 마지막 인덱스에 2를 넣어서 키 입력을 막아버린다
 	else 
 	{
@@ -842,36 +856,38 @@ void UpdateNotePosition_right(int i)
 
 
 /// <summary>
-///  ㅋㅋ 노트 인덱스 전역변수 때리기
+///  노트 생성 부분
 /// </summary>
-int note_Index = 0;
+
 
 
 void GenerateNote()
 {
-	static ULONGLONG elapsedTime;
-	elapsedTime += deltaTime;
+	g_elapsedTime_Note += deltaTime;
 
-	ULONGLONG barTime = 60000 / BPM * 4;
-	ULONGLONG noteInterval = barTime / 16;
+	/// 대체 무슨 일이 있었던 것인가?
+	// 카운팅용 스태틱
+	static int _count_Note = 0;
 
+	g_ms_ForDebug2[_count_Note] = g_elapsedTime_Note;
+	g_ms_ForDebug2d[_count_Note] = deltaTime;
+	_count_Note++;
 	
-	
+	ULONGLONG barTime = 60000 / BPM * 4;			// bpm = 120
+	ULONGLONG noteInterval = barTime / 16;			// interval = 125
+
+	int note_Index;
 
 	for (note_Index = 0; note_Index < noteCount; note_Index++)
 	{
-		
-		if (elapsedTime >= noteInterval * note_Index)
+		if (g_elapsedTime_Note >= noteInterval * note_Index)
 		{
 			UpdateNotePosition_left(note_Index);
 			UpdateNotePosition_down(note_Index);
 			UpdateNotePosition_up(note_Index);
 			UpdateNotePosition_right(note_Index);
-			
 		}
-		
 	}
-	
 }
 
 
@@ -897,19 +913,29 @@ char** asciiArt[3];
 
 
 
-/// 렌더 (직접적인 출력 부분) 뒷 버퍼 기준
-void UpdateRender()
+/// 렌더 - 팬클럽 (직접적인 출력 부분) 뒷 버퍼 기준
+void UpdateRender_Song2()
 {
 	int anim1_frame = 10;
 	int anim2_frame = 10;
-	static ULONGLONG elapsedTime;
-	elapsedTime += deltaTime;
+
+	g_elapsedTimeB += deltaTime;
 	
+	// 애니메이션 프레임 조절 변수
 	static int i = 0;
 	static int j = 0;
+
+	// 카운팅용 스태틱
+	static int _countB = 0;
 	
-	if (elapsedTime >= runningSpeed)
+	if (g_elapsedTimeB >= runningSpeed)
 	{
+		/// 대체 무슨 일이 있었던 것인가?
+		g_ms_ForDebugB[_countB] = g_elapsedTimeB;
+		g_ms_ForDebugBd[_countB] = deltaTime;
+
+		_countB++;
+
 		// 이전 출력 내용을 지운다
 		ScreenClear();
 
@@ -928,7 +954,7 @@ void UpdateRender()
 		// 앞 뒤 버퍼를 뒤집는다
 		ScreenFlipping();
 
-		elapsedTime -= runningSpeed;
+		g_elapsedTimeB -= runningSpeed;
 		i++;
 		j++;
 	}
@@ -941,6 +967,54 @@ void UpdateRender()
 		j = 0;
 	}
 	
+}
+
+
+
+/// 렌더 - 뉴진스의 무언가 (직접적인 출력 부분) 뒷 버퍼 기준
+void UpdateRender_Song1()
+{
+	int anim1_frame = 4;
+
+	g_elapsedTimeA += deltaTime;
+
+	// 애니 프레임 조절 변수
+	static int i = 0;
+
+	// 카운팅용 스태틱
+	static int _countA = 0;
+
+	if (g_elapsedTimeA >= runningSpeed)
+	{
+		/// 대체 무슨 일이 있었던 것인가?
+		g_ms_ForDebugA[_countA] = g_elapsedTimeA;
+		g_ms_ForDebugAd[_countA] = deltaTime;
+
+		_countA++;
+
+		// 이전 출력 내용을 지운다
+		ScreenClear();
+
+		// 새로 출력할 내용을 작성한다
+		ScreenDrawKeyInterface();
+		GenerateNote();
+		//UpdateNote();
+		FindAsciiArt("bunny_", anim1_frame, 3);
+		PrintAsciiArt(asciiArt[3], i, anim1_frame, 100, 10, color_white);
+
+		// 앞 뒤 버퍼를 뒤집는다
+		ScreenFlipping();
+
+		g_elapsedTimeA -= runningSpeed;
+		i++;
+
+	}
+	if (i == anim1_frame)
+	{
+		i = 0;
+	}
+
+
 }
 
 
@@ -1397,8 +1471,9 @@ void DrawSubtitle(int posx, int posy, int printcolor, int backcolor)
 			// # 인경우
 			if (c == '#')
 			{
-				setColor(printcolor, color_black);
+				setColor(printcolor, color_dark_yellow);
 				ScreenPrint(x2, y2, ' ', 1);
+				//ScreenDraw(x2, y2, "#");
 				x2++;
 			}
 			//setColor(color_gray, color_black);
@@ -1526,6 +1601,7 @@ int GetSelectedMenu()
 
 	}
 
+	// 여기서 몇번곡을 선택했는가를 받아간다
 	return menunumber;
 }
 
@@ -1619,19 +1695,19 @@ void DrawMenu()
 
 		GetSelectedMenu();
 		PlayAnim1(menunumber, 10, 3);
-		PlayAnim2(menunumber, 75, 3);
+		PlayAnim2(menunumber, 70, 6);
 		PlayAnim3(menunumber, 120, 10);
 		DrawMenuList(menunumber);
 
 
-		int combo = GetSelectedMenu();
-		char convertCombo[20] = { 0 };
-		snprintf(convertCombo, sizeof(convertCombo), "%d", combo);
-		const char* constCombo = convertCombo;
+		int menuTest = GetSelectedMenu();
+		char convertMenuTest[20] = { 0 };
+		snprintf(convertMenuTest, sizeof(convertMenuTest), "%d", menuTest);
+		const char* constMenuTest = convertMenuTest;
 
 
 		setColor(color_yellow, color_blue);
-		ScreenDraw(130, 5, constCombo);
+		ScreenDraw(130, 5, constMenuTest);
 
 
 		ScreenFlipping();
@@ -1678,7 +1754,7 @@ void PlayAnim2(int menunumber, int posx, int posy)
 
 	static int i = 0;
 
-	FindAsciiArt("ascii_art_", anim_frame, 0);
+	FindAsciiArt("ascii_art_ ", anim_frame, 0);
 	
 
 	if (menunumber == 2)
@@ -1892,7 +1968,69 @@ bool HitBox(int y, int i, int key)
 void gLoop2()
 {
 	UpdateTime();
-	UpdateRender();
+	//UpdateInput();
+	UpdateRender_Song2();
+
+}
+
+
+
+void gLoop1()
+{
+	UpdateTime();
+	//UpdateInput();
+	UpdateRender_Song1();
+
+}
+
+
+void TitleLoop()
+{
+	UpdateTime();
+	UpdateMenuInput();
+	TitleRender(true);
+}
+
+
+void MenuLoop()
+{
+	UpdateTime();
+	UpdateMenuInput();
+	DrawMenu();
+}
+
+
+/// 번호에 따른 씬을 출력한다
+void BG_Draw(int selectedNum)
+{
+	// define 으로
+	// TITLE_SCENE 0
+	// MENU_SCENE 1
+	// INGAME_1_SCENE 2
+	// INGAME_1_SCENE 3
+
+
+	switch (selectedNum)
+	{
+		case 0:
+			TitleLoop();
+			break;
+
+		case 1:
+			MenuLoop();
+			break;
+
+		case 2:
+			gLoop1();
+			break;
+
+		case 3:
+			gLoop2();
+
+
+		default:
+			break;
+	}
 
 }
 
@@ -1902,15 +2040,25 @@ void gLoop2()
 
 int main()
 {
-	// game setting
+	/// 초기화
+	// 콘솔 세팅
 	initConsole();
+	// 시간 초기화
 	InitTime();
+
+	// 오디오 시스템
+	AudioSystem();
+	// 오디오 생성
+	AudioCreate("Assets/fanclub.mp3", &fanclub);
+	AudioCreate("Assets/hihat.mp3", &sound2);
+	AudioPlay(fanclub, channel);
+	
+
+	// 노트 위치 초기화
 	SetNotePosition(45);
+	// 타이틀에 출력할 아스키 아트 복사
 	Copy("FMR_title.txt", 0);
 	Copy("subTitle2.txt", 1);
-	//CopyFindAsciiArt("bunny_", 4, 2);
-	//CopyFindAsciiArt(asciiArtFilePath1, 10, 0);
-	//CopyFindAsciiArt(asciiArtFilePath2, 10, 1);
 
 
 	// 타이틀 출력 상태 조절 변수
@@ -1959,9 +2107,14 @@ int main()
 	switch (selectedNum)
 	{
 	case 1:
-		// gLoop1
+		while (1)
+		{
+			
+			gLoop1();
+
+		}
+
 		break;
-		
 	case 2:
 
 		
@@ -1969,9 +2122,6 @@ int main()
 
 		while (1)
 		{
-			UpdateTime();
-			UpdateInput();
-
 			
 			gLoop2();
 
@@ -1980,13 +2130,6 @@ int main()
 		break;
 
 	}
-
-
-	// if game started - game song 1
-	//InitTime();
-	//FindAsciiArt(asciiArtFilePath1, 10, 0);
-	//FindAsciiArt(asciiArtFilePath2, 10, 1);
-	//gLoop();
-
+	
 	
 }

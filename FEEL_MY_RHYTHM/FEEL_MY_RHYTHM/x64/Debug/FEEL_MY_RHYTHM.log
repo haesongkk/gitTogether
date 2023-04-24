@@ -1,36 +1,44 @@
 ﻿  main.c
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(370,47): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(370,43): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(406,47): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(406,43): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(441,51): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(441,47): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(477,51): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(477,47): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(971,18): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1151,43): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'char'과(와) 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1151,34): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1258,17): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1311,42): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'char'과(와) 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1311,33): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1377,25): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1377,22): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1401,28): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1401,25): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1412,28): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1412,25): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1419,26): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'char'과(와) 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1419,25): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1822,30): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1822,24): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1847,30): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1847,24): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1867,27): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1867,22): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1868,28): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1868,22): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1871,43): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'char'과(와) 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1871,40): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1872,42): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'char'과(와) 다릅니다.
-D:\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1872,39): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
-  FEEL_MY_RHYTHM.vcxproj -> D:\gitTogether\FEEL_MY_RHYTHM\x64\Debug\FEEL_MY_RHYTHM.exe
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(389,47): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(389,43): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(425,47): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(425,43): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(460,51): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(460,47): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(496,51): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(496,47): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(872,32): warning C4244: '=': 'ULONGLONG'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(873,33): warning C4244: '=': 'ULONGLONG'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(934,29): warning C4244: '=': 'ULONGLONG'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(935,30): warning C4244: '=': 'ULONGLONG'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(990,29): warning C4244: '=': 'ULONGLONG'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(991,30): warning C4244: '=': 'ULONGLONG'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1045,18): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1225,43): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'char'과(와) 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1225,34): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1332,17): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1385,42): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'char'과(와) 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1385,33): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1451,25): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1451,22): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1475,28): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1475,25): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1487,28): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1487,25): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1494,26): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'char'과(와) 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1494,25): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1898,30): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1898,24): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1923,30): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1923,24): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1943,27): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1943,22): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1944,28): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'int'과(와) 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1944,22): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1947,43): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'char'과(와) 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1947,40): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1948,42): warning C4047: '함수': 'const char *'의 간접 참조 수준이 'char'과(와) 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(1948,39): warning C4024: 'ScreenPrint': 형식 및 실제 매개 변수 3의 형식이 서로 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(2054,28): warning C4047: '함수': 'FMOD_CHANNEL **'의 간접 참조 수준이 'FMOD_CHANNEL *'과(와) 다릅니다.
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\FEEL_MY_RHYTHM\main.c(2054,21): warning C4024: 'AudioPlay': 형식 및 실제 매개 변수 2의 형식이 서로 다릅니다.
+  FEEL_MY_RHYTHM.vcxproj -> C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\x64\Debug\FEEL_MY_RHYTHM.exe

@@ -1,3 +1,4 @@
 ﻿  ssss.c
-C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\test\ssss.c(25,18): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  test.vcxproj -> C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\x64\Debug\test.exe
+C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppCommon.targets(1096,5): error MSB6006: "link.exe"이(가) 종료되었습니다(코드: 1120).
+MSVCRTD.lib(exe_main.obj) : error LNK2019: main"int __cdecl invoke_main(void)" (?invoke_main@@YAHXZ) 함수에서 참조되는 확인할 수 없는 외부 기호
+C:\Users\User\Documents\GitHub\gitTogether\FEEL_MY_RHYTHM\x64\Debug\test.exe : fatal error LNK1120: 1개의 확인할 수 없는 외부 참조입니다.
