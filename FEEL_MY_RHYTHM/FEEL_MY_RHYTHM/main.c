@@ -27,27 +27,35 @@ SMALL_RECT _UImaxSize;
 HANDLE hScreen[2];
 bool bScreenIndex;
 
+
 // 디버그용 수치 기록 버퍼
-int g_ms_ForDebugA[255] = { 0, };
-int g_ms_ForDebugAd[255] = { 0, };
+ULONGLONG g_ms_ForDebugA[255] = { 0, };
+ULONGLONG g_ms_ForDebugAd[255] = { 0, };
 
-int g_ms_ForDebugB[255] = { 0, };
-int g_ms_ForDebugBd[255] = { 0, };
+ULONGLONG g_ms_ForDebugB[255] = { 0, };
+ULONGLONG g_ms_ForDebugBd[255] = { 0, };
 
-int g_ms_ForDebug2[255] = { 0, };
-int g_ms_ForDebug2d[255] = { 0, };
+ULONGLONG g_ms_ForDebug2[255] = { 0, };
+ULONGLONG g_ms_ForDebug2d[255] = { 0, };
 
 ULONGLONG g_ms_ForDebug_OriginalElaspedTime[10000] = { 0, };
 
 
-
 // song1 용 elapsed Time
+//ULONGLONG g_elapsedTimeA = 0;
+//ULONGLONG g_elapsedTimeB = 0;
+//
+//ULONGLONG g_elapsedTime_Note = 0;
+//
+//ULONGLONG g_deltaTime = 0;
+
 ULONGLONG g_elapsedTimeA = 0;
 ULONGLONG g_elapsedTimeB = 0;
-
 ULONGLONG g_elapsedTime_Note = 0;
-
 ULONGLONG g_deltaTime = 0;
+
+
+
 
 
 /// <summary>
@@ -95,6 +103,9 @@ void initConsole()
 
 	g_elapsedTime_Note = 0;
 }
+
+
+
 
 HANDLE GetScreenHandle()
 {
@@ -153,37 +164,6 @@ void ScreenClear1(int text_color, int back_color)
 	FillConsoleOutputAttribute(GetScreenHandle(), wColors, dwConSize, coordScreen, &dwConSize);
 }
 
-//void ScreenClear()
-//{
-//	COORD coor = { 0,0 };
-//	DWORD dw;
-//
-//	FillConsoleOutputCharacterW(GetScreenHandle(), L' ', dw, coor, &dw);
-//	WORD wColors = ((WORD)0 << 4) | (WORD)15; // 흰색 글자색, 검정 배경색
-//	FillConsoleOutputAttribute(GetScreenHandle(), wColors, dw, coor, &dw);
-//		//문자 수가 화면 버퍼에서 지정된 행의 끝 이상으로 확장되면 다음행에 기록된다(자동으로 다음행으로 넘어가는듯)
-//		//버퍼보다 문자 수가 큰 경우는 버퍼의 끝 까지만 기록된다
-//		//작성된 위치의 특성 값은 변경되지 않는다(? ? ) 색 변경이 안되는건가
-//	FillConsoleOutputCharacter(GetScreenHandle(), 'a', 180 * 60, coor, &dw);
-//
-//
-//	FillConsoleOutputCharacter(GetScreenHandle(), ' ', 180 * 60, coor, &dw);
-//
-//	 ////[가로줄에 전부 공백 채우기] 를 세로줄 개수만큼 돌림
-//		//for (int i = 0; i < COLUMN_SIZE; i++)
-//		//{
-//		//	coor.Y = i;
-//		//	//공백을 화면크기만큼 입력해줘야함;;
-//		//	for (int j = 0; j < ROW_SIZE; j++)
-//		//	{
-//		//		setColor(color_yellow, color_blue);
-//		//		ScreenPrint(j, i, ' ', 1);
-//		//	}
-//
-//		//	FillConsoleOutputCharacter(GetScreenHandle(), 'a', _UImaxSize.Right - _UImaxSize.Left + 5, coor, &dw);
-//		//}
-//
-//}
 
 
 /// 버퍼에 그림그리기 (공백 두 칸 찍기) 
@@ -230,20 +210,12 @@ void ScreenDraw(int x, int y, const char* str)
 
 
 
-
-
-
-
 /// 버퍼 닫기
 void ScreenRelease()
 {
 	CloseHandle(hScreen[0]);
 	CloseHandle(hScreen[1]);
 }
-
-
-
-
 
 
 
@@ -267,10 +239,10 @@ void gotoXY(int x, int y)
 /// 노트 카운트, 노트 초기위치 초기화
 /// 
 
-COORD NotecurPos_l[17];
-COORD NotecurPos_d[17];
-COORD NotecurPos_u[17];
-COORD NotecurPos_r[17];
+COORD NotecurPos_l[20];
+COORD NotecurPos_d[20];
+COORD NotecurPos_u[20];
+COORD NotecurPos_r[20];
 
 
 
@@ -296,20 +268,12 @@ void SetNotePosition(int y)
 
 
 
-
-
-
-
 ///
 /// 04. 10
 /// 인풋 값을 받으면
 /// 색칠이 되는 UI
 /// 거의 전체화면
 /// 
-
-
-
-
 
 
 
@@ -698,6 +662,11 @@ ULONGLONG currentTime;
 // 이전시간 - 현재시간
 ULONGLONG deltaTime;
 
+//double startTime;
+//double currentTime;
+//double previousTime;
+//double deltaTime;
+
 
 const ULONGLONG runningSpeed = 50;		// 0.01 초
 const ULONGLONG BPM = 120;				// 대충 120 bpm 기준이면?
@@ -712,18 +681,19 @@ int g_countU = 0;
 void InitTime()
 {
 	// 델타타임 초기화 = 0 (누적시간 0)
-	startTime = currentTime = previousTime = GetTickCount64();
+	//startTime = currentTime = previousTime = GetTickCount64();
+	startTime = currentTime = previousTime = timeGetTime();
 	// 1ms 단위로 반환
 }
 
 void UpdateTime()
 {
-	currentTime = GetTickCount64();
+	currentTime = timeGetTime();
+	//currentTime = GetTickCount64();
 	deltaTime = currentTime - previousTime;
 	previousTime = currentTime;
-
-	g_ms_ForDebug_OriginalElaspedTime[g_countU] = deltaTime;
-	g_countU++;
+	//g_ms_ForDebug_OriginalElaspedTime[g_countU] = deltaTime;
+	//g_countU++;
 }
 
 //
@@ -869,41 +839,28 @@ void GenerateNote()
 	// 카운팅용 스태틱
 	static int _count_Note = 0;
 
-	g_ms_ForDebug2[_count_Note] = g_elapsedTime_Note;
-	g_ms_ForDebug2d[_count_Note] = deltaTime;
-	_count_Note++;
+	//g_ms_ForDebug2[_count_Note] = g_elapsedTime_Note;
+	//g_ms_ForDebug2d[_count_Note] = deltaTime;
+	//_count_Note++;
 	
+
 	ULONGLONG barTime = 60000 / BPM * 4;			// bpm = 120
 	ULONGLONG noteInterval = barTime / 16;			// interval = 125
+	
 
 	int note_Index;
 
 	for (note_Index = 0; note_Index < noteCount; note_Index++)
 	{
-		if (g_elapsedTime_Note >= noteInterval * note_Index)
+		if ((g_elapsedTime_Note >= noteInterval * note_Index * 0.5))
 		{
 			UpdateNotePosition_left(note_Index);
 			UpdateNotePosition_down(note_Index);
 			UpdateNotePosition_up(note_Index);
 			UpdateNotePosition_right(note_Index);
 		}
-	}
+	} 
 }
-
-
-//void UpdateNote()
-//{
-//	static ULONGLONG elapsedTime;
-//	elapsedTime += deltaTime;
-//
-//	if (elapsedTime >= noteSpeed)
-//	{
-//		GenerateNote();
-//		elapsedTime -= noteSpeed;
-//	}
-//
-//}
-
 
 
 // 아스키 아트
@@ -984,6 +941,8 @@ void UpdateRender_Song1()
 	// 카운팅용 스태틱
 	static int _countA = 0;
 
+	int note_Index;
+
 	if (g_elapsedTimeA >= runningSpeed)
 	{
 		/// 대체 무슨 일이 있었던 것인가?
@@ -996,9 +955,12 @@ void UpdateRender_Song1()
 		ScreenClear();
 
 		// 새로 출력할 내용을 작성한다
+
+		// 노트 출력에 관한
 		ScreenDrawKeyInterface();
 		GenerateNote();
-		//UpdateNote();
+
+		// 아스키 애니메이션에 관한
 		FindAsciiArt("bunny_", anim1_frame, 3);
 		PrintAsciiArt(asciiArt[3], i, anim1_frame, 100, 10, color_white);
 
@@ -1415,7 +1377,7 @@ void DrawSubtitle(int posx, int posy, int printcolor, int backcolor)
 	int y2 = posy + 2;
 
 
-	static ULONGLONG elapsedTime;
+	static float elapsedTime;
 	elapsedTime += deltaTime;
 
 
@@ -1529,7 +1491,7 @@ void TitleRender(bool isPlaying)
 	}
 
 
-	static ULONGLONG elapsedTime;
+	static float elapsedTime;
 	elapsedTime += deltaTime;
 
 	if (elapsedTime >= runningSpeed)
@@ -1679,7 +1641,7 @@ void DrawMenu()
 	// 메뉴를 활성화하는 변수
 	static bool isPlaying = false;
 
-	static ULONGLONG elapsedTime;
+	static float elapsedTime;
 	elapsedTime += deltaTime;
 	
 	int menunumber = GetSelectedMenu();
