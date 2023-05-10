@@ -21,8 +21,5 @@
     <ClCompile Include="ssss.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="..\FEEL_MY_RHYTHM\소스.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

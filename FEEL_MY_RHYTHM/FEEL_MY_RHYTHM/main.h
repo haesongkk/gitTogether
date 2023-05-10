@@ -1,6 +1,8 @@
 #pragma once
 #include "input.h"
 #include <string.h>
+#include <mmsystem.h>
+#pragma comment(lib, "winmm.lib")
 
 void ScreenDrawUpArrow(COORD pos, int color);
 void setColor(int, int);
@@ -26,11 +28,11 @@ void FindAsciiArt(const char* asciiArtFilePath, int fileNum, int asciiNum);
 /// *** 마지막 노트는 꼭 0과 1이 아닌 숫자로 채워야함!!!!! ***
 /// 노트 배열 크기 설정부분은 카운트 초기화 함수 위에 있삼
 /// </summary>
-int d_note[] = { 0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,2 };
-int u_note[] = { 0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,2 };
-int l_note[] = { 0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,2 };
-int r_note[] = { 0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,2 };
-
+int d_note[] = { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,2 };
+int u_note[] = { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,2 };
+int l_note[] = { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,2 };
+int r_note[] = { 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,2 };
+bool checkNote[4][20];
 
 /// <summary>
 /// 노트 카운트랑 노트 초기위치 SetNotePosition 함수에서 초기화 함

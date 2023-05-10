@@ -1,0 +1,7 @@
+﻿  InputManager.cpp
+  Study_WinAPI.cpp
+C:\Users\User\source\repos\Study_WinAPI\Study_WinAPI\Study_WinAPI.cpp(164,17): warning C4091: '': 변수를 선언하지 않으면 'WndProc::__HWND' 왼쪽은 무시됩니다.
+C:\Users\User\source\repos\Study_WinAPI\Study_WinAPI\Study_WinAPI.cpp(165,17): warning C4091: '': 변수를 선언하지 않으면 'HPEN__ *' 왼쪽은 무시됩니다.
+C:\Users\User\source\repos\Study_WinAPI\Study_WinAPI\Study_WinAPI.cpp(166,19): warning C4091: '': 변수를 선언하지 않으면 'HBRUSH__ *' 왼쪽은 무시됩니다.
+  코드를 생성하고 있습니다...
+  Study_WinAPI.vcxproj -> C:\Users\User\source\repos\Study_WinAPI\x64\Debug\Study_WinAPI.exe

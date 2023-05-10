@@ -24,7 +24,7 @@
     <ClCompile Include="main.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="D:\SVN\GA2023\DataStructureAndAlgorithm Assignment\Console Mini Project\FEEL_MY_RHYTHM\5_Proejct\건네줄파일\main1.c">
+    <ClCompile Include="fmod.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,8 +35,11 @@
     <ClInclude Include="main.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="D:\SVN\GA2023\DataStructureAndAlgorithm Assignment\Console Mini Project\FEEL_MY_RHYTHM\5_Proejct\건네줄파일\menu.h">
-      <Filter>소스 파일</Filter>
+    <ClInclude Include="audio.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="menu.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
