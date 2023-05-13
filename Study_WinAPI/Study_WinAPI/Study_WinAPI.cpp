@@ -3,13 +3,17 @@
 
 #include "framework.h"
 #include "Study_WinAPI.h"
+#include "InputManager.h"
 
 #define MAX_LOADSTRING 100
+
+void UpdatePlayer();
 
 // 전역 변수:
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
+HWND hMainWnd;
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -24,6 +28,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
+
+    
 
     // TODO: 여기에 코드를 입력합니다.
 
@@ -42,20 +48,57 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
     MSG msg;
 
-    // 기본 메시지 루프입니다:
-    while (GetMessage(&msg, nullptr, 0, 0))
+    InputManager::GetInst()->InitInput();
+    UpdatePlayer();
+
+    //while (true)
     {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
+        //InputManager::GetInst()->UpdateInput();
+        
+        //if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+        //{
+        //   
+        //    {
+              //DispatchMessage(&msg);
+        //    }
+        //}
     }
 
-    return (int) msg.wParam;
+    //return (int) msg.wParam;
 }
+static int x = 10;
+static int y = 10;
+
+// 플레이어 이동
+void UpdatePlayer()
+{
+
+    while (InputManager::GetInst()->GetKeyState(KEY::LEFT) != KEY_STATE::AWAY)
+    {
+        InputManager::GetInst()->UpdateInput();
+
+        //if (InputManager::GetInst()->GetKeyState(KEY::LEFT) == KEY_STATE::TAP)
+        //{
+
+            // Device Context 만들어서 ID 를 반환
+            //HDC hdc = BeginPaint(hWnd, &ps);    // Device Context (그리기 위한)
+            // DC 의 목적지는 hWnd
+            // DC 의 펜은 기본펜(Black)
+            // DC 의 브러쉬는 기본 브러쉬(White)
 
 
+
+            // 윈도우의 핸들
+            // 윈도우의 좌표
+            // HDC
+            //Rectangle(hdc, x, y, 110, 110);
+
+            // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+            //EndPaint(hWnd, &ps);
+            //x++;
+        //}
+    }
+}
 
 //
 //  함수: MyRegisterClass()
@@ -172,10 +215,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // DC 의 브러쉬는 기본 브러쉬(White)
 
 
+
             // 윈도우의 핸들
             // 윈도우의 좌표
             // HDC
-            Rectangle(hdc, 10, 10, 110, 110);
+            //Rectangle(hdc, x, y, 110, 110);
 
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
             EndPaint(hWnd, &ps);

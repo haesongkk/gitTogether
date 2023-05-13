@@ -4,8 +4,8 @@
 #include <windows.h>
 #include <iostream>
 
-#include <vector>
-using std::vector;
+//#include <vector>
+//using std::vector;
 
 
 /// 
@@ -66,7 +66,6 @@ enum class KEY
 	B,
 	N,
 	M,
-
 	ALT,
 	CTRL,
 	LSHIFT,
@@ -77,18 +76,26 @@ enum class KEY
 	LAST,		// enum 의 끝
 };
 
-struct tKeyInfo
+struct KeyInfo
 {
-	KEY_STATE	eState;		// 키의 상태 값 (NONE, TAP, HOLD, AWAY)
-	bool		bPrevPush;		// 이전 프레임에서의 키 상태 (UP, DOWN)
+	KEY_STATE	keyState;		// 키의 상태 값 (NONE, TAP, HOLD, AWAY)
+	bool		bPreDown;		// 이전 프레임에서의 키 상태 (UP, DOWN)
 };
+
+struct MOUSESTATE
+{
+	int x;
+	int y;
+	int wheel;
+	bool left;
+	bool right;
+	bool middle;
+};
+
 
 class InputManager
 {
 public:
-	InputManager();			// 생성자 -> new 에서 불림
-	~InputManager();		// 소멸자 -> delete 에서 불림
-	
 	void InitInput();
 	void UpdateInput();
 
@@ -96,16 +103,24 @@ public:
 	// enum 키 값에 따른 상태값을 리턴한다
 	KEY_STATE GetKeyState(KEY _eKey)
 	{
-		return m_vecKey[(int)_eKey].eState;
+		return keyInfo[(int)_eKey].keyState;
 	}
 
-
+	static InputManager* GetInst();
 
 private:
-	// vector 의 인덱스가 곧 키 값을 의미하게 된다
-	vector<tKeyInfo> m_vecKey;
+	// 생성자 소멸자를 감추고 인스턴스로 접근하게..
+	InputManager();			// 생성자 -> new 에서 불림
+	~InputManager();		// 소멸자 -> delete 에서 불림
+
+	KeyInfo keyInfo[(int)KEY::LAST];
+
+	MOUSESTATE curMouse;
+	MOUSESTATE prevMouse;
 
 	// (임시) 윈도우의 포커싱을 알아내기 위한 핸들
-	HWND hMainWnd;
+	//HWND hMainWnd;
+
+	static InputManager* instance;
 };
 
