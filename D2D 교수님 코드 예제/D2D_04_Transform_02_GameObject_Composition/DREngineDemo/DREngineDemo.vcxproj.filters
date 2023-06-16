@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{fce86209-93e4-403c-8bb5-08ff23b1e94c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Traditional">
+      <UniqueIdentifier>{27dd399e-c98d-4e85-a275-68320c0eb89e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Traditional\GameObject">
+      <UniqueIdentifier>{d940c59d-c5c3-4bf2-96bb-ed1add4e979f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Traditional\Composition">
+      <UniqueIdentifier>{5b80903d-1477-488f-81f5-4a3d27681e9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Traditional\DerivedObject">
+      <UniqueIdentifier>{27f9fa0a-113f-4bf1-80ec-51e8b539ecda}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DREngineDemo.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CGameProcess.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CVECTOR2.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Traditional\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Traditional\Composition</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlayer.cpp">
+      <Filter>Traditional\DerivedObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>Traditional\Composition</Filter>
+    </ClCompile>
+    <ClCompile Include="CircleRenderer.cpp">
+      <Filter>Traditional\Composition</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CGameProcess.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CVECTOR2.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Traditional\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Traditional\Composition</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlayer.h">
+      <Filter>Traditional\DerivedObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Traditional\Composition</Filter>
+    </ClInclude>
+    <ClInclude Include="IComponentEventFunc.h">
+      <Filter>Traditional\Composition</Filter>
+    </ClInclude>
+    <ClInclude Include="CircleRenderer.h">
+      <Filter>Traditional\Composition</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+  </ItemGroup>
+</Project>
