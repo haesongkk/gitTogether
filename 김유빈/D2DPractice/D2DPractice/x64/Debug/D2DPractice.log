@@ -1,0 +1,4 @@
+﻿  OBB.cpp
+D:\SVN\GA2023\2D Game Programming Assignment\03\김유빈\D2DPractice\D2DPractice\OBB.h(3,14): warning C4099: 'Vector2': 처음에는 'struct'을(를) 사용하여 형식 이름을 표시했는데 이제는 'class'을(를) 사용하여 표시합니다.
+D:\SVN\GA2023\2D Game Programming Assignment\03\김유빈\D2DPractice\D2DPractice\Vector2.h(4,8): message : 'Vector2' 선언을 참조하십시오.
+  D2DPractice.vcxproj -> D:\SVN\GA2023\2D Game Programming Assignment\03\김유빈\D2DPractice\x64\Debug\D2DPractice.exe

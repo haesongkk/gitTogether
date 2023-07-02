@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="GameProcessor">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Object">
+      <UniqueIdentifier>{d504be8c-088a-46a4-a2fb-212e852e2f99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="InputSystem">
+      <UniqueIdentifier>{a1552bb7-7fc5-4afb-a17f-5162decc4036}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CollisionDetector">
+      <UniqueIdentifier>{3020a029-fad7-418e-baa4-b2cf0aa9d381}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Vector">
+      <UniqueIdentifier>{45182488-7519-4707-9d2e-6a6db86671da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Transform">
+      <UniqueIdentifier>{e0564476-1fde-4662-8e88-66f1b1516fe0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D2DPractice.h">
+      <Filter>GameProcessor</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>GameProcessor</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>GameProcessor</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>GameProcessor</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>GameProcessor</Filter>
+    </ClInclude>
+    <ClInclude Include="Circle.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="InputManager.h">
+      <Filter>InputSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="CC.h">
+      <Filter>CollisionDetector</Filter>
+    </ClInclude>
+    <ClInclude Include="AABB.h">
+      <Filter>CollisionDetector</Filter>
+    </ClInclude>
+    <ClInclude Include="MyRectangle.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="OBB.h">
+      <Filter>CollisionDetector</Filter>
+    </ClInclude>
+    <ClInclude Include="BoundingBox.h">
+      <Filter>Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2.h">
+      <Filter>Vector</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix.h">
+      <Filter>Vector</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D2DPractice.cpp">
+      <Filter>GameProcessor</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>GameProcessor</Filter>
+    </ClCompile>
+    <ClCompile Include="Circle.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>InputSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="CC.cpp">
+      <Filter>CollisionDetector</Filter>
+    </ClCompile>
+    <ClCompile Include="AABB.cpp">
+      <Filter>CollisionDetector</Filter>
+    </ClCompile>
+    <ClCompile Include="MyRectangle.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="OBB.cpp">
+      <Filter>CollisionDetector</Filter>
+    </ClCompile>
+    <ClCompile Include="BoundingBox.cpp">
+      <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>Transform</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="D2DPractice.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="small.ico">
+      <Filter>Resource</Filter>
+    </Image>
+    <Image Include="D2DPractice.ico">
+      <Filter>Resource</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
