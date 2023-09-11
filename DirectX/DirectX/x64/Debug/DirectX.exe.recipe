@@ -2,15 +2,15 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>D:\VS\DirectX\x64\Debug\DirectX.exe</FullPath>
+      <FullPath>D:\gitTogether\DirectX\x64\Debug\DirectX.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles>
     <ContentFile>
-      <FullPath>D:\VS\DirectX\x64\Debug\BasicPixelShader.cso</FullPath>
+      <FullPath>D:\gitTogether\DirectX\x64\Debug\BasicPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>D:\VS\DirectX\x64\Debug\BasicVertexShader.cso</FullPath>
+      <FullPath>D:\gitTogether\DirectX\x64\Debug\BasicVertexShader.cso</FullPath>
     </ContentFile>
   </ContentFiles>
   <SatelliteDlls />

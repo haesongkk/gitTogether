@@ -1,3 +1,5 @@
-﻿  DirectX.cpp
+﻿  compilation object save succeeded; see D:\gitTogether\DirectX\x64\Debug\BasicPixelShader.cso
+  compilation object save succeeded; see D:\gitTogether\DirectX\x64\Debug\BasicVertexShader.cso
   Renderer.cpp
-  DirectX.vcxproj -> D:\VS\DirectX\x64\Debug\DirectX.exe
+  DirectX.cpp
+  DirectX.vcxproj -> D:\gitTogether\DirectX\x64\Debug\DirectX.exe

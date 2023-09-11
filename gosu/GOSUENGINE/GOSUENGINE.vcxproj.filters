@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Process">
+      <UniqueIdentifier>{68b32358-7864-4c18-8dbb-160cbc95fef0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System">
+      <UniqueIdentifier>{b166b8af-35a4-418a-8623-04f7d4ad2b67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{9e37212b-c7a3-4099-a1de-d7bff3c2dd95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component">
+      <UniqueIdentifier>{ab3d5bc1-f03e-4a48-9639-a74677433953}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component\Transform">
+      <UniqueIdentifier>{c0be2841-4919-4bb1-bc7f-9ac046403d8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component\Physics">
+      <UniqueIdentifier>{43bc2b4c-26c9-4918-bf5d-0585fcb09e5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component\Render">
+      <UniqueIdentifier>{472054d1-cbd1-419f-9d7e-17bf844ede8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component\Render\Animator">
+      <UniqueIdentifier>{832faaa3-4ad0-4439-a9a2-da468e805b57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component\Render\Texture">
+      <UniqueIdentifier>{36198d13-e391-4591-b3e7-0b5fe39b1389}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component\Render\Text">
+      <UniqueIdentifier>{fdce9144-98c1-49b6-b780-b650f76768b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component\Physics\Collider">
+      <UniqueIdentifier>{1c7f417b-261d-4a65-9532-fb10eaf8375b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component\Physics\RigidBody">
+      <UniqueIdentifier>{f8398351-0299-4041-b489-305b1bdc4a9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object">
+      <UniqueIdentifier>{3e7f2f53-fb70-4efb-b973-ebe896e53932}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\GameObject">
+      <UniqueIdentifier>{f3bae421-5329-4fe4-9cd2-7f9b72f04264}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\UIObject">
+      <UniqueIdentifier>{8c5a5af0-60ef-417d-9e76-ab37e08ce16d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Input">
+      <UniqueIdentifier>{5640564b-c2ab-4d3f-ae8c-0de1eb0b430b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Timer">
+      <UniqueIdentifier>{a6f003c7-2378-40a2-b6f8-62f63842b3df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Renderer">
+      <UniqueIdentifier>{42914f6f-6639-47a2-b34d-39ba9a54ffb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\SceneManager">
+      <UniqueIdentifier>{dc103ec2-443c-42b9-b6a8-35c3b625e6e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Resource">
+      <UniqueIdentifier>{43fa8c72-c7d5-474a-81ae-ef1573e1b341}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Component.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="System.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Object\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="UIObject.h">
+      <Filter>Object\UIObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>System\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>System\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>System\SceneManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>System\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>System\Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="Process.h">
+      <Filter>Process</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Object\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="UIObject.cpp">
+      <Filter>Object\UIObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>System\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource.cpp">
+      <Filter>System\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>System\SceneManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>System\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>System\Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="Process.cpp">
+      <Filter>Process</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
