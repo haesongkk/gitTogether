@@ -2,6 +2,13 @@
 #include "Renderer.h"
 #include "Helper.h"
 
+struct ConstantBuffer
+{
+    Matrix mWorld;
+    Matrix mView;
+    Matrix mProjection;
+};
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
@@ -18,24 +25,91 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 void Renderer::Init(HINSTANCE hInstance)
 {
     m_inst = hInstance;
-    SetVS(L"BasicVertexShader.hlsl");
-    SetPS(L"BasicPixelShader.hlsl");
-    SetnVertices(6);
-    SetVertices(0, Vertex(Vector3(-0.5f, 0.5f, 0.5f), Vector4(1.0f, 0.0f, 0.0f, 1.0f)));
-    SetVertices(1, Vertex(Vector3(0.5f, 0.5f, 0.5f), Vector4(0.0f, 1.0f, 0.0f, 1.0f)));
-    SetVertices(2, Vertex(Vector3(-0.5f, -0.5f, 0.5f), Vector4(0.0f, 0.0f, 1.0f, 1.0f)));
-    SetVertices(3, Vertex(Vector3(0.5f, -0.5f, 0.5f), Vector4(0.0f, 0.0f, 1.0f, 1.0f)));
-    SetnIndices(6);
-    SetIndicies(0, 0);
-    SetIndicies(1, 1);
-    SetIndicies(2, 2);
-    SetIndicies(3, 2);
-    SetIndicies(4, 1);
-    SetIndicies(5, 3);
 
     InitWindow();
     InitDX();
     InitScene();
+
+    vector<Vertex> vertices =
+    {
+        { Vector3(-1.0f, 1.0f, -1.0f),  Vector4(0.0f, 0.0f, 1.0f, 1.0f) },
+        { Vector3(1.0f, 1.0f, -1.0f),   Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
+        { Vector3(1.0f, 1.0f, 1.0f),    Vector4(0.0f, 1.0f, 1.0f, 1.0f) },
+        { Vector3(-1.0f, 1.0f, 1.0f),   Vector4(1.0f, 0.0f, 0.0f, 1.0f) },
+        { Vector3(-1.0f, -1.0f, -1.0f), Vector4(1.0f, 0.0f, 1.0f, 1.0f) },
+        { Vector3(1.0f, -1.0f, -1.0f),  Vector4(1.0f, 1.0f, 0.0f, 1.0f) },
+        { Vector3(1.0f, -1.0f, 1.0f),   Vector4(1.0f, 1.0f, 1.0f, 1.0f) },
+        { Vector3(-1.0f, -1.0f, 1.0f),  Vector4(0.0f, 0.0f, 0.0f, 1.0f) },
+    };
+    vector<WORD> indicies =
+    {
+        3, 1, 0,
+        2, 1, 3,
+        0, 5, 4,
+        1, 5, 0,
+        3, 4, 7,
+        0, 4, 3,
+        1, 6, 5,
+        2, 6, 1,
+        2, 7, 6,
+        3, 7, 2,
+        6, 4, 5,
+        7, 4, 6,
+    };
+    
+    m_objects.push_back(new Object);
+    m_objects.push_back(new Object);
+    m_objects.push_back(new Object);
+    
+    for (auto obj : m_objects)
+    {
+        obj->GetVertices() = vertices;
+        int nVertices = obj->GetVertices().size();
+        Vertex* vertices = new Vertex[nVertices];
+        for (int i = 0; i < nVertices; i++)
+            vertices[i] = obj->GetVertices()[i];
+        
+        D3D11_BUFFER_DESC vbDesc = {};
+        vbDesc.ByteWidth = sizeof(Vertex) * nVertices;
+        vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+        vbDesc.Usage = D3D11_USAGE_DEFAULT;
+        D3D11_SUBRESOURCE_DATA vbData = {};
+        vbData.pSysMem = vertices;
+        m_pDevice->CreateBuffer(&vbDesc, &vbData, &(obj->GetVB()));
+        assert(obj->GetVB());
+        Helper::SafeDeleteArray(vertices);
+
+        obj->GetIndicies() = indicies;
+        int nIndices = obj->GetIndicies().size();
+        WORD* indices = new WORD[nIndices];
+        for (int j = 0; j < nIndices; j++)
+            indices[j] = obj->GetIndicies()[j];
+
+        D3D11_BUFFER_DESC ibDesc = {};
+        ibDesc.ByteWidth = sizeof(WORD) * nIndices;
+        ibDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+        ibDesc.Usage = D3D11_USAGE_DEFAULT;
+        D3D11_SUBRESOURCE_DATA ibData = {};
+        ibData.pSysMem = indices;
+        m_pDevice->CreateBuffer(&ibDesc, &ibData, &(obj->GetIB()));
+        assert(obj->GetIB());
+        Helper::SafeDeleteArray(indices);
+    }
+
+    vertices.clear();
+    indicies.clear();
+
+    m_objects[0]->GetPos() = { 0,0,0 };
+    m_objects[1]->GetPos() = { 4,0,0 };
+    m_objects[2]->GetPos() = { 4,0,0 };
+
+    m_objects[0]->GetScale() = { 0.8,0.8,0.8 };
+    m_objects[1]->GetScale() = { 0.3,0.3,0.3 };
+    m_objects[2]->GetScale() = { 0.3,0.3,0.3 };
+
+    m_objects[0]->GetParentObject() = nullptr;
+    m_objects[1]->GetParentObject() = m_objects[0];
+    m_objects[2]->GetParentObject() = m_objects[1];
 }
 
 void Renderer::Run()
@@ -60,37 +134,49 @@ void Renderer::Run()
 
 void Renderer::Update()
 {
+    static double rot = 0;
+    rot += 0.0001;
+    m_objects[0]->GetRotate().y += 0.0001;
+    m_objects[1]->GetRotate().y += 0.0001;
+    m_objects[2]->GetRotate().y += 0.0001;
+
+    for (auto obj : m_objects)
+    {
+        XMMATRIX mScale = XMMatrixScaling(obj->GetScale().x, obj->GetScale().y, obj->GetScale().z);
+        XMMATRIX mRot = XMMatrixRotationX(obj->GetRotate().x) 
+                        * XMMatrixRotationY(obj->GetRotate().y) 
+                        * XMMatrixRotationZ(obj->GetRotate().z);
+        XMMATRIX mTrans = XMMatrixTranslation(obj->GetPos().x, obj->GetPos().y, obj->GetPos().z);
+        XMMATRIX mBasis = XMMatrixIdentity();
+        if (obj->GetParentObject()) mBasis = obj->GetParentObject()->GetMatrix();
+        obj->GetMatrix() = mScale * mRot * mTrans * mBasis;
+    }
 }
 
 void Renderer::Render()
 {
-    m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
-
-    Color color(0.0f, 0.3f, 0.5f, 1.0f);
-    m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, color);
+    m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Color{ 0.0f, 0.3f, 0.5f, 1.0f });
+    m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    if (m_pVertexBuffer) 
-        m_pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &m_VertextBufferStride, &m_VertextBufferOffset);
+    m_pDeviceContext->IASetInputLayout(m_pInputLayout);
+    m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
+    m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
+    m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
 
-    if (m_pInputLayout) 
-        m_pDeviceContext->IASetInputLayout(m_pInputLayout);
+    ConstantBuffer cb;
+    cb.mView = XMMatrixTranspose(m_viewMatrix);
+    cb.mProjection = XMMatrixTranspose(m_projMatrix);
 
-    if (m_pVertexShader) 
-        m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
-
-    if (m_pPixelShader) 
-        m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
-
-    if (m_pIndexBuffer) 
-        m_pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-
-    if (m_pVertexBuffer)
+    for (const auto& obj : m_objects)
     {
-        if (m_pIndexBuffer)
-            m_pDeviceContext->DrawIndexed(m_nIndices, 0, 0);
-        else 
-            m_pDeviceContext->Draw(m_nVertices, 0);
+        cb.mWorld = XMMatrixTranspose(obj->GetMatrix());
+        m_pDeviceContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+
+        m_pDeviceContext->IASetVertexBuffers(0, 1, &(obj->GetVB()), &m_VertextBufferStride, &m_VertextBufferOffset);
+        m_pDeviceContext->IASetIndexBuffer(obj->GetIB(), DXGI_FORMAT_R16_UINT, 0);
+
+        m_pDeviceContext->DrawIndexed(obj->GetIndicies().size(), 0, 0);
     }
 
     m_pSwapChain->Present(0, 0);
@@ -98,18 +184,22 @@ void Renderer::Render()
 
 void Renderer::Final()
 {
+    for (auto& obj : m_objects)
+    {
+        Helper::SafeRelease(obj->GetIB());
+        Helper::SafeRelease(obj->GetVB());
+    }
     Helper::SafeRelease(m_pDevice);
     Helper::SafeRelease(m_pDeviceContext);
     Helper::SafeRelease(m_pSwapChain);
     Helper::SafeRelease(m_pRenderTargetView);
+    Helper::SafeRelease(m_pDepthStencilView);
+
     Helper::SafeRelease(m_pVertexShader);
     Helper::SafeRelease(m_pPixelShader);
     Helper::SafeRelease(m_pInputLayout);
-    Helper::SafeRelease(m_pVertexBuffer);
-    Helper::SafeRelease(m_pIndexBuffer);
+    Helper::SafeRelease(m_pConstantBuffer);
 
-    Helper::SafeDeleteArray(m_vertices);
-    Helper::SafeDeleteArray(m_indices);
 }
 
 void Renderer::InitWindow()
@@ -137,165 +227,132 @@ void Renderer::InitWindow()
 
 void Renderer::InitDX()
 {
-    HRESULT hr = S_OK;
-
     DXGI_SWAP_CHAIN_DESC swapDesc = {};
-
     swapDesc.BufferCount = 1;
-    //swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swapDesc.OutputWindow = m_hWnd;	// 스왑체인 출력할 창 핸들 값.
-    swapDesc.Windowed = true;		// 창 모드 여부 설정.
+    swapDesc.OutputWindow = m_hWnd;	
+    swapDesc.Windowed = true;
     swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    // 백버퍼(텍스처)의 가로/세로 크기 설정.
     swapDesc.BufferDesc.Width = m_width;
     swapDesc.BufferDesc.Height = m_height;
-    // 화면 주사율 설정.
     swapDesc.BufferDesc.RefreshRate.Numerator = 60;
     swapDesc.BufferDesc.RefreshRate.Denominator = 1;
-    // 샘플링 관련 설정.
     swapDesc.SampleDesc.Count = 1;
     swapDesc.SampleDesc.Quality = 0;
 
-
     UINT creationFlags = 0;
-    creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 
-    hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL,
+    D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL,
         D3D11_SDK_VERSION, &swapDesc, &m_pSwapChain, &m_pDevice, NULL, &m_pDeviceContext);
-    assert(!FAILED(hr));
+    assert(m_pSwapChain);
+    assert(m_pDevice);
+    assert(m_pDeviceContext);
 
     ID3D11Texture2D* pBackBufferTexture = nullptr;
 
-    hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferTexture);
-    assert(!FAILED(hr));
+    m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferTexture);
+    assert(pBackBufferTexture);
 
-    hr = m_pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &m_pRenderTargetView);
-    assert(!FAILED(hr));
+    m_pDevice->CreateRenderTargetView(pBackBufferTexture, NULL, &m_pRenderTargetView);
+    assert(m_pRenderTargetView);
 
-    pBackBufferTexture->Release();
+    Helper::SafeRelease(pBackBufferTexture);
 
     m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, NULL);
 
     D3D11_VIEWPORT viewport = {};
-
     viewport.TopLeftX = 0;
     viewport.TopLeftY = 0;
     viewport.Width = (float)m_width;
     viewport.Height = (float)m_height;
     viewport.MinDepth = 0.0f;
     viewport.MaxDepth = 1.0f;
-
     m_pDeviceContext->RSSetViewports(1, &viewport);
+
+    D3D11_TEXTURE2D_DESC descDepth = {};
+    descDepth.Width = m_width;
+    descDepth.Height = m_height;
+    descDepth.MipLevels = 1;
+    descDepth.ArraySize = 1;
+    descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    descDepth.SampleDesc.Count = 1;
+    descDepth.SampleDesc.Quality = 0;
+    descDepth.Usage = D3D11_USAGE_DEFAULT;
+    descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+    descDepth.CPUAccessFlags = 0;
+    descDepth.MiscFlags = 0;
+
+    ID3D11Texture2D* textureDepthStencil = nullptr;
+    m_pDevice->CreateTexture2D(&descDepth, nullptr, &textureDepthStencil);
+    assert(textureDepthStencil);
+
+    D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
+    descDSV.Format = descDepth.Format;
+    descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    descDSV.Texture2D.MipSlice = 0;
+    m_pDevice->CreateDepthStencilView(textureDepthStencil, &descDSV, &m_pDepthStencilView);
+    assert(m_pDepthStencilView);
+    Helper::SafeRelease(textureDepthStencil);
+
+    m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
+
 }
 
 void Renderer::InitScene()
 {
-    DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-    ID3DBlob* vertexShaderBuffer = nullptr;
-    ID3DBlob* pixelShaderBuffer = nullptr;
-
     D3D11_INPUT_ELEMENT_DESC layout[] =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
-    if (m_vsFileName != nullptr)
-    {
-        D3DCompileFromFile(m_vsFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_4_0",
-            dwShaderFlags, 0, &vertexShaderBuffer, nullptr);
-        assert(vertexShaderBuffer != nullptr);
+    DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+    ID3DBlob* vertexShaderBuffer = nullptr;
+    ID3DBlob* pixelShaderBuffer = nullptr;
 
-        m_pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
-            vertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader);
-        assert(m_pVertexShader != nullptr);
+    D3DCompileFromFile(L"BasicVertexShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_4_0",
+        dwShaderFlags, 0, &vertexShaderBuffer, nullptr);
+    assert(vertexShaderBuffer);
 
-        m_pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
-            vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_pInputLayout);
-        assert(m_pInputLayout != nullptr);
+    m_pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(),
+        vertexShaderBuffer->GetBufferSize(), NULL, &m_pVertexShader);
+    assert(m_pVertexShader);
 
-        vertexShaderBuffer->Release();
-    }
+    m_pDevice->CreateInputLayout(layout, ARRAYSIZE(layout),
+        vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_pInputLayout);
+    assert(m_pInputLayout);
 
-    if (m_psFileName != nullptr)
-    {
-        D3DCompileFromFile(m_psFileName, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_4_0",
-            dwShaderFlags, 0, &pixelShaderBuffer, nullptr);
-        assert(pixelShaderBuffer != nullptr);
+    D3DCompileFromFile(L"BasicPixelShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_4_0",
+        dwShaderFlags, 0, &pixelShaderBuffer, nullptr);
+    assert(pixelShaderBuffer);
 
-        m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
-            pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader);
-        assert(m_pPixelShader != nullptr);
-
-        pixelShaderBuffer->Release();
-    }
-
-    if (m_vertices != nullptr)
-    {
-        D3D11_BUFFER_DESC vbDesc = {};
-        vbDesc.ByteWidth = sizeof(Vertex) * m_nVertices;
-        vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-        vbDesc.Usage = D3D11_USAGE_DEFAULT;
-
-        D3D11_SUBRESOURCE_DATA vbData = {};
-        vbData.pSysMem = m_vertices;	// 배열 데이터 할당
-
-        m_pDevice->CreateBuffer(&vbDesc, &vbData, &m_pVertexBuffer);
-        assert(m_pVertexBuffer != nullptr);
-
-        m_VertextBufferStride = sizeof(Vertex);
-        m_VertextBufferOffset = 0;
+    m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(),
+        pixelShaderBuffer->GetBufferSize(), NULL, &m_pPixelShader);
+    assert(m_pPixelShader);
 
 
-    }
+    D3D11_BUFFER_DESC cbDesc = {};
+    cbDesc.Usage = D3D11_USAGE_DEFAULT;
+    cbDesc.ByteWidth = sizeof(ConstantBuffer);
+    cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    cbDesc.CPUAccessFlags = 0;
+    m_pDevice->CreateBuffer(&cbDesc, nullptr, &m_pConstantBuffer);
+    assert(m_pConstantBuffer);
 
-    if (m_indices != nullptr)
-    {
+    Helper::SafeRelease(vertexShaderBuffer);
+    Helper::SafeRelease(pixelShaderBuffer);
 
-        D3D11_BUFFER_DESC ibDesc = {};
-        ibDesc.ByteWidth = sizeof(WORD) * m_nIndices;
-        ibDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-        ibDesc.Usage = D3D11_USAGE_DEFAULT;
+    m_VertextBufferStride = sizeof(Vertex);
+    m_VertextBufferOffset = 0;
 
-        D3D11_SUBRESOURCE_DATA ibData = {};
-        ibData.pSysMem = m_indices;
+    XMVECTOR Eye = XMVectorSet(0.0f, 1.0f, -5.0f, 0.0f);
+    XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    m_viewMatrix = XMMatrixLookAtLH(Eye, At, Up);
 
+    float fovY = XM_PIDIV2; 
+    float nearZ = 0.01f;    
+    float farZ = 100.0f;    
+    m_projMatrix = XMMatrixPerspectiveFovLH(fovY, m_width / (FLOAT)m_height, nearZ, farZ);
 
-        m_pDevice->CreateBuffer(&ibDesc, &ibData, &m_pIndexBuffer);
-        assert(m_pIndexBuffer != nullptr);
-
-    }
-}
-
-void Renderer::SetPS(LPCWSTR _ps)
-{
-    m_psFileName = _ps;
-}
-
-void Renderer::SetVS(LPCWSTR _vs)
-{
-    m_vsFileName = _vs;
-}
-
-void Renderer::SetnVertices(UINT _nV)
-{
-    m_nVertices = _nV;
-    m_vertices = new Vertex[_nV];
-}
-
-void Renderer::SetVertices(UINT _i, Vertex _v)
-{
-    m_vertices[_i] = _v;
-}
-
-void Renderer::SetnIndices(UINT _nI)
-{
-    m_nIndices = _nI;
-    m_indices = new WORD[_nI];
-}
-
-void Renderer::SetIndicies(UINT _i, WORD _w)
-{
-    m_indices[_i] = _w;
 }
