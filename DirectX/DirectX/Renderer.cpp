@@ -212,11 +212,11 @@ void Renderer::InitWindow()
     m_wcex.cbWndExtra = 0;
     m_wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
     m_wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    m_wcex.lpszClassName = m_class;
+    m_wcex.lpszClassName = L"DefaultWindowCalss";
 
     RegisterClassExW(&m_wcex);
 
-    m_hWnd = CreateWindowW(m_class, m_title, WS_OVERLAPPEDWINDOW,
+    m_hWnd = CreateWindowW(L"DefaultWindowCalss", L"GameApp", WS_OVERLAPPEDWINDOW,
         100, 100, m_width, m_height, nullptr, nullptr, m_inst, nullptr);
 
     assert(m_hWnd != nullptr);
@@ -345,14 +345,12 @@ void Renderer::InitScene()
     m_VertextBufferStride = sizeof(Vertex);
     m_VertextBufferOffset = 0;
 
-    XMVECTOR Eye = XMVectorSet(0.0f, 1.0f, -5.0f, 0.0f);
-    XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    assert(m_camerePos != m_cameraFocus);
+    XMVECTOR Eye = XMVectorSet(m_camerePos.x, m_camerePos.y, m_camerePos.z, m_camerePos.w);
+    XMVECTOR At = XMVectorSet(m_cameraFocus.x, m_cameraFocus.y, m_cameraFocus.z, m_cameraFocus.w); 
+    XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); // 카메라의 위쪽 방향
     m_viewMatrix = XMMatrixLookAtLH(Eye, At, Up);
 
-    float fovY = XM_PIDIV2; 
-    float nearZ = 0.01f;    
-    float farZ = 100.0f;    
-    m_projMatrix = XMMatrixPerspectiveFovLH(fovY, m_width / (FLOAT)m_height, nearZ, farZ);
+    m_projMatrix = XMMatrixPerspectiveFovLH(m_fovY, m_width / (FLOAT)m_height, m_nearZ, m_farZ);
 
 }

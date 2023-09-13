@@ -21,6 +21,7 @@ public :
 	Vector3& GetPos() { return m_position; }
 	Vector3& GetScale() { return m_scale; }
 	Vector3& GetRotate() { return m_rotate; }
+
 private:
 	ID3D11Buffer* m_pVertexBuffer = nullptr;
 	ID3D11Buffer* m_pIndexBuffer = nullptr;
@@ -54,9 +55,6 @@ protected:
 	HWND m_hWnd;
 	WNDCLASSEXW m_wcex;
 
-	LPCWSTR m_class = L"DefaultWindowCalss";
-	LPCWSTR m_title = L"GameApp";
-
 	UINT m_width = 1024;
 	UINT m_height = 768;
 
@@ -74,10 +72,14 @@ protected:
 	UINT m_VertextBufferStride = 0;
 	UINT m_VertextBufferOffset = 0;
 
-	LPCWSTR m_psFileName = nullptr;
-	LPCWSTR m_vsFileName = nullptr;
-
+	Vector4 m_camerePos = { 0,1,5,0 };
+	Vector4 m_cameraFocus = { 0,1,0,0 };
+	Vector4 m_cameraDir = { 0,1,0,0 };
 	Matrix m_viewMatrix;
+
+	float m_fovY = XM_PIDIV2;
+	float m_nearZ = 0.01f;
+	float m_farZ = 100.0f;
 	Matrix m_projMatrix;
 
 	vector<Object*> m_objects;
