@@ -16,8 +16,12 @@ public :
 	ID3D11Buffer*& GetVB() { return m_pVertexBuffer; }
 	ID3D11Buffer*& GetIB() { return m_pIndexBuffer; }
 
+	UINT& GetStride() { return m_VertextBufferStride; }
+	UINT& GetOffset() { return m_VertextBufferOffset; }
+
 	Matrix& GetMatrix() { return m_matrix; }
 	Object*& GetParentObject() { return m_pParentObject; }
+
 	Vector3& GetPos() { return m_position; }
 	Vector3& GetScale() { return m_scale; }
 	Vector3& GetRotate() { return m_rotate; }
@@ -25,6 +29,9 @@ public :
 private:
 	ID3D11Buffer* m_pVertexBuffer = nullptr;
 	ID3D11Buffer* m_pIndexBuffer = nullptr;
+
+	UINT m_VertextBufferStride = 0;
+	UINT m_VertextBufferOffset = 0;
 
 	vector<Vertex> m_vertices = {};
 	vector<WORD> m_indices = {};
@@ -37,6 +44,18 @@ private:
 	Vector3 m_rotate = { 0,0,0 };
 
 };
+struct Camera
+{
+	Vector4 pos = { 0,1,5,0 };
+	Vector4 focus = { 0,1,0,0 };
+	Vector4 headDir = { 0,1,0,0 };
+	Matrix viewMatrix;
+
+	float fovY = XM_PIDIV2;
+	float nearZ = 0.01f;
+	float farZ = 100.0f;
+	Matrix projMatrix;
+};
 class Renderer
 {
 public:
@@ -46,12 +65,13 @@ public:
 	virtual void Render();
 	virtual void Final();
 
-	void InitWindow();
+	void InitWindow(HINSTANCE hInstance);
 	void InitDX();
 	void InitScene();
+	void InitImGui();
+	void InitObj();
 
 protected:
-	HINSTANCE m_inst;
 	HWND m_hWnd;
 	WNDCLASSEXW m_wcex;
 
@@ -67,21 +87,11 @@ protected:
 	ID3D11VertexShader* m_pVertexShader = nullptr;
 	ID3D11PixelShader* m_pPixelShader = nullptr;
 	ID3D11InputLayout* m_pInputLayout = nullptr;
+
 	ID3D11Buffer* m_pConstantBuffer = nullptr;
 
-	UINT m_VertextBufferStride = 0;
-	UINT m_VertextBufferOffset = 0;
-
-	Vector4 m_camerePos = { 0,1,5,0 };
-	Vector4 m_cameraFocus = { 0,1,0,0 };
-	Vector4 m_cameraDir = { 0,1,0,0 };
-	Matrix m_viewMatrix;
-
-	float m_fovY = XM_PIDIV2;
-	float m_nearZ = 0.01f;
-	float m_farZ = 100.0f;
-	Matrix m_projMatrix;
-
 	vector<Object*> m_objects;
+	Camera m_camera;
+
 };
 
