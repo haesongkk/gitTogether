@@ -63,27 +63,23 @@ void Renderer::Update()
 
     for (auto obj : m_objects)
     {
-        XMMATRIX mScale = XMMatrixScaling(obj->GetScale().x, obj->GetScale().y, obj->GetScale().z);
-        XMMATRIX mRot = XMMatrixRotationX(obj->GetRotate().x) 
-                        * XMMatrixRotationY(obj->GetRotate().y) 
-                        * XMMatrixRotationZ(obj->GetRotate().z);
-        XMMATRIX mTrans = XMMatrixTranslation(obj->GetPos().x, obj->GetPos().y, obj->GetPos().z);
-        XMMATRIX mBasis = XMMatrixIdentity();
+        Matrix mScale = DirectX::XMMatrixScaling(obj->GetScale().x, obj->GetScale().y, obj->GetScale().z);
+        Matrix mRot = DirectX::XMMatrixRotationX(obj->GetRotate().x)
+            * DirectX::XMMatrixRotationY(obj->GetRotate().y)
+            * DirectX::XMMatrixRotationZ(obj->GetRotate().z);
+        Matrix mTrans = DirectX::XMMatrixTranslation(obj->GetPos().x, obj->GetPos().y, obj->GetPos().z);
+        Matrix mBasis = DirectX::XMMatrixIdentity();
         if (obj->GetParentObject()) mBasis = obj->GetParentObject()->GetMatrix();
         obj->GetMatrix() = mScale * mRot * mTrans * mBasis;
     }
 
-    if (m_camera.pos == m_camera.focus) m_camera.pos.z++;
+    if (m_camera.pos == m_camera.focus) m_camera.pos.y++;
     if (m_camera.nearZ <= 0.0001f) { m_camera.nearZ = 0.0001f; }
     if (m_camera.nearZ >= 9.9f) { m_camera.nearZ = 9.9f; }
     if (m_camera.fovY <= 0.f) { m_camera.fovY = 0.01; }
 
-    XMVECTOR Eye = XMVectorSet(m_camera.pos.x, m_camera.pos.y, m_camera.pos.z, m_camera.pos.w);
-    XMVECTOR At = XMVectorSet(m_camera.focus.x, m_camera.focus.y, m_camera.focus.z, m_camera.focus.w);
-    XMVECTOR Up = XMVectorSet(m_camera.headDir.x, m_camera.headDir.y, m_camera.headDir.z, m_camera.headDir.w);
-
-    m_camera.viewMatrix = XMMatrixLookAtLH(Eye, At, Up);
-    m_camera.projMatrix = XMMatrixPerspectiveFovLH(m_camera.fovY, m_width / (FLOAT)m_height, m_camera.nearZ, m_camera.farZ);
+    m_camera.viewMatrix = DirectX::XMMatrixLookAtLH(m_camera.pos, m_camera.focus, m_camera.headDir);
+    m_camera.projMatrix = DirectX::XMMatrixPerspectiveFovLH(m_camera.fovY, m_width / (FLOAT)m_height, m_camera.nearZ, m_camera.farZ);
 }
 
 void Renderer::Render()
@@ -128,12 +124,12 @@ void Renderer::Render()
     m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
 
     ConstantBuffer cb;
-    cb.mView = XMMatrixTranspose(m_camera.viewMatrix);
-    cb.mProjection = XMMatrixTranspose(m_camera.projMatrix);
+    cb.mView = DirectX::XMMatrixTranspose(m_camera.viewMatrix);
+    cb.mProjection = DirectX::XMMatrixTranspose(m_camera.projMatrix);
 
     for (const auto& obj : m_objects)
     {
-        cb.mWorld = XMMatrixTranspose(obj->GetMatrix());
+        cb.mWorld = DirectX::XMMatrixTranspose(obj->GetMatrix());
         m_pDeviceContext->UpdateSubresource(m_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 
         m_pDeviceContext->IASetVertexBuffers(0, 1, &(obj->GetVB()), &(obj->GetStride()), &(obj->GetOffset()));
@@ -187,8 +183,11 @@ void Renderer::InitWindow(HINSTANCE hInstance)
 
     RegisterClassExW(&m_wcex);
 
+    RECT rt = { 0, 0, (LONG)m_width, (LONG)m_height };
+    AdjustWindowRect(&rt, WS_OVERLAPPEDWINDOW, FALSE);
+
     m_hWnd = CreateWindowW(L"DefaultWindowCalss", L"GameApp", WS_OVERLAPPEDWINDOW,
-        100, 100, m_width, m_height, nullptr, nullptr, hInstance, nullptr);
+        100, 100, rt.right - rt.left, rt.bottom - rt.top, nullptr, nullptr, hInstance, nullptr);
 
     assert(m_hWnd != nullptr);
 
@@ -371,6 +370,7 @@ void Renderer::InitObj()
 
         obj->GetIndicies() =
         {
+           // for LH
            3, 1, 0,    2, 1, 3,
 
             0, 9, 8,    1, 9, 0,
@@ -383,7 +383,7 @@ void Renderer::InitObj()
             5, 9, 10,   6, 5, 10,
             6, 10, 11,  7, 6, 11,
 
-            6, 4, 5,    7, 4, 6,
+            6, 4, 5,    7, 4, 6, 
         };
         int nIndices = obj->GetIndicies().size();
         WORD* indices = new WORD[nIndices];

@@ -20,5 +20,4 @@
 #pragma comment(lib,"d3dcompiler.lib")
 
 using namespace std;
-using namespace DirectX;
 using namespace DirectX::SimpleMath;

@@ -46,12 +46,12 @@ private:
 };
 struct Camera
 {
-	Vector4 pos = { 0,1,5,0 };
-	Vector4 focus = { 0,1,0,0 };
-	Vector4 headDir = { 0,1,0,0 };
+	Vector3 pos = { 0,1,5 };
+	Vector3 focus = { 0,1,0 };
+	Vector3 headDir = { 0,1,0 };
 	Matrix viewMatrix;
 
-	float fovY = XM_PIDIV2;
+	float fovY = 1.570796327f;
 	float nearZ = 0.01f;
 	float farZ = 100.0f;
 	Matrix projMatrix;
