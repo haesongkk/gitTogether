@@ -7,6 +7,9 @@ struct ConstantBuffer
     Matrix mWorld;
     Matrix mView;
     Matrix mProjection;
+
+    Vector4 lightDir;
+    Vector4 lightColor;
 };
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -58,8 +61,6 @@ void Renderer::Run()
 void Renderer::Update()
 {
     m_objects[0]->GetRotate().y += 0.0001;
-    m_objects[1]->GetRotate().y += 0.0001;
-    m_objects[2]->GetRotate().y += 0.0001;
 
     for (auto obj : m_objects)
     {
@@ -73,60 +74,27 @@ void Renderer::Update()
         obj->GetMatrix() = mScale * mRot * mTrans * mBasis;
     }
 
-    if (m_camera.pos == m_camera.focus) m_camera.pos.y++;
     if (m_camera.nearZ <= 0.0001f) { m_camera.nearZ = 0.0001f; }
     if (m_camera.nearZ >= 9.9f) { m_camera.nearZ = 9.9f; }
     if (m_camera.fovY <= 0.f) { m_camera.fovY = 0.01; }
 
-    m_camera.viewMatrix = DirectX::XMMatrixLookAtLH(m_camera.pos, m_camera.focus, m_camera.headDir);
+    m_camera.viewMatrix = DirectX::XMMatrixLookToLH(m_camera.pos, m_camera.dir, m_camera.headDir);
     m_camera.projMatrix = DirectX::XMMatrixPerspectiveFovLH(m_camera.fovY, m_width / (FLOAT)m_height, m_camera.nearZ, m_camera.farZ);
 }
 
 void Renderer::Render()
 {
-    ImGui_ImplDX11_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
-    ImGui::SetNextWindowSize(ImVec2(200, 300));
-
-    ImGui::Begin("settings");
-
-    ImGui::Text("a : object0 world pos"); 
-    ImGui::DragFloat3("##a", (float*)&(m_objects[0]->GetPos()), 1.f, -100.f, 100.f, "%1.f");
-
-    ImGui::Text("b : object1 relative pos");
-    ImGui::DragFloat3("##b", (float*)&(m_objects[1]->GetPos()), 1.f, -100.f, 100.f, "%1.f");
-
-    ImGui::Text("c : object2 relative pos");
-    ImGui::DragFloat3("##c", (float*)&(m_objects[2]->GetPos()), 1.f, -100.f, 100.f, "%1.f");
-
-    ImGui::Text("d : camera pos");
-    ImGui::DragFloat3("##d", (float*)&m_camera.pos, 1.f, -100.f, 100.f, "%1.f");
-
-    ImGui::Text("e : camera fov");
-    ImGui::SliderFloat("##e", &m_camera.fovY,0.f,10.f,"%.1f");
-
-    ImGui::Text("f : camera near/far");
-    ImGui::SliderFloat("##f1", &m_camera.nearZ, 0.0001f, 9.9f, "%.1f");
-    ImGui::SliderFloat("##f2", &m_camera.farZ, 10.f, 10000.f, "%.1f");
-
-    ImGui::End();
-
-    ImGui::Render();
-
     m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Color{ 0.0f, 0.3f, 0.5f, 1.0f });
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     m_pDeviceContext->IASetInputLayout(m_pInputLayout);
-    m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
-    m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
-    m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
 
     ConstantBuffer cb;
     cb.mView = DirectX::XMMatrixTranspose(m_camera.viewMatrix);
     cb.mProjection = DirectX::XMMatrixTranspose(m_camera.projMatrix);
-
+    cb.lightColor = m_dirLight.color;
+    cb.lightDir = m_dirLight.dir;
     for (const auto& obj : m_objects)
     {
         cb.mWorld = DirectX::XMMatrixTranspose(obj->GetMatrix());
@@ -135,10 +103,17 @@ void Renderer::Render()
         m_pDeviceContext->IASetVertexBuffers(0, 1, &(obj->GetVB()), &(obj->GetStride()), &(obj->GetOffset()));
         m_pDeviceContext->IASetIndexBuffer(obj->GetIB(), DXGI_FORMAT_R16_UINT, 0);
 
+        m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
+        m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
+
+        m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
+        m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pConstantBuffer);
+        m_pDeviceContext->PSSetShaderResources(0, 1, &(obj->GetTRV())); // 픽셀셰이더에 텍스처 전달
+        m_pDeviceContext->PSSetSamplers(0, 1, &(obj->GetSL()));         // 텍스쳐 정렬 정보? 
+
         m_pDeviceContext->DrawIndexed(obj->GetIndicies().size(), 0, 0);
     }
 
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     m_pSwapChain->Present(0, 0);
 
 }
@@ -272,8 +247,9 @@ void Renderer::InitScene()
 {
     D3D11_INPUT_ELEMENT_DESC layout[] =
     {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
 
     DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
@@ -331,34 +307,49 @@ void Renderer::InitImGui()
 void Renderer::InitObj()
 {
     m_objects.push_back(new Object);
-    m_objects.push_back(new Object);
-    m_objects.push_back(new Object);
 
     for (auto obj : m_objects)
     {
         obj->GetVertices() =
-        {
-            { Vector3(-1.0f,  1.0f, -1.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f) },  //0
-            { Vector3( 1.0f,  1.0f, -1.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f) },  //1
-            { Vector3( 1.0f,  1.0f,  1.0f), Vector4(0.0f, 1.0f, 1.0f, 1.0f) },  //2
-            { Vector3(-1.0f,  1.0f,  1.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f) },  //3
-
-            { Vector3(-1.0f, -1.0f, -1.0f), Vector4(1.0f, 0.0f, 1.0f, 1.0f) },  //4
-            { Vector3( 1.0f, -1.0f, -1.0f), Vector4(1.0f, 1.0f, 0.0f, 1.0f) },  //5
-            { Vector3( 1.0f, -1.0f,  1.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) },  //6
-            { Vector3(-1.0f, -1.0f,  1.0f), Vector4(0.0f, 0.0f, 0.0f, 1.0f) },  //7
-
-            { Vector3(-1.5f, 0.f, -1.5f), Vector4(0.5f, 1.0f, 0.0f, 1.0f) },    //8
-            { Vector3( 1.5f, 0.f, -1.5f), Vector4(0.5f, 0.0f, 1.0f, 1.0f) },    //9
-            { Vector3( 1.5f, 0.f,  1.5f), Vector4(0.5f, 0.0f, 0.0f, 1.0f) },    //10
-            { Vector3(-1.5f, 0.f,  1.5f), Vector4(0.5f, 1.0f, 1.0f, 1.0f) },    //11
+        { 
+            { Vector3(-1.0f, 1.0f, -1.0f), Vector3(0.0f, 1.0f, 0.0f),  Vector2(1.0f, 0.0f) },
+            { Vector3(1.0f, 1.0f, -1.0f),  Vector3(0.0f, 1.0f, 0.0f),  Vector2(0.0f, 0.0f) },
+            { Vector3(1.0f, 1.0f, 1.0f),   Vector3(0.0f, 1.0f, 0.0f),  Vector2(0.0f, 1.0f) },
+            { Vector3(-1.0f, 1.0f, 1.0f),  Vector3(0.0f, 1.0f, 0.0f),  Vector2(1.0f, 1.0f) },
+                                                                    
+            { Vector3(-1.0f, -1.0f, -1.0f),Vector3(0.0f, -1.0f, 0.0f), Vector2(0.0f, 0.0f) },
+            { Vector3(1.0f, -1.0f, -1.0f), Vector3(0.0f, -1.0f, 0.0f), Vector2(1.0f, 0.0f) },
+            { Vector3(1.0f, -1.0f, 1.0f),  Vector3(0.0f, -1.0f, 0.0f), Vector2(1.0f, 1.0f) },
+            { Vector3(-1.0f, -1.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f), Vector2(0.0f, 1.0f) },
+                                                                    
+            { Vector3(-1.0f, -1.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector2(0.0f, 1.0f) },
+            { Vector3(-1.0f, -1.0f, -1.0f),Vector3(-1.0f, 0.0f, 0.0f), Vector2(1.0f, 1.0f) },
+            { Vector3(-1.0f, 1.0f, -1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector2(1.0f, 0.0f) },
+            { Vector3(-1.0f, 1.0f, 1.0f),  Vector3(-1.0f, 0.0f, 0.0f), Vector2(0.0f, 0.0f) },
+                                                                    
+            { Vector3(1.0f, -1.0f, 1.0f),  Vector3(1.0f, 0.0f, 0.0f),  Vector2(1.0f, 1.0f) },
+            { Vector3(1.0f, -1.0f, -1.0f), Vector3(1.0f, 0.0f, 0.0f),  Vector2(0.0f, 1.0f) },
+            { Vector3(1.0f, 1.0f, -1.0f),  Vector3(1.0f, 0.0f, 0.0f),  Vector2(0.0f, 0.0f) },
+            { Vector3(1.0f, 1.0f, 1.0f),   Vector3(1.0f, 0.0f, 0.0f),  Vector2(1.0f, 0.0f) },
+                                                                       
+            { Vector3(-1.0f, -1.0f, -1.0f),Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 1.0f) },
+            { Vector3(1.0f, -1.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 1.0f) },
+            { Vector3(1.0f, 1.0f, -1.0f),  Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 0.0f) },
+            { Vector3(-1.0f, 1.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 0.0f) },
+                                                                       
+            { Vector3(-1.0f, -1.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f),  Vector2(1.0f, 1.0f) },
+            { Vector3(1.0f, -1.0f, 1.0f),  Vector3(0.0f, 0.0f, 1.0f),  Vector2(0.0f, 1.0f) },
+            { Vector3(1.0f, 1.0f, 1.0f),   Vector3(0.0f, 0.0f, 1.0f),  Vector2(0.0f, 0.0f) },
+            { Vector3(-1.0f, 1.0f, 1.0f),  Vector3(0.0f, 0.0f, 1.0f),  Vector2(1.0f, 0.0f) },
         };
+
         int nVertices = obj->GetVertices().size();
         Vertex* vertices = new Vertex[nVertices];
         for (int i = 0; i < nVertices; i++)
             vertices[i] = obj->GetVertices()[i];
 
         D3D11_BUFFER_DESC vbDesc = {};
+        auto a = sizeof(Vertex);
         vbDesc.ByteWidth = sizeof(Vertex) * nVertices;
         vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
         vbDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -370,21 +361,14 @@ void Renderer::InitObj()
 
         obj->GetIndicies() =
         {
-           // for LH
-           3, 1, 0,    2, 1, 3,
-
-            0, 9, 8,    1, 9, 0,
-            3, 8, 11,   0, 8, 3,
-            1, 10, 9,   2, 10, 1,
-            2, 11, 10,  3, 11, 2,
-
-            4, 8, 9,    5, 4, 9,
-            7, 11, 8,   4, 7, 8,
-            5, 9, 10,   6, 5, 10,
-            6, 10, 11,  7, 6, 11,
-
-            6, 4, 5,    7, 4, 6, 
+            3,1,0,    2,1,3,
+            6,4,5,    7,4,6,
+            11,9,8,   10,9,11,
+            14,12,13, 15,12,14,
+            19,17,16, 18,17,19,
+            22,20,21, 23,20,22
         };
+
         int nIndices = obj->GetIndicies().size();
         WORD* indices = new WORD[nIndices];
         for (int j = 0; j < nIndices; j++)
@@ -394,25 +378,36 @@ void Renderer::InitObj()
         ibDesc.ByteWidth = sizeof(WORD) * nIndices;
         ibDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
         ibDesc.Usage = D3D11_USAGE_DEFAULT;
+        ibDesc.CPUAccessFlags = 0;
+
         D3D11_SUBRESOURCE_DATA ibData = {};
         ibData.pSysMem = indices;
+
         m_pDevice->CreateBuffer(&ibDesc, &ibData, &(obj->GetIB()));
         assert(obj->GetIB());
         Helper::SafeDeleteArray(indices);
 
         obj->GetStride() = sizeof(Vertex);
         obj->GetOffset() = 0;
+
+        CreateDDSTextureFromFile(m_pDevice, L"seafloor.dds", nullptr, &(obj->GetTRV()));
+        assert(obj->GetTRV());
+
+        D3D11_SAMPLER_DESC sampDesc = {};
+        sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+        sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+        sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+        sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+        sampDesc.MinLOD = 0;
+        sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+        m_pDevice->CreateSamplerState(&sampDesc, &(obj->GetSL()));
+        assert(obj->GetSL());
+
     }
 
     m_objects[0]->GetPos() = { 0,0,0 };
-    m_objects[1]->GetPos() = { 4,0,0 };
-    m_objects[2]->GetPos() = { 4,0,0 };
-
     m_objects[0]->GetScale() = { 0.8,0.8,0.8 };
-    m_objects[1]->GetScale() = { 0.3,0.3,0.3 };
-    m_objects[2]->GetScale() = { 0.3,0.3,0.3 };
-
     m_objects[0]->GetParentObject() = nullptr;
-    m_objects[1]->GetParentObject() = m_objects[0];
-    m_objects[2]->GetParentObject() = m_objects[1];
+
 }

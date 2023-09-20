@@ -1,11 +1,14 @@
 #pragma once
 struct Vertex
 {
-	Vector3 position;		
-	Vector4 color;			
-	Vertex() : position(Vector3()),color(Vector4()) { }
-	Vertex(Vector3 position, Vector4 color)
-		: position(position), color(color) { }
+	Vector3 position;
+	Vector2 tex;
+	Vector3 norm;
+
+	Vertex() : position(Vector3()), norm(Vector3()), tex(Vector2()) { }
+
+	Vertex(Vector3 position, Vector3 normal, Vector2 tex)
+		: position(position), norm(normal), tex(tex) { }
 };
 class Object
 {
@@ -15,6 +18,8 @@ public :
 
 	ID3D11Buffer*& GetVB() { return m_pVertexBuffer; }
 	ID3D11Buffer*& GetIB() { return m_pIndexBuffer; }
+	ID3D11ShaderResourceView*& GetTRV() { return m_pTextureRV; }
+	ID3D11SamplerState*& GetSL() { return m_pSamplerLinear; }
 
 	UINT& GetStride() { return m_VertextBufferStride; }
 	UINT& GetOffset() { return m_VertextBufferOffset; }
@@ -30,8 +35,11 @@ private:
 	ID3D11Buffer* m_pVertexBuffer = nullptr;
 	ID3D11Buffer* m_pIndexBuffer = nullptr;
 
-	UINT m_VertextBufferStride = 0;
-	UINT m_VertextBufferOffset = 0;
+	ID3D11ShaderResourceView* m_pTextureRV = nullptr;
+	ID3D11SamplerState* m_pSamplerLinear = nullptr;	
+
+	UINT m_VertextBufferStride = 0; // 버텍스 하나의 크기.
+	UINT m_VertextBufferOffset = 0;	// 버텍스 버퍼의 오프셋.
 
 	vector<Vertex> m_vertices = {};
 	vector<WORD> m_indices = {};
@@ -46,8 +54,8 @@ private:
 };
 struct Camera
 {
-	Vector3 pos = { 0,1,5 };
-	Vector3 focus = { 0,1,0 };
+	Vector3 pos = { 0,0,-5 };
+	Vector3 dir = { 0,0,1 };
 	Vector3 headDir = { 0,1,0 };
 	Matrix viewMatrix;
 
@@ -55,6 +63,11 @@ struct Camera
 	float nearZ = 0.01f;
 	float farZ = 100.0f;
 	Matrix projMatrix;
+};
+struct DirectionalLight
+{
+	Vector4 color = { 0.5f, 0.5f, 0.5f, 1.0f };
+	Vector4 dir = { 0.0f, 0.0f, -1.0f, 1.0f };
 };
 class Renderer
 {
@@ -92,6 +105,7 @@ protected:
 
 	vector<Object*> m_objects;
 	Camera m_camera;
+	DirectionalLight m_dirLight;
 
 };
 

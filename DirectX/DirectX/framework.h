@@ -11,6 +11,7 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <directxtk/Simplemath.h>
+#include <Directxtk/DDSTextureLoader.h>
 
 #include <imgui.h>
 #include <imgui_impl_win32.h>
@@ -20,4 +21,5 @@
 #pragma comment(lib,"d3dcompiler.lib")
 
 using namespace std;
+using namespace DirectX;
 using namespace DirectX::SimpleMath;
