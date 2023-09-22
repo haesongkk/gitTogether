@@ -283,11 +283,11 @@ void Renderer::InitScene()
     ID3DBlob* vertexShaderBuffer = nullptr;
     ID3DBlob* pixelShaderBuffer = nullptr;
 
-    D3DCompileFromFile(L"BasicVertexShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_4_0",
+    D3DCompileFromFile(L"./Shader/BasicVertexShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_4_0",
         dwShaderFlags, 0, &vertexShaderBuffer, nullptr);
     assert(vertexShaderBuffer);
 
-    D3DCompileFromFile(L"BasicPixelShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_4_0",
+    D3DCompileFromFile(L"./Shader/BasicPixelShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_4_0",
         dwShaderFlags, 0, &pixelShaderBuffer, nullptr);
     assert(pixelShaderBuffer);
 
@@ -417,7 +417,7 @@ void Renderer::InitObj()
         obj->GetStride() = sizeof(Vertex);
         obj->GetOffset() = 0;
 
-        CreateDDSTextureFromFile(m_pDevice, L"seafloor.dds", nullptr, &(obj->GetTRV()));
+        CreateDDSTextureFromFile(m_pDevice, L"./Texture/seafloor.dds", nullptr, &(obj->GetTRV()));
         assert(obj->GetTRV());
 
         D3D11_SAMPLER_DESC sampDesc = {};

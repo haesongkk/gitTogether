@@ -17,6 +17,9 @@
     <Filter Include="Helper">
       <UniqueIdentifier>{ab8b9ca9-4e74-496c-92b4-fd7bb4ed7460}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Texture">
+      <UniqueIdentifier>{236e3c79-c365-48f2-8d78-40500262bdc5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -47,6 +50,9 @@
     <Image Include="DirectX.ico">
       <Filter>리소스 파일</Filter>
     </Image>
+    <Image Include="..\Output\Texture\seafloor.dds">
+      <Filter>Texture</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX.cpp">
@@ -57,15 +63,15 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="BasicPixelShader.hlsl">
+    <FxCompile Include="..\Output\Shader\BasicPixelShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="BasicVertexShader.hlsl">
+    <FxCompile Include="..\Output\Shader\BasicVertexShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shared.fxh">
+    <None Include="..\Output\Shader\Shared.fxh">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
