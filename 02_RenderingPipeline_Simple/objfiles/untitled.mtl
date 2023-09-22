@@ -1,0 +1,94 @@
+# Blender 3.4.1 MTL File: 'None'
+# www.blender.org
+
+newmtl (null)
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+
+newmtl CH026_live_event_234_ur_acce_Mask_01
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 1
+map_Kd textures\\CH026_live_event_234_ur_acce_basecolor_01.png
+map_d textures\\CH026_live_event_234_ur_acce_basecolor_01.png
+map_Bump -bm 10.000000 textures\\CH026_live_event_234_ur_acce_normal_map_01.png
+
+newmtl CH026_live_event_234_ur_body_Base_01
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd textures\\CH026_live_event_234_ur_body_basecolor_01.png
+
+newmtl CH026_live_event_234_ur_body_Mask_01
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+illum 1
+map_Kd textures\\CH026_live_event_234_ur_body_basecolor_01.png
+map_d textures\\CH026_live_event_234_ur_body_basecolor_01.png
+
+newmtl CH026_live_event_234_ur_body_Transparent_01
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd textures\\CH026_live_event_234_ur_body_basecolor_01.png
+map_Bump -bm 1.000000 textures\\CH026_live_event_234_ur_body_normal_map_01.png
+
+newmtl CH026_live_event_234_ur_eye_NoOutline_01
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd textures\\CH026_live_event_234_ur_eye_basecolor_01.png
+
+newmtl CH026_live_event_234_ur_face_Base_01
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd textures\\CH026_live_event_234_ur_face_basecolor_01.png
+
+newmtl CH026_live_event_234_ur_face_Offset_01
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd textures\\CH026_live_event_234_ur_face_outline_01.png
+
+newmtl CH026_live_event_234_ur_hair_Base_01
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd textures\\CH026_live_event_234_ur_hair_basecolor_01.png

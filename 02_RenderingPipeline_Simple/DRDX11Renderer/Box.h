@@ -2,6 +2,7 @@
 
 #include "DX11Define.h"
 #include "./FL/d3dx11Effect.h"	// effect, tech
+#include <vector>
 
 /// <summary>
 /// 용책 예제를 어떻게 오브젝트로 만드는가를 보여주기 위한 예제
@@ -30,6 +31,7 @@ public:
 
 
 private:
+	void LoadFile();
 	void BuildGeometryBuffers();		// 기하구조로부터 버텍스/인덱스버퍼를 만든다.
 	void BuildFX();						// 이펙트를 만든다. (쉐이더를 사용하기 위해서)
 	void BuildFX_Compile();				// 이펙트를 만든다. (컴파일 하는 버전)
@@ -60,5 +62,13 @@ private:
 
 	// 렌더스테이트. 렌더링을 어떻게 할 것인가에 대한 것.
 	ID3D11RasterizerState* m_pRenderstate;			/// 외부에서 생성해서 적당히 상황에 따라서 적용함. 쉐이더에서 해도 된다.
+
+	std::vector<Vertex*> m_Vertices;	// 버텍스 로컬
+	std::vector<Vertex*> m_Textures;	// 텍스쳐 로컬
+	std::vector<Vertex*> m_Normals;		// 노말 로컬
+
+	std::vector<UINT> m_VertexIndex;
+	std::vector<UINT> m_TextureIndex;
+	std::vector<UINT> m_NormalIndex;
 };
 

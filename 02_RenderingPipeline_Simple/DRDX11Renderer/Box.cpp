@@ -80,12 +80,8 @@ void Box::Render()
 	}
 }
 
-void Box::BuildGeometryBuffers()
+void Box::LoadFile()
 {
-	/// 버텍스 버퍼를 생성한다.
-
-	/// 정육면체를 찍는 것이 아름답겠지만, 투영행렬이 없거나 할 때도 제대로 보이도록 
-	/// 위치를 살짝 조정한 사다리꼴형태로 만들었다.
 	FS::path folderPath(L"../objfiles");
 
 	assert(FS::exists(folderPath));			// 폴더가 없는 경우
@@ -109,7 +105,6 @@ void Box::BuildGeometryBuffers()
 				std::string  delimiter = ",";
 
 				int pos = 0;
-				int count = 0;
 
 				std::string  token;
 
@@ -138,7 +133,6 @@ void Box::BuildGeometryBuffers()
 					}
 
 					if (pos == std::string::npos) break;
-					count++;
 				}
 
 				x = objInfo.posX;
@@ -148,6 +142,14 @@ void Box::BuildGeometryBuffers()
 			file.close();
 		}
 	}
+}
+
+void Box::BuildGeometryBuffers()
+{
+	/// 버텍스 버퍼를 생성한다.
+
+	/// 정육면체를 찍는 것이 아름답겠지만, 투영행렬이 없거나 할 때도 제대로 보이도록 
+	/// 위치를 살짝 조정한 사다리꼴형태로 만들었다.
 
 	Vertex vertices[] =
 	{

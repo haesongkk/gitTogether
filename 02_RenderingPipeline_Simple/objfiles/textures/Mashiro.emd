@@ -1,0 +1,13 @@
+[Info]
+Version = 3
+
+[Effect]
+Obj = none
+Obj[0] = Shadekai (KH40)\body.fx
+Obj[2] = Shadekai (KH40)\face.fx
+Obj[4] = Shadekai (KH40)\face.fx
+Obj[5] = Shadekai (KH40)\hair.fx
+Obj[6] = none
+Obj[7] = none
+Obj[8] = none
+
