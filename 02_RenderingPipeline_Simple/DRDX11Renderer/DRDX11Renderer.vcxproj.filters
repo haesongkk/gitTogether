@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="용책DX11">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="DXTK">
+      <UniqueIdentifier>{b5036116-c437-4be6-b059-cb9293aceaa5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{6564ba69-f8cd-444a-a079-446a606f8e5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects\Camera">
+      <UniqueIdentifier>{a79b493d-3578-49a8-8fac-0aa5bae12db5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects\MeshObject">
+      <UniqueIdentifier>{78a64faf-11e7-4e6f-8941-cbcd71e8ac44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Objects\HelperObject">
+      <UniqueIdentifier>{6975f51d-6910-4640-8d25-2a7dfd0f8d79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="용책DX11\Shaders">
+      <UniqueIdentifier>{aad6d628-f134-475f-91c3-5ca276955547}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="DX11Define.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="DXTKFont.h">
+      <Filter>DXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="MathHelper.h">
+      <Filter>용책DX11</Filter>
+    </ClInclude>
+    <ClInclude Include="struct_and_const.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="DRDX11Renderer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="DRCamera.h">
+      <Filter>Objects\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Axis.h">
+      <Filter>Objects\HelperObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Grid.h">
+      <Filter>Objects\HelperObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Box.h">
+      <Filter>Objects\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="I3DRenderer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DXTKFont.cpp">
+      <Filter>DXTK</Filter>
+    </ClCompile>
+    <ClCompile Include="MathHelper.cpp">
+      <Filter>용책DX11</Filter>
+    </ClCompile>
+    <ClCompile Include="DRDX11Renderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="DRCamera.cpp">
+      <Filter>Objects\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Axis.cpp">
+      <Filter>Objects\HelperObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Grid.cpp">
+      <Filter>Objects\HelperObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Box.cpp">
+      <Filter>Objects\MeshObject</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\FX\color.fx">
+      <Filter>용책DX11\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\FX\wire.fx">
+      <Filter>용책DX11\Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>
