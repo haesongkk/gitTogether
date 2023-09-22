@@ -60,7 +60,7 @@ void Renderer::Run()
 
 void Renderer::Update()
 {
-    m_objects[0]->GetRotate().y += 0.0001;
+    //m_objects[0]->GetRotate().y += 0.0001;
 
     for (auto obj : m_objects)
     {
@@ -84,6 +84,25 @@ void Renderer::Update()
 
 void Renderer::Render()
 {
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+    ImGui::SetNextWindowSize(ImVec2(200, 200));
+
+    ImGui::Begin("settings");
+
+    ImGui::Text("color");
+    ImGui::ColorEdit3("##color", (float*)&(m_dirLight.color)); 
+
+    ImGui::Text("direction");
+    ImGui::DragFloat3("##dir", (float*)&(m_dirLight.dir), 0.1f, -1.f, 1.f);
+
+    ImGui::Text("yaw");
+    ImGui::DragFloat("##yaw", (float*)&(m_objects[0]->GetRotate().y), 0.1, -100.f, 100.f);
+
+    ImGui::End();
+
+    ImGui::Render();
     m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Color{ 0.0f, 0.3f, 0.5f, 1.0f });
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
@@ -93,8 +112,10 @@ void Renderer::Render()
     ConstantBuffer cb;
     cb.mView = DirectX::XMMatrixTranspose(m_camera.viewMatrix);
     cb.mProjection = DirectX::XMMatrixTranspose(m_camera.projMatrix);
+
     cb.lightColor = m_dirLight.color;
     cb.lightDir = m_dirLight.dir;
+
     for (const auto& obj : m_objects)
     {
         cb.mWorld = DirectX::XMMatrixTranspose(obj->GetMatrix());
@@ -108,12 +129,13 @@ void Renderer::Render()
 
         m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
         m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pConstantBuffer);
-        m_pDeviceContext->PSSetShaderResources(0, 1, &(obj->GetTRV())); // 픽셀셰이더에 텍스처 전달
-        m_pDeviceContext->PSSetSamplers(0, 1, &(obj->GetSL()));         // 텍스쳐 정렬 정보? 
+        m_pDeviceContext->PSSetShaderResources(0, 1, &(obj->GetTRV()));
+        m_pDeviceContext->PSSetSamplers(0, 1, &(obj->GetSL()));    
 
         m_pDeviceContext->DrawIndexed(obj->GetIndicies().size(), 0, 0);
     }
 
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     m_pSwapChain->Present(0, 0);
 
 }
@@ -245,11 +267,16 @@ void Renderer::InitDX()
 
 void Renderer::InitScene()
 {
+    // 마지막으로 주의를 기울여야 할 것은 버퍼에 데이터가 어떻게 배열되는지 알려주는 AlignedByteOffset 입니다. 
+    // 이 레이아웃에서는 처음 12 byte를 위치 벡터에 사용하고 다음 16 byte를 색상으로 사용할 것임을 알려줘야 하는데, 
+    // AlignedByteOffset이 각 요소가 어디서 시작하는지 보여줍니다. 
+    // 여기서 직접 값을 입력하기보다 D3D11_APPEND_ALIGNED_ELEMENT 를 지정하여 자동으로 알아내도록 합니다. 
+    // 나머지는 이 튜토리얼에서 크게 중요하지 않기 때문에 기본값으로 두었습니다.
     D3D11_INPUT_ELEMENT_DESC layout[] =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
 
     DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
@@ -407,7 +434,7 @@ void Renderer::InitObj()
     }
 
     m_objects[0]->GetPos() = { 0,0,0 };
-    m_objects[0]->GetScale() = { 0.8,0.8,0.8 };
+    m_objects[0]->GetScale() = { 1.2,1.2,1.2 };
     m_objects[0]->GetParentObject() = nullptr;
 
 }

@@ -54,8 +54,8 @@ private:
 };
 struct Camera
 {
-	Vector3 pos = { 0,0,-5 };
-	Vector3 dir = { 0,0,1 };
+	Vector3 pos = { 0,3,-5 };
+	Vector3 dir = { 0,-0.5,1 };
 	Vector3 headDir = { 0,1,0 };
 	Matrix viewMatrix;
 
@@ -67,7 +67,7 @@ struct Camera
 struct DirectionalLight
 {
 	Vector4 color = { 0.5f, 0.5f, 0.5f, 1.0f };
-	Vector4 dir = { 0.0f, 0.0f, -1.0f, 1.0f };
+	Vector4 dir = { 0.0f, -1.0f, 0.f, 1.0f };
 };
 class Renderer
 {
