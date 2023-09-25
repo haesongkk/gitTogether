@@ -133,12 +133,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Helper.h" />
+    <ClInclude Include="hsBase.h" />
+    <ClInclude Include="hsComponent.h" />
+    <ClInclude Include="hsObject.h" />
+    <ClInclude Include="hsRenderCp.h" />
+    <ClInclude Include="hsResource.h" />
+    <ClInclude Include="hsTransformCp.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="hsBase.cpp" />
+    <ClCompile Include="hsObject.cpp" />
+    <ClCompile Include="hsRenderCp.cpp" />
+    <ClCompile Include="hsResource.cpp" />
+    <ClCompile Include="hsTransformCp.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="DirectX.cpp" />
   </ItemGroup>
