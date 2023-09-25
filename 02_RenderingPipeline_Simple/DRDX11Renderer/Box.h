@@ -1,8 +1,11 @@
 #pragma once
 
 #include "DX11Define.h"
+#include "LightHelper.h"
 #include "./FL/d3dx11Effect.h"	// effect, tech
 #include <vector>
+#include <map>
+#include <string>
 
 /// <summary>
 /// 용책 예제를 어떻게 오브젝트로 만드는가를 보여주기 위한 예제
@@ -12,17 +15,16 @@
 /// 
 /// 2021.03.24 LeHideKGIT
 /// </summary>
+/// 
+class ObjLoader;
+
 class Box
 {
 public:
 	Box(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11RasterizerState* pRS);
 	~Box();
 
-	struct Vertex
-	{
-		XMFLOAT3 Pos;
-		XMFLOAT4 Color;
-	};
+	
 
 public:
 	void Initialize();	// 초기화
@@ -31,7 +33,11 @@ public:
 
 
 private:
-	void LoadFile();
+	ObjLoader* m_Loader;
+
+	void LoadOBJ();
+	void LoadMTL();
+	std::string ReadToken(std::string& _line, std::string& _deli);
 	void BuildGeometryBuffers();		// 기하구조로부터 버텍스/인덱스버퍼를 만든다.
 	void BuildFX();						// 이펙트를 만든다. (쉐이더를 사용하기 위해서)
 	void BuildFX_Compile();				// 이펙트를 만든다. (컴파일 하는 버전)
@@ -63,12 +69,16 @@ private:
 	// 렌더스테이트. 렌더링을 어떻게 할 것인가에 대한 것.
 	ID3D11RasterizerState* m_pRenderstate;			/// 외부에서 생성해서 적당히 상황에 따라서 적용함. 쉐이더에서 해도 된다.
 
-	std::vector<Vertex*> m_Vertices;	// 버텍스 로컬
-	std::vector<Vertex*> m_Textures;	// 텍스쳐 로컬
-	std::vector<Vertex*> m_Normals;		// 노말 로컬
+	std::vector<XMFLOAT3> m_VerticesPos;	// 버텍스 로컬
+	std::vector<XMFLOAT2> m_Textures;	// 텍스쳐 로컬
+	std::vector<XMFLOAT3> m_Normals;		// 노말 로컬
 
 	std::vector<UINT> m_VertexIndex;
 	std::vector<UINT> m_TextureIndex;
 	std::vector<UINT> m_NormalIndex;
+	
+	std::vector<Vertex> m_Vertices;
+
+	int m_ReadPos;
 };
 

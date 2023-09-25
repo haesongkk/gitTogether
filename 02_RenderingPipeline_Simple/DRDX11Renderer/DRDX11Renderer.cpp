@@ -15,6 +15,7 @@
 #include "Axis.h"
 #include "Grid.h"
 #include "Box.h"
+#include "ObjLoader.h"
 
 #ifdef _DEBUG
 #pragma comment( lib, "../Lib/Effects11d.lib" )
@@ -214,6 +215,9 @@ bool DRDX11Renderer::Initialize(int hinst, int hWnd, int screenWidth, int screen
 	// 폰트 생성
 	m_pFont->Create(md3dDevice, mSolidRS, NormalDSS);
 
+	m_Loader = new ObjLoader(md3dDevice, md3dImmediateContext);
+	m_Loader->Load_OBJ_File("../objfiles/untitled.obj");
+
 	// Axis
 	m_WorldAxes = new Axis(md3dDevice, md3dImmediateContext, mWireframeRS);
 	m_WorldAxes->Initialize();
@@ -315,7 +319,7 @@ void DRDX11Renderer::BeginRender()
 	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&DRColors::DeepDarkGray));
 
 	// 뎁스스탠실 뷰를 클리어한다.
-	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 5.0f, 0);
 }
 
 // BeginRender()와 EndRender() 사이에 호출 될 것으로 기대하는 테스트용 함수.
@@ -331,6 +335,14 @@ void DRDX11Renderer::Draw_Test()
 	// 박스 그리기 예시
 	m_TestBox->Render();
 
+
+	//md3dImmediateContext->IASetInputLayout(m_pLayout);
+	// select which primtive type we are using
+	md3dImmediateContext->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//md3dImmediateContext->VSSetShader(m_pVS, 0, 0);
+
+	m_Loader->RenderParcingObj();
+
 	///----------------------------------------------------------------------------------------------------
 	/// 폰트 등 UI를 그린다. 위의 DrawPrimitive보다 뒤에 해야 한다.
 
@@ -345,7 +357,7 @@ void DRDX11Renderer::Draw_Test()
 	DirectX::SimpleMath::Vector4 test3(1.f, 1.f, 0.f, 1.f);		// 드럽네..
 	DirectX::SimpleMath::Vector4 _white(1.f, 1.f, 1.f, 1.f);	// white
 
-	m_pFont->DrawTextColor(200, 100, test3, (TCHAR*)L"한글과 버퍼가 잘 작동하는가? %d / %f / %s", 79, 3.14f, L"노란색글씨 똠방각하 펲시 콜라 뾸뾸");
+	m_pFont->DrawTextColor(200, 100, test3, (TCHAR*)L"왜 반만 나와 시로짱");
 
 	// 갱신주기
 	static float _addedTime = 0;

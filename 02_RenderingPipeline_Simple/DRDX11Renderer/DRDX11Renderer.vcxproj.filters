@@ -66,6 +66,12 @@
     <ClInclude Include="I3DRenderer.h">
       <Filter>Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="ObjLoader.h">
+      <Filter>Objects\MeshObject</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshObject.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXTKFont.cpp">
@@ -88,6 +94,12 @@
     </ClCompile>
     <ClCompile Include="Box.cpp">
       <Filter>Objects\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjLoader.cpp">
+      <Filter>Objects\MeshObject</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshObject.cpp">
+      <Filter>Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

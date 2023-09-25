@@ -1,0 +1,22 @@
+# Blender 3.4.1 MTL File: '3D Skin_수업자료_리깅 시작.blend'
+# www.blender.org
+
+newmtl Body
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd free_male_1_body_diffuse.tga
+
+newmtl Face
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd free_male_1_head_diffuse.tga

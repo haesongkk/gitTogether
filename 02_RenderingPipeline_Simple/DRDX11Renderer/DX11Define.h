@@ -29,6 +29,10 @@
 #include <DirectXPackedVector.h>
 #include "dxerr.h"
 
+#include "../DXTK/Inc/SimpleMath.h"
+using namespace std;
+using namespace DirectX::SimpleMath;
+
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
@@ -45,6 +49,20 @@ using namespace DirectX::PackedVector;
 #include "LightHelper.h"
 
 #include <winerror.h> //
+
+struct Vertex
+{
+	XMFLOAT3 Pos;
+	XMFLOAT2 Tex;
+	XMFLOAT3 Normal;
+
+	Vertex() { }
+	Vertex(Vector3 _pos)
+		:Pos(_pos), Normal(Vector3()), Tex(Vector2()) { }
+	Vertex(Vector3 _pos, Vector3 _normal, Vector2 _tex)
+		:Pos(_pos), Normal(_normal), Tex(_tex) { }
+	//XMFLOAT4 Color;
+};
 
 //---------------------------------------------------------------------------------------
 // Simple d3d error checker for book demos.

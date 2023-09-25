@@ -14,6 +14,7 @@ class Axis;
 class Grid;
 class MeshObject;
 class Box;
+class ObjLoader;
 
 /// <summary>
 /// DirectX 11버전으로 만든 아카데미 교육용 다롱랜더러
@@ -49,7 +50,8 @@ public:
 	// 엔진을 종료한다.
 	virtual void Finalize() override;
 
-
+	///
+	ID3D11Device* GetDevice() { return md3dDevice; }
 
 	// 화면에 디버깅 정보 출력
 private:
@@ -156,6 +158,7 @@ private:
 	/// 예시용 박스
 private:
 	Box* m_TestBox;
+	ObjLoader* m_Loader;
 
 };
 

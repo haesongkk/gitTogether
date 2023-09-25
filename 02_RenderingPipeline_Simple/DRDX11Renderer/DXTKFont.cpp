@@ -41,7 +41,7 @@ void DXTKFont::Create(ID3D11Device* pDevice, ID3D11RasterizerState* rs, ID3D11De
 void DXTKFont::DrawTest()
 {
 	m_pSpriteBatch->Begin();
-	m_pSpriteFont->DrawString(m_pSpriteBatch, L"Hello, world! 한글은 안되냐? 똠방각하 펲시 콜라 뾸뾸", DirectX::XMFLOAT2(10.f, 10.f));
+	m_pSpriteFont->DrawString(m_pSpriteBatch, L"왜 반만 나와 시로짱", DirectX::XMFLOAT2(10.f, 10.f));
 	m_pSpriteBatch->End();
 }
 

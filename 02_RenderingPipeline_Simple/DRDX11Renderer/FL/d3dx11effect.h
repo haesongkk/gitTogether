@@ -26,6 +26,8 @@
 #include <d3d11shader.h>
 #endif
 
+#include "../DXTK/Inc/DDSTextureLoader.h"
+//#include "../../Inc/DDSTextureLoader.h"
 #pragma comment( lib, "d3dcompiler.lib" )
 #pragma comment( lib, "dxguid.lib" )
 

@@ -1,4 +1,5 @@
 #include "Box.h"
+#include "ObjLoader.h"
 
 #include <DirectXColors.h>
 
@@ -16,7 +17,6 @@ Box::Box(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11Raste
 	mVB(nullptr), mIB(nullptr), mFX(nullptr), mTech(nullptr), mfxWorldViewProj(nullptr), mInputLayout(nullptr),
 	mWorld(), mView(), mProj()
 {
-
 }
 
 Box::~Box()
@@ -31,7 +31,10 @@ Box::~Box()
 
 void Box::Initialize()
 {
+	//LoadOBJ();
 	BuildGeometryBuffers();
+	//m_Loader->Load_MTL_File("../objfiles/untitled.mtl");
+
 	BuildFX();
 	BuildVertexLayout();
 }
@@ -56,7 +59,7 @@ void Box::Render()
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 	md3dImmediateContext->IASetVertexBuffers(0, 1, &mVB, &stride, &offset);
-	md3dImmediateContext->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
+	//md3dImmediateContext->IASetIndexBuffer(mIB, DXGI_FORMAT_R32_UINT, 0);
 
 	/// WVP TM등을 셋팅
 	// Set constants
@@ -76,72 +79,187 @@ void Box::Render()
 	for (UINT p = 0; p < techDesc.Passes; ++p)
 	{
 		mTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
-		md3dImmediateContext->DrawIndexed(36, 0, 0);
+		md3dImmediateContext->Draw(3, 0);
 	}
 }
 
-void Box::LoadFile()
+void Box::LoadOBJ()
 {
-	FS::path folderPath(L"../objfiles");
+	// 내부 파일을 읽어 확장자가 obj 일 경우
+	std::ifstream file(L"../objfiles/untitled.obj");
 
-	assert(FS::exists(folderPath));			// 폴더가 없는 경우
-	assert(FS::is_directory(folderPath));
+	assert(file.is_open());
 
-	float x = 0, y = 0;
-	for (const auto& entry : FS::directory_iterator(folderPath))
+	std::string line;
+	// 한줄씩 읽는다
+	while (std::getline(file, line))
 	{
-		const FS::path& filePath = entry.path();
+		m_ReadPos = 0;
 
-		// 내부 파일을 읽어 확장자가 obj 일 경우
-		if (FS::is_regular_file(filePath) && filePath.extension() == ".obj")
+		std::string  delimiter = " ";
+
+		std::string  token;
+
+		while (true)
 		{
-			std::ifstream file(filePath);
+			token = ReadToken(line, delimiter);	// 0부터 델리미터까지를 저장
 
-			assert(file.is_open());
+			if (token == "o" || token == "#" || token == "mtllib" || token == "s" || token == "usemtl")
+				break;
 
-			std::string line;
-			while (std::getline(file, line))
+			if (token == "v")
 			{
-				std::string  delimiter = ",";
+				XMFLOAT3 v;
 
-				int pos = 0;
+				v.x = (float)std::stod(ReadToken(line, delimiter));
+				v.y = (float)std::stod(ReadToken(line, delimiter));
+				v.z = (float)std::stod(ReadToken(line, delimiter));
 
-				std::string  token;
-
-				Vertex objInfo;
-
-				while (true)
-				{
-					pos = (int)line.find(delimiter);
-					token = line.substr(0, pos);
-					line.erase(0, pos + delimiter.length());
-
-					// 파일을 한줄 씩 읽는다. 콤마(,) 를 기준으로 구분. 값은 0 부터 읽어옴
-					switch (count)
-					{
-						case 0:
-							objInfo.Pos.x = (float)std::stoi(token);
-							break;
-						case 1:
-							objInfo.Pos.y = (float)std::stoi(token);
-							break;
-						case 2:
-							objInfo.Pos.z = (UINT)std::stoi(token);
-							break;
-						default:
-							break;
-					}
-
-					if (pos == std::string::npos) break;
-				}
-
-				x = objInfo.posX;
-				y = objInfo.posY;
+				m_VerticesPos.push_back(v);
 			}
 
-			file.close();
+			if (token == "vt")
+			{
+				XMFLOAT2 vt;
+
+				vt.x = (float)std::stod(ReadToken(line, delimiter));
+				vt.y = (float)std::stod(ReadToken(line, delimiter));
+
+				m_Textures.push_back(vt);
+			}
+			
+			if (token == "vn")
+			{
+				XMFLOAT3 vn;
+
+				vn.x = (float)std::stod(ReadToken(line, delimiter));
+				vn.y = (float)std::stod(ReadToken(line, delimiter));
+				vn.z = (float)std::stod(ReadToken(line, delimiter));
+
+				m_Normals.push_back(vn);
+			}
+
+			if (token == "f")
+			{
+				std::string deli2 = "/";
+				UINT vIndex[3], uvIndex[3], norIndex[3];
+				vIndex[0] = std::stod(ReadToken(line, deli2));
+				uvIndex[0] = std::stod(ReadToken(line, deli2));
+				norIndex[0] = std::stod(ReadToken(line, delimiter));
+
+				vIndex[1] = std::stod(ReadToken(line, deli2));
+				uvIndex[1] = std::stod(ReadToken(line, deli2));
+				norIndex[1] = std::stod(ReadToken(line, delimiter));
+
+				vIndex[2] = std::stod(ReadToken(line, deli2));
+				uvIndex[2] = std::stod(ReadToken(line, deli2));
+				norIndex[2] = std::stod(ReadToken(line, delimiter));
+
+				m_VertexIndex.push_back(vIndex[0]);
+				m_VertexIndex.push_back(vIndex[1]);
+				m_VertexIndex.push_back(vIndex[2]);
+
+				m_TextureIndex.push_back(uvIndex[0]);
+				m_TextureIndex.push_back(uvIndex[1]);
+				m_TextureIndex.push_back(uvIndex[2]);
+
+				m_NormalIndex.push_back(norIndex[0]);
+				m_NormalIndex.push_back(norIndex[1]);
+				m_NormalIndex.push_back(norIndex[2]);
+			}
+
+			if (m_ReadPos == std::string::npos)
+				break;
 		}
 	}
+	file.close();
+}
+
+std::string Box::ReadToken(std::string& _line, std::string& _deli)
+{
+	m_ReadPos = (int)_line.find(_deli);
+	std::string token = _line.substr(0, m_ReadPos);	// 0부터 델리미터까지를 저장
+
+	_line.erase(0, m_ReadPos + _deli.length());	// 토큰에 담긴 범위까지 지움?
+	
+	// TODO: 여기에 return 문을 삽입합니다.
+	return token;
+}
+
+void Box::LoadMTL()
+{
+	//void c3dObjFile::ProcessMtl(char* szFileName)
+
+	
+		//char szBuf[1024];
+
+		//FILE* fp;
+		//fopen_s(&fp, "../objfiles/", "r");
+
+		//char szMtlName[1024];
+
+		////mtl 파일 분석해서 불러오는 부분
+		//while (!feof(fp))
+		//{
+		//	fgets(szBuf, 1024, fp);
+		//	if (szBuf[0] == '#') //주석 처리 부분은 패스하게끔.
+		//	{
+		//		continue;
+		//	}
+		//	else if (IsStartWith(szBuf, "newmtl")) //주석 처리 부분이 아니면 차근차근 읽어 나가서...
+		//	{
+		//		sscanf_s(szBuf, "%*s %s", szMtlName, 1024);
+		//	}
+		//	else if (IsStartWith(szBuf, "Ka"))
+		//	{
+		//		float fR, fG, fB;
+		//		sscanf_s(szBuf, "%*s %f %f %f", &fR, &fG, &fB);
+		//		m_MtlTexMap[szMtlName].Mtl.Ambient.r = fR;
+		//		m_MtlTexMap[szMtlName].Mtl.Ambient.g = fG;
+		//		m_MtlTexMap[szMtlName].Mtl.Ambient.b = fB;
+		//		m_MtlTexMap[szMtlName].Mtl.Ambient.a = 1.0f;
+		//	}
+		//	else if (IsStartWith(szBuf, "Kd"))
+		//	{
+		//		float fR, fG, fB;
+		//		sscanf_s(szBuf, "%*s %f %f %f", &fR, &fG, &fB);
+		//		m_MtlTexMap[szMtlName].Mtl.Diffuse.r = fR;
+		//		m_MtlTexMap[szMtlName].Mtl.Diffuse.g = fG;
+		//		m_MtlTexMap[szMtlName].Mtl.Diffuse.b = fB;
+		//		m_MtlTexMap[szMtlName].Mtl.Diffuse.a = 1.0f;
+		//	}
+		//	else if (IsStartWith(szBuf, "Ks"))
+		//	{
+		//		float fR, fG, fB;
+		//		sscanf_s(szBuf, "%*s %f %f %f", &fR, &fG, &fB);
+		//		m_MtlTexMap[szMtlName].Mtl.Specular.r = fR;
+		//		m_MtlTexMap[szMtlName].Mtl.Specular.g = fG;
+		//		m_MtlTexMap[szMtlName].Mtl.Specular.b = fB;
+		//		m_MtlTexMap[szMtlName].Mtl.Specular.a = 1.0f;
+		//	}
+		//	else if (IsStartWith(szBuf, "Ke"))
+		//	{
+		//		float fR, fG, fB;
+		//		sscanf_s(szBuf, "%*s %f %f %f", &fR, &fG, &fB);
+		//		m_MtlTexMap[szMtlName].Mtl.Emissive.r = fR;
+		//		m_MtlTexMap[szMtlName].Mtl.Emissive.g = fG;
+		//		m_MtlTexMap[szMtlName].Mtl.Emissive.b = fB;
+		//		m_MtlTexMap[szMtlName].Mtl.Emissive.a = 1.0f;
+		//	}
+		//	else if (IsStartWith(szBuf, "map_Kd"))
+		//	{
+		//		char szTextureFileName[1024];
+		//		sscanf_s(szBuf, "%*s %s", szTextureFileName, 1024);
+
+		//		//convert to unicode string
+		//		wchar_t wszTextureFileName[256] = { 0, };
+		//		::MultiByteToWideChar(CP_ACP, 0, szTextureFileName, -1, wszTextureFileName, strlen(szTextureFileName));
+
+		//		D3DXCreateTextureFromFile(g_pD3DDevice, wszTextureFileName, &m_MtlTexMap[szMtlName].pTex);
+		//	}
+		//}
+		//fclose(fp);
+	
 }
 
 void Box::BuildGeometryBuffers()
@@ -150,26 +268,36 @@ void Box::BuildGeometryBuffers()
 
 	/// 정육면체를 찍는 것이 아름답겠지만, 투영행렬이 없거나 할 때도 제대로 보이도록 
 	/// 위치를 살짝 조정한 사다리꼴형태로 만들었다.
+	
+	//for (UINT i = 0; i < m_VertexIndex.size(); i++)
+	//{
+	//	UINT vindex = m_VertexIndex[i];
+	//	UINT vtindex = m_TextureIndex[i];
+	//	UINT vnindex = m_NormalIndex[i];
+
+	//	Vertex vertex;
+	//	vertex.Pos = m_VerticesPos[vindex - 1];
+	//	vertex.Tex = m_Textures[vtindex - 1];
+	//	vertex.Normal = m_Normals[vnindex - 1];
+
+	//	m_Vertices.push_back(vertex);
+	//}
 
 	Vertex vertices[] =
 	{
-		{ XMFLOAT3(-1.0f, -1.0f, -0.0f), XMFLOAT4((const float*)&Colors::White)   },
-		{ XMFLOAT3(-1.0f, +1.0f, 0.0f), XMFLOAT4((const float*)&Colors::Black)   },
-		{ XMFLOAT3(+1.0f, +1.0f, 0.0f), XMFLOAT4((const float*)&Colors::Red)     },	// 우상 증가
-		{ XMFLOAT3(+1.0f, -1.0f, 0.0f), XMFLOAT4((const float*)&Colors::Green)   },
-		{ XMFLOAT3(-1.0f, -1.0f, +1.0f), XMFLOAT4((const float*)&Colors::Blue)    },
-		{ XMFLOAT3(-1.0f, +1.0f, +1.0f), XMFLOAT4((const float*)&Colors::Yellow)  },
-		{ XMFLOAT3(+1.0f, +1.0f, +1.0f), XMFLOAT4((const float*)&Colors::Cyan)    },
-		{ XMFLOAT3(+1.0f, -1.0f, +1.0f), XMFLOAT4((const float*)&Colors::Magenta) }
+		{Vector3(-1.0f, -1.0f, -0.0f)  },
+		{Vector3(-1.0f, +1.0f, 0.0f)},
+		{ Vector3(+1.0f, -1.0f, +1.0f)}
 	};
 
 	D3D11_BUFFER_DESC vbd;
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth = sizeof(Vertex) * 8;
+	vbd.ByteWidth = sizeof(Vertex) * 3;
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.CPUAccessFlags = 0;
 	vbd.MiscFlags = 0;
 	vbd.StructureByteStride = 0;
+
 	D3D11_SUBRESOURCE_DATA vinitData;
 	vinitData.pSysMem = vertices;
 	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mVB));
@@ -177,43 +305,56 @@ void Box::BuildGeometryBuffers()
 
 	/// 인덱스 버퍼를 생성한다.
 
-	UINT indices[] =
-	{
-		// front face
-		0, 1, 2,
-		0, 2, 3,
+	//UINT indices[] =
+	//{
+	//	// front face
+	//	0, 1, 2,
+	//	0, 2, 3,
 
-		// back face
-		4, 6, 5,
-		4, 7, 6,
+	//	// back face
+	//	4, 6, 5,
+	//	4, 7, 6,
 
-		// left face
-		4, 5, 1,
-		4, 1, 0,
+	//	// left face
+	//	4, 5, 1,
+	//	4, 1, 0,
 
-		// right face
-		3, 2, 6,
-		3, 6, 7,
+	//	// right face
+	//	3, 2, 6,
+	//	3, 6, 7,
 
-		// top face
-		1, 5, 6,
-		1, 6, 2,
+	//	// top face
+	//	1, 5, 6,
+	//	1, 6, 2,
 
-		// bottom face
-		4, 0, 3,
-		4, 3, 7
-	};
+	//	// bottom face
+	//	4, 0, 3,
+	//	4, 3, 7
+	//};
 
-	D3D11_BUFFER_DESC ibd;
-	ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	ibd.ByteWidth = sizeof(UINT) * 36;
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags = 0;
-	ibd.MiscFlags = 0;
-	ibd.StructureByteStride = 0;
-	D3D11_SUBRESOURCE_DATA iinitData;
-	iinitData.pSysMem = indices;
-	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mIB));
+	//D3D11_BUFFER_DESC ibd;
+	//ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	//ibd.ByteWidth = sizeof(UINT) * m_VertexIndex.size();
+	//ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	//ibd.CPUAccessFlags = 0;
+	//ibd.MiscFlags = 0;
+	//ibd.StructureByteStride = 0;
+	//D3D11_SUBRESOURCE_DATA iinitData;
+	//UINT* indices = new UINT[m_VertexIndex.size()];
+	//int tmp;
+	//for (int i = 0; i < m_VertexIndex.size(); i++)
+	//{
+	//	if (i % 3 == 1) tmp = m_VertexIndex[i];
+	//	if (i % 3 == 2)
+	//	{
+	//		m_VertexIndex[i - 1] = m_VertexIndex[i];
+	//		m_VertexIndex[i] = tmp;
+	//	}
+	//}
+	//for (int i = 0; i < m_VertexIndex.size(); i++)
+	//	indices[i] = m_VertexIndex[i] - 1;
+	//iinitData.pSysMem = indices;
+	//HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mIB));
 }
 
 /// 용 책 예제에서는 컴파일을 해서 쓰지만, 여기에서는 이미 컴파일된 파일을 읽어서 생성한다.
@@ -278,13 +419,14 @@ void Box::BuildVertexLayout()
 	// Create the vertex input layout.
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
 	{
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
 	// Create the input layout
 	D3DX11_PASS_DESC passDesc;
 	mTech->GetPassByIndex(0)->GetDesc(&passDesc);
-	HR(md3dDevice->CreateInputLayout(vertexDesc, 2, passDesc.pIAInputSignature,
+	HR(md3dDevice->CreateInputLayout(vertexDesc, 3, passDesc.pIAInputSignature,
 		passDesc.IAInputSignatureSize, &mInputLayout));
 }
