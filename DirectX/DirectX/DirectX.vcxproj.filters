@@ -38,6 +38,9 @@
     <Filter Include="Resource">
       <UniqueIdentifier>{24c3f04a-bf2b-4214-878c-8e8c99328e9b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Loader">
+      <UniqueIdentifier>{11f5e4a5-3eb4-465e-ab2a-19ba34c70639}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
