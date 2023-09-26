@@ -152,6 +152,7 @@ void ObjLoader::Load_MTL_File(const char* path)
 			LPCWSTR _wPath = wstr.c_str();
 			// 문자열 변환
 			wstring find_str = L"png";
+			//wstring find_str = L"tga";
 			wstring replace_str = L"dds";
 			wstr.replace(wstr.find(find_str), find_str.length(), replace_str);
 
@@ -159,7 +160,6 @@ void ObjLoader::Load_MTL_File(const char* path)
 			assert(mMetarial[key]->srv);
 		}
 	}
-
 	fclose(mtl);
 }
 
@@ -305,7 +305,7 @@ void ObjLoader::Load_OBJ_File(const char* path)
 		// v		Vertex Local Position
 		else if (sBuf.find("v ") != string::npos) {
 			string line = sBuf;
-			line.erase(0, 3);
+			line.erase(0, 2);
 
 			BYTE _next = 0;
 			Vector3 vtx;
@@ -316,7 +316,7 @@ void ObjLoader::Load_OBJ_File(const char* path)
 				line.erase(0, line.find_first_of(" ") + 1);
 
 				if (_next == (BYTE)0)
-					vtx.x = -atof(value.c_str());
+					vtx.x = atof(value.c_str());
 
 				else if (_next == (BYTE)1)
 					vtx.y = atof(value.c_str());
@@ -333,7 +333,7 @@ void ObjLoader::Load_OBJ_File(const char* path)
 		// vt		Texture Vector Coord
 		else if (sBuf.find("vt ") != string::npos) {
 			string line = sBuf;
-			line.erase(0, 4);
+			line.erase(0, 3);
 
 			BYTE _next = 0;
 			Vector3 cord;
@@ -361,7 +361,7 @@ void ObjLoader::Load_OBJ_File(const char* path)
 		// vn		Normal Vector
 		else if (sBuf.find("vn ") != string::npos) {
 			string line = sBuf;
-			line.erase(0, 4);
+			line.erase(0, 3);
 
 			BYTE _next = 0;
 			Vector3 norm;

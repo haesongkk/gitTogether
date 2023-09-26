@@ -44,7 +44,7 @@ DRDX11Renderer::DRDX11Renderer()
 	mDepthStencilView(0),
 	m_pFont(nullptr), m_deltaTime(0),
 
-	mWireframeRS(0), mSolidRS(0), NormalDSS(nullptr),
+	mWireframeRS(0), mSolidRS(0), NormalDSS(nullptr), objDSS(nullptr),
 	m_WorldAxes(nullptr), m_Grid(nullptr),
 	m_TestBox(nullptr)
 {
@@ -217,6 +217,7 @@ bool DRDX11Renderer::Initialize(int hinst, int hWnd, int screenWidth, int screen
 
 	m_Loader = new ObjLoader(md3dDevice, md3dImmediateContext);
 	m_Loader->Load_OBJ_File("../objfiles/untitled.obj");
+	//m_Loader->Load_OBJ_File("../3D/3D.obj");
 
 	// Axis
 	m_WorldAxes = new Axis(md3dDevice, md3dImmediateContext, mWireframeRS);
@@ -319,7 +320,7 @@ void DRDX11Renderer::BeginRender()
 	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, reinterpret_cast<const float*>(&DRColors::DeepDarkGray));
 
 	// 뎁스스탠실 뷰를 클리어한다.
-	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 5.0f, 0);
+	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 // BeginRender()와 EndRender() 사이에 호출 될 것으로 기대하는 테스트용 함수.
@@ -340,6 +341,7 @@ void DRDX11Renderer::Draw_Test()
 	// select which primtive type we are using
 	md3dImmediateContext->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//md3dImmediateContext->VSSetShader(m_pVS, 0, 0);
+	md3dImmediateContext->OMSetDepthStencilState(objDSS, 0);
 
 	m_Loader->RenderParcingObj();
 
@@ -439,16 +441,41 @@ void DRDX11Renderer::OnResize()
 	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	depthStencilDesc.CPUAccessFlags = 0;
 	depthStencilDesc.MiscFlags = 0;
-
+	
 	HR(md3dDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer));
-	HR(md3dDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView));
+	
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsv;
+	ZeroMemory(&dsv, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+	dsv.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	dsv.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dsv.Texture2D.MipSlice = 0;
 
+	HR(md3dDevice->CreateDepthStencilView(mDepthStencilBuffer, &dsv, &mDepthStencilView));
+	assert(mDepthStencilView);
+
+	D3D11_DEPTH_STENCIL_DESC dsd;
+	ZeroMemory(&dsd, sizeof(D3D11_DEPTH_STENCIL_DESC));
+	dsd.DepthEnable = TRUE;
+	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsd.DepthFunc = D3D11_COMPARISON_LESS;
+	dsd.StencilEnable = TRUE;
+	dsd.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
+	dsd.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
+	dsd.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsd.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	dsd.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dsd.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	dsd.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsd.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dsd.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	HR(md3dDevice->CreateDepthStencilState(&dsd, &objDSS));
 
 	// Bind the render target view and depth/stencil view to the pipeline.
 	/// 렌더타겟뷰, 뎁스/스탠실뷰를 파이프라인에 바인딩한다.
 
 	md3dImmediateContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
-
+	md3dImmediateContext->OMSetDepthStencilState(objDSS, 0);
 
 	// Set the viewport transform.
 	/// 뷰포트 변환을 셋팅한다.

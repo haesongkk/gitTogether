@@ -137,6 +137,7 @@ private:
 
 	// 폰트때문에 뎁스스탠실 스테이트가 강제가 됐다.
 	ID3D11DepthStencilState* NormalDSS;
+	ID3D11DepthStencilState* objDSS;
 
 
 private:
