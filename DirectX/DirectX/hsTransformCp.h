@@ -11,5 +11,8 @@ private:
 	hsTransformCp* m_parentTransform = nullptr;
 	Matrix m_matrix = {};
 
+	Vector3 m_pos = {};
+	Vector3 m_rotate = {};
+	Vector3 m_scale = {};
 };
 

@@ -14,9 +14,10 @@ public:
 	template<typename T>
 	T* AddComponent()
 	{
-		assert(is_base_of<Component, T>::value);
+		//assert(is_base_of<hsComponent, T>::value);
 		T* pComp = new T(this);
 		mComps.push_back(pComp);
+		return pComp;
 	}
 
 	template<typename T>

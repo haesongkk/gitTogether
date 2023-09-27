@@ -136,10 +136,14 @@
     <ClInclude Include="hsBase.h" />
     <ClInclude Include="hsComponent.h" />
     <ClInclude Include="hsObject.h" />
+    <ClInclude Include="hsProcess.h" />
     <ClInclude Include="hsRenderCp.h" />
+    <ClInclude Include="hsRenderSys.h" />
     <ClInclude Include="hsResource.h" />
+    <ClInclude Include="hsSystem.h" />
     <ClInclude Include="hsTransformCp.h" />
-    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="hsUISys.h" />
+    <ClInclude Include="hsWndSys.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
@@ -147,10 +151,14 @@
   <ItemGroup>
     <ClCompile Include="hsBase.cpp" />
     <ClCompile Include="hsObject.cpp" />
+    <ClCompile Include="hsProcess.cpp" />
     <ClCompile Include="hsRenderCp.cpp" />
+    <ClCompile Include="hsRenderSys.cpp" />
     <ClCompile Include="hsResource.cpp" />
+    <ClCompile Include="hsSystem.cpp" />
     <ClCompile Include="hsTransformCp.cpp" />
-    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="hsUISys.cpp" />
+    <ClCompile Include="hsWndSys.cpp" />
     <ClCompile Include="DirectX.cpp" />
   </ItemGroup>
   <ItemGroup>
