@@ -4,15 +4,15 @@
 
 void hsObject::Init()
 {
-	for (auto pComp : mComps) pComp->Init();
+	//for (auto pComp : mComps) pComp->Init();
 }
 
 void hsObject::Update()
 {
-	for (auto pComp : mComps) pComp->Update();
+	//for (auto pComp : mComps) pComp->Update();
 }
 
 void hsObject::Finalize()
 {
-	for (auto pComp : mComps) pComp->Finalize();
+	//for (auto pComp : mComps) pComp->Finalize();
 }

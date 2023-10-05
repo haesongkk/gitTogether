@@ -1,7 +1,7 @@
 #include "framework.h"
-#include "hsUISys.h"
+#include "hsImGui.h"
 
-hsUISys::hsUISys(HWND _hWnd, ID3D11Device* _pDevice, ID3D11DeviceContext* _pDC)
+hsImGui::hsImGui(HWND _hWnd, ID3D11Device* _pDevice, ID3D11DeviceContext* _pDC)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -17,12 +17,12 @@ hsUISys::hsUISys(HWND _hWnd, ID3D11Device* _pDevice, ID3D11DeviceContext* _pDC)
     ImGui_ImplDX11_Init(_pDevice, _pDC);
 }
 
-void hsUISys::Init()
+void hsImGui::Init()
 {
     
 }
 
-void hsUISys::Update()
+void hsImGui::Update()
 {
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
@@ -44,7 +44,7 @@ void hsUISys::Update()
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
-void hsUISys::Finalize()
+void hsImGui::Finalize()
 {
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();

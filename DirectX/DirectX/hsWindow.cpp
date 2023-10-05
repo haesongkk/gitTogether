@@ -1,5 +1,5 @@
 #include "framework.h"
-#include "hsWndSys.h"
+#include "hsWindow.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -17,7 +17,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-hsWndSys::hsWndSys(HINSTANCE _hInst, UINT _width, UINT _height)
+hsWindow::hsWindow(HINSTANCE _hInst, UINT _width, UINT _height)
 {
     m_wcex.hInstance = _hInst;
     m_wcex.cbSize = sizeof(WNDCLASSEX);
@@ -53,11 +53,11 @@ hsWndSys::hsWndSys(HINSTANCE _hInst, UINT _width, UINT _height)
     UpdateWindow(m_hWnd);
 }
 
-void hsWndSys::Init()
+void hsWindow::Init()
 {
 }
 
-void hsWndSys::Update()
+void hsWindow::Update()
 {
     if (PeekMessage(&m_msg, NULL, 0, 0, PM_REMOVE))
     {
@@ -67,6 +67,6 @@ void hsWndSys::Update()
     }
 }
 
-void hsWndSys::Finalize()
+void hsWindow::Finalize()
 {
 }

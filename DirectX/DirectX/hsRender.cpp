@@ -1,8 +1,8 @@
 #include "framework.h"
-#include "hsRenderSys.h"
+#include "hsRender.h"
 #include "Helper.h"
 
-hsRenderSys::hsRenderSys(HWND _hWnd, UINT _width, UINT _height)
+hsRender::hsRender(HWND _hWnd, UINT _width, UINT _height)
 {
     DXGI_SWAP_CHAIN_DESC swapDesc = {};
     swapDesc.BufferCount = 1;
@@ -88,11 +88,11 @@ hsRenderSys::hsRenderSys(HWND _hWnd, UINT _width, UINT _height)
     m_camera.ratio = _width / (FLOAT)_height;
 }
 
-void hsRenderSys::Init()
+void hsRender::Init()
 {
 }
 
-void hsRenderSys::Update()
+void hsRender::Update()
 {
     if (m_camera.nearZ <= 0.0001f) { m_camera.nearZ = 0.0001f; }
     if (m_camera.nearZ >= 9.9f) { m_camera.nearZ = 9.9f; }
@@ -114,7 +114,7 @@ void hsRenderSys::Update()
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
-void hsRenderSys::Finalize()
+void hsRender::Finalize()
 {
     Helper::SafeRelease(m_pDevice);
     Helper::SafeRelease(m_pDeviceContext);

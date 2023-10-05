@@ -1,9 +1,9 @@
 #pragma once
 #include "hsSystem.h"
-class hsWndSys : public hsSystem
+class hsWindow : public hsSystem
 {
 public:
-	hsWndSys(HINSTANCE _hInst, UINT _width, UINT _height);
+	hsWindow(HINSTANCE _hInst, UINT _width, UINT _height);
 
 	virtual void Init() override;
 	virtual void Update() override;

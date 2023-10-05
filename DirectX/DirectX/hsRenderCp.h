@@ -27,13 +27,13 @@ public:
 	virtual void Update() override;
 	virtual void Finalize() override;
 
-	void CreateVertexShader(wstring& _filePath);
-	void CreatePixelShader(wstring& _filePath);
+	void CreateVertexShader(const wstring& _filePath);
+	void CreatePixelShader(const wstring& _filePath);
 		
-	void CreateVertexBuffer(vector<Vertex>& _vertices, UINT _stride = 0);
+	void CreateVertexBuffer(vector<Vertex>& _vertices, UINT _offset = 0);
 	void CreateIndexBuffer(vector<UINT>& _indicies);
 	
-	void CreateTexture(wstring& _filePath);
+	void CreateTexture(const wstring& _filePath);
 
 	void CreateContantBuffer();
 

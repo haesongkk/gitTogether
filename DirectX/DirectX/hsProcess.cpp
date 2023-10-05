@@ -3,27 +3,29 @@
 
 #include "hsSystem.h"
 
-#include "hsWndSys.h"
-#include "hsRenderSys.h"
-#include "hsUISys.h"
+#include "hsWindow.h"
+#include "hsRender.h"
+#include "hsImGui.h"
 
 hsProcess::hsProcess(HINSTANCE _hInst, UINT _width, UINT _height)
 {
-	m_pSystems.push_back(new hsWndSys(
+	m_pSystems.push_back(new hsWindow(
 		_hInst, 
 		_width, 
 		_height));
 
-	m_pSystems.push_back(new hsRenderSys(
-		GetSystem<hsWndSys>()->GetHwnd(),
+	m_pSystems.push_back(new hsRender(
+		GetSystem<hsWindow>()->GetHwnd(),
 		_width, 
 		_height));
 
-	m_pSystems.push_back(new hsUISys(
-		GetSystem<hsWndSys>()->GetHwnd(),
-		GetSystem<hsRenderSys>()->GetDevice(),
-		GetSystem<hsRenderSys>()->GetDC()
+	m_pSystems.push_back(new hsImGui(
+		GetSystem<hsWindow>()->GetHwnd(),
+		GetSystem<hsRender>()->GetDevice(),
+		GetSystem<hsRender>()->GetDC()
 	));
+
+
 }
 
 void hsProcess::Init()
@@ -34,8 +36,11 @@ void hsProcess::Init()
 
 void hsProcess::Update()
 {
-	for (auto pSys : m_pSystems)
-		pSys->Update();
+	while (true)
+	{
+		for (auto pSys : m_pSystems)
+			pSys->Update();
+	}
 }
 
 void hsProcess::Finalize()

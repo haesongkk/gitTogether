@@ -1,6 +1,5 @@
 #pragma once
 #include "hsBase.h"
-class hsComponent;
 class hsObject : public hsBase
 {
 public:
@@ -9,29 +8,39 @@ public:
 	virtual void Finalize() override;
 
 public:
-	string& GetName() { return mName; }
-
-	template<typename T>
-	T* AddComponent()
+	struct Transform
 	{
-		//assert(is_base_of<hsComponent, T>::value);
-		T* pComp = new T(this);
-		mComps.push_back(pComp);
-		return pComp;
-	}
+		Transform* parent = nullptr;
+		Matrix matrix = {};
 
-	template<typename T>
-	T* GetComponent()
+		Vector3 pos = {};
+		Vector3 rotate = {};
+		Vector3 scale = {};
+	}*m_transform;
+
+	struct Render
 	{
-		for (auto pComp : mComps)
-			if (dynamic_cast<T*>(pComp))
-				return pComp;
-		return nullptr;
-	}
+		ID3D11Device* pDevice = nullptr;
+		ID3D11DeviceContext* pDC = nullptr;
+
+		ID3D11VertexShader* pVS = nullptr;
+		ID3D11PixelShader* pPS = nullptr;
+		ID3D11InputLayout* pIL = nullptr;
+
+		ID3D11Buffer* pCB = nullptr;
+
+		ID3D11Buffer* pVB = nullptr;
+		UINT vertextBufferStride = 0;
+		UINT vertextBufferOffset = 0;
+
+		ID3D11Buffer* pIB = nullptr;
+		UINT indexCount = 0;
+
+		ID3D11SamplerState* pSL = nullptr;
+		ID3D11ShaderResourceView* pTRV = nullptr;
+	}*m_render;
 
 private:
-	string mName;
-	vector<hsComponent*> mComps;
 
 };
 

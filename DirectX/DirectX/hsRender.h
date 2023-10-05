@@ -1,9 +1,9 @@
 #pragma once
 #include "hsSystem.h"
-class hsRenderSys : public hsSystem
+class hsRender : public hsSystem
 {
 public:
-	hsRenderSys(HWND _hWnd, UINT _width, UINT _height);
+	hsRender(HWND _hWnd, UINT _width, UINT _height);
 	virtual void Init() override;
 	virtual void Update() override;
 	virtual void Finalize() override;

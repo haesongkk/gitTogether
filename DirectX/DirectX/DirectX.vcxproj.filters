@@ -35,9 +35,6 @@
     <Filter Include="Resource">
       <UniqueIdentifier>{24c3f04a-bf2b-4214-878c-8e8c99328e9b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Loader">
-      <UniqueIdentifier>{11f5e4a5-3eb4-465e-ab2a-19ba34c70639}</UniqueIdentifier>
-    </Filter>
     <Filter Include="System">
       <UniqueIdentifier>{3d755610-91d3-4792-8573-7bad5056bc03}</UniqueIdentifier>
     </Filter>
@@ -49,6 +46,12 @@
     </Filter>
     <Filter Include="System\ImGui">
       <UniqueIdentifier>{08852339-9bcf-4da1-b33f-edd791a30de3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Process">
+      <UniqueIdentifier>{287590fc-abb4-4407-b125-ca69b3eb5c37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\World">
+      <UniqueIdentifier>{c428deb1-8662-4c56-8da8-813481f4e143}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -82,19 +85,22 @@
     <ClInclude Include="hsTransformCp.h">
       <Filter>Component\Transform</Filter>
     </ClInclude>
-    <ClInclude Include="hsProcess.h" />
     <ClInclude Include="hsSystem.h">
       <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="hsWndSys.h">
+    <ClInclude Include="hsWindow.h">
       <Filter>System\Window</Filter>
     </ClInclude>
-    <ClInclude Include="hsRenderSys.h">
+    <ClInclude Include="hsRender.h">
       <Filter>System\Render</Filter>
     </ClInclude>
-    <ClInclude Include="hsUISys.h">
+    <ClInclude Include="hsImGui.h">
       <Filter>System\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="hsProcess.h">
+      <Filter>Process</Filter>
+    </ClInclude>
+    <ClInclude Include="hsWorld.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectX.rc">
@@ -131,19 +137,22 @@
     <ClCompile Include="hsTransformCp.cpp">
       <Filter>Component\Transform</Filter>
     </ClCompile>
-    <ClCompile Include="hsProcess.cpp" />
     <ClCompile Include="hsSystem.cpp">
       <Filter>System</Filter>
     </ClCompile>
-    <ClCompile Include="hsWndSys.cpp">
+    <ClCompile Include="hsWindow.cpp">
       <Filter>System\Window</Filter>
     </ClCompile>
-    <ClCompile Include="hsRenderSys.cpp">
+    <ClCompile Include="hsRender.cpp">
       <Filter>System\Render</Filter>
     </ClCompile>
-    <ClCompile Include="hsUISys.cpp">
+    <ClCompile Include="hsImGui.cpp">
       <Filter>System\ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="hsProcess.cpp">
+      <Filter>Process</Filter>
+    </ClCompile>
+    <ClCompile Include="hsWorld.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Output\Shader\BasicPixelShader.hlsl">

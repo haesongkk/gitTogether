@@ -2,10 +2,55 @@
 #include "hsRenderCp.h"
 #include "Helper.h"
 
-
-
 void hsRenderCp::Init()
 {
+    vector<Vertex> verticies =
+    {
+        Vertex( Vector3(-1.0f, 1.0f,-1.0f), Vector3(0.0f, 1.0f, 0.0f), Vector2(1.0f, 0.0f) ), 
+        Vertex( Vector3(1.0f, 1.0f,-1.0f),  Vector3(0.0f, 1.0f, 0.0f), Vector2(0.0f, 0.0f) ),
+        Vertex( Vector3(1.0f, 1.0f, 1.0f),  Vector3(0.0f, 1.0f, 0.0f), Vector2(0.0f, 1.0f) ),
+        Vertex( Vector3(-1.0f, 1.0f, 1.0f), Vector3(0.0f, 1.0f, 0.0f), Vector2(1.0f, 1.0f) ),
+        
+        Vertex( Vector3(-1.0f,-1.0f,-1.0f), Vector3(0.0f,-1.0f, 0.0f), Vector2(0.0f, 0.0f) ),  // 아랫면이라 y전부 -1
+        Vertex( Vector3(1.0f,-1.0f,-1.0f),  Vector3(0.0f,-1.0f, 0.0f), Vector2(1.0f, 0.0f) ),
+        Vertex( Vector3(1.0f,-1.0f, 1.0f),  Vector3(0.0f,-1.0f, 0.0f), Vector2(1.0f, 1.0f) ),
+        Vertex( Vector3(-1.0f,-1.0f, 1.0f), Vector3(0.0f,-1.0f, 0.0f), Vector2(0.0f, 1.0f) ),
+
+        Vertex( Vector3(-1.0f,-1.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector2(0.0f, 1.0f) ),	// 왼쪽면 이라 x전부 -1
+        Vertex( Vector3(-1.0f,-1.0f,-1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector2(1.0f, 1.0f) ),
+        Vertex( Vector3(-1.0f, 1.0f,-1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector2(1.0f, 0.0f) ),
+        Vertex( Vector3(-1.0f, 1.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector2(0.0f, 0.0f) ),
+
+        Vertex( Vector3(1.0f,-1.0f, 1.0f),  Vector3(1.0f, 0.0f, 0.0f), Vector2(1.0f, 1.0f) ),	// 오른쪽면 이라 x전부 +1
+        Vertex( Vector3(1.0f,-1.0f,-1.0f),  Vector3(1.0f, 0.0f, 0.0f), Vector2(0.0f, 1.0f) ),
+        Vertex( Vector3(1.0f, 1.0f,-1.0f),  Vector3(1.0f, 0.0f, 0.0f), Vector2(0.0f, 0.0f) ),
+        Vertex( Vector3(1.0f, 1.0f, 1.0f),  Vector3(1.0f, 0.0f, 0.0f), Vector2(1.0f, 0.0f) ),
+
+        Vertex( Vector3(-1.0f,-1.0f,-1.0f), Vector3(0.0f, 0.0f,-1.0f), Vector2(0.0f, 1.0f) ),  // 앞면이라 z전부 -1
+        Vertex( Vector3(1.0f,-1.0f,-1.0f),  Vector3(0.0f, 0.0f,-1.0f), Vector2(1.0f, 1.0f) ),
+        Vertex( Vector3(1.0f, 1.0f,-1.0f),  Vector3(0.0f, 0.0f,-1.0f), Vector2(1.0f, 0.0f) ),
+        Vertex( Vector3(-1.0f, 1.0f,-1.0f), Vector3(0.0f, 0.0f,-1.0f), Vector2(0.0f, 0.0f) ),
+
+        Vertex( Vector3(-1.0f,-1.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f), Vector2(1.0f, 1.0f) ),	//뒷면이라 z전부 +1
+        Vertex( Vector3(1.0f,-1.0f, 1.0f),  Vector3(0.0f, 0.0f, 1.0f), Vector2(0.0f, 1.0f) ),
+        Vertex( Vector3(1.0f, 1.0f, 1.0f),  Vector3(0.0f, 0.0f, 1.0f), Vector2(0.0f, 0.0f) ),
+        Vertex( Vector3(-1.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f), Vector2(1.0f, 0.0f) ),
+    };
+    vector<UINT> indicies =
+    {
+        3,1,0,    2,1,3,
+        6,4,5,    7,4,6,
+        11,9,8,   10,9,11,
+        14,12,13, 15,12,14,
+        19,17,16, 18,17,19,
+        22,20,21, 23,20,22
+    };
+    CreateVertexShader(L"./Shaders/BasicVertexShader.hlsl");
+    CreatePixelShader(L"./Shaders/BasicPixelShader.hlsl");
+    CreateTexture(L"./Texture/seafloor.dds");
+    CreateVertexBuffer(verticies);
+    CreateIndexBuffer(indicies);
+    CreateContantBuffer();
 }
 
 void hsRenderCp::Update()
@@ -42,7 +87,7 @@ void hsRenderCp::Finalize()
     Helper::SafeRelease(m_pConstantBuffer);
 }
 
-void hsRenderCp::CreateVertexShader(wstring& _filePath)
+void hsRenderCp::CreateVertexShader(const wstring& _filePath)
 {
     D3D11_INPUT_ELEMENT_DESC layout[] =
     {
@@ -83,7 +128,7 @@ void hsRenderCp::CreateVertexShader(wstring& _filePath)
     Helper::SafeRelease(vertexShaderBuffer);
 }
 
-void hsRenderCp::CreatePixelShader(wstring& _filePath)
+void hsRenderCp::CreatePixelShader(const wstring& _filePath)
 {
     ID3DBlob* pixelShaderBuffer = nullptr;
 
@@ -146,7 +191,7 @@ void hsRenderCp::CreateIndexBuffer(vector<UINT>& _indicies)
     m_indexCount = _indicies.size();
 }
 
-void hsRenderCp::CreateTexture(wstring& _filePath)
+void hsRenderCp::CreateTexture(const wstring& _filePath)
 {
     D3D11_SAMPLER_DESC sampDesc = {};
     sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
