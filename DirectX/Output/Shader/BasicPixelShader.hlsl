@@ -19,8 +19,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     float4 specular = pow(SDot, MaterialSpecularPower) 
         * LightSpecular * MaterialSpecular;
 
-
+    
     float4 finalColor = diffuse + specular + ambient;
-
     return finalColor;
 }

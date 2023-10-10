@@ -17,41 +17,8 @@
     <Filter Include="Texture">
       <UniqueIdentifier>{236e3c79-c365-48f2-8d78-40500262bdc5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Object">
-      <UniqueIdentifier>{23ca56ed-a207-4a49-a1ed-85246b7ebc8e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Base">
-      <UniqueIdentifier>{aa4df0cc-a68c-41d5-8458-7515cb9b7456}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Component">
-      <UniqueIdentifier>{06e665d0-6a79-40cd-9ff0-7348406ab1e2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Component\Transform">
-      <UniqueIdentifier>{65cb48cf-1dcc-4592-bfa7-b45f889f8109}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Component\Render">
-      <UniqueIdentifier>{36784840-bb0f-4a56-b077-17a17619d6d0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource">
-      <UniqueIdentifier>{24c3f04a-bf2b-4214-878c-8e8c99328e9b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="System">
-      <UniqueIdentifier>{3d755610-91d3-4792-8573-7bad5056bc03}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="System\Window">
-      <UniqueIdentifier>{bcbb1889-a6f7-43bf-8b4c-af24c98a8a0c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="System\Render">
-      <UniqueIdentifier>{e2e7b783-9f5b-4099-8ce6-497f467a09b6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="System\ImGui">
-      <UniqueIdentifier>{08852339-9bcf-4da1-b33f-edd791a30de3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Process">
-      <UniqueIdentifier>{287590fc-abb4-4407-b125-ca69b3eb5c37}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="System\World">
-      <UniqueIdentifier>{c428deb1-8662-4c56-8da8-813481f4e143}</UniqueIdentifier>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{4202230a-2ac9-411f-9b47-7d5c598197b0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -67,40 +34,9 @@
     <ClInclude Include="Helper.h">
       <Filter>Helper</Filter>
     </ClInclude>
-    <ClInclude Include="hsObject.h">
-      <Filter>Object</Filter>
+    <ClInclude Include="Renderer.h">
+      <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="hsBase.h">
-      <Filter>Base</Filter>
-    </ClInclude>
-    <ClInclude Include="hsComponent.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="hsResource.h">
-      <Filter>Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="hsRenderCp.h">
-      <Filter>Component\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="hsTransformCp.h">
-      <Filter>Component\Transform</Filter>
-    </ClInclude>
-    <ClInclude Include="hsSystem.h">
-      <Filter>System</Filter>
-    </ClInclude>
-    <ClInclude Include="hsWindow.h">
-      <Filter>System\Window</Filter>
-    </ClInclude>
-    <ClInclude Include="hsRender.h">
-      <Filter>System\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="hsImGui.h">
-      <Filter>System\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="hsProcess.h">
-      <Filter>Process</Filter>
-    </ClInclude>
-    <ClInclude Include="hsWorld.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectX.rc">
@@ -122,37 +58,9 @@
     <ClCompile Include="DirectX.cpp">
       <Filter>Default</Filter>
     </ClCompile>
-    <ClCompile Include="hsObject.cpp">
-      <Filter>Object</Filter>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="hsBase.cpp">
-      <Filter>Base</Filter>
-    </ClCompile>
-    <ClCompile Include="hsResource.cpp">
-      <Filter>Resource</Filter>
-    </ClCompile>
-    <ClCompile Include="hsRenderCp.cpp">
-      <Filter>Component\Render</Filter>
-    </ClCompile>
-    <ClCompile Include="hsTransformCp.cpp">
-      <Filter>Component\Transform</Filter>
-    </ClCompile>
-    <ClCompile Include="hsSystem.cpp">
-      <Filter>System</Filter>
-    </ClCompile>
-    <ClCompile Include="hsWindow.cpp">
-      <Filter>System\Window</Filter>
-    </ClCompile>
-    <ClCompile Include="hsRender.cpp">
-      <Filter>System\Render</Filter>
-    </ClCompile>
-    <ClCompile Include="hsImGui.cpp">
-      <Filter>System\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="hsProcess.cpp">
-      <Filter>Process</Filter>
-    </ClCompile>
-    <ClCompile Include="hsWorld.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Output\Shader\BasicPixelShader.hlsl">
