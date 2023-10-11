@@ -53,38 +53,6 @@ private:
 
 };
 
-struct TransformBuffer
-{
-	Matrix mWorld;
-	Matrix mView;
-	Matrix mProjection;
-};
-
-struct LightBuffer
-{
-	Vector3 Direction = { 0.0f, 0.0f, 1.0f };
-	float pad0;
-	Vector4 Ambient = { 0.1f,0.1f,0.1f,0.1f };
-	Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
-	Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
-	Vector3 EyePosition;
-	bool UseBlinnPhong = true;
-};
-
-struct MarterialBuffer
-{
-	Vector4 Ambient = { 1.0f,1.0f,1.0f,1.0f };
-	Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
-	Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
-	float  SpecularPower = 2000;
-	Vector3 dummy;
-};
-
-struct DirectionalLight
-{
-	Vector4 color = { 0.5f, 0.5f, 0.5f, 1.0f };
-	Vector4 dir = { 0.0f, -1.0f, 0.f, 1.0f };
-};
 class Renderer
 {
 public:
@@ -99,6 +67,19 @@ public:
 	void InitScene();
 	void InitImGui();
 	void InitObj();
+
+	void UpdateScene();
+	void UpdateObject();
+
+	void RenderScene();
+	void RenderImGui();
+	void RenderObject();
+
+	void FinalImGui();
+	void FianlScene();
+	void FinalObject();
+	void FinalDX();
+
 
 protected:
 	HWND m_hWnd;
@@ -121,15 +102,39 @@ protected:
 	ID3D11Buffer* m_pLightBuffer = nullptr;
 	ID3D11Buffer* m_pMaterialBuffer = nullptr;
 
-	TransformBuffer m_TB;
-	LightBuffer m_LB;
-	MarterialBuffer m_MB;
-
 	vector<Object*> m_objects;
+
+	struct TransformBuffer
+	{
+		Matrix mWorld;
+		Matrix mView;
+		Matrix mProjection;
+	} m_transform;
+
+	struct LightBuffer
+	{
+		Vector3 Direction = { 0.0f, 0.0f, 1.0f };
+		float pad0;
+		Vector4 Ambient = { 0.1f,0.1f,0.1f,0.1f };
+		Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
+		Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
+		Vector3 EyePosition;
+		bool UseBlinnPhong = true;
+	} m_light;
+
+	struct MarterialBuffer
+	{
+		Vector4 Ambient = { 1.0f,1.0f,1.0f,1.0f };
+		Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
+		Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
+		float  SpecularPower = 2000;
+		Vector3 dummy;
+	} m_material;
+
 	struct Camera
 	{
-		Vector3 pos = { 0,3,-5 };
-		Vector3 dir = { 0,-0.5,1 };
+		Vector3 pos = { 0,0,-5 };
+		Vector3 dir = { 0,0,1 };
 		Vector3 headDir = { 0,1,0 };
 		Matrix viewMatrix;
 
@@ -138,7 +143,6 @@ protected:
 		float farZ = 100.0f;
 		Matrix projMatrix;
 	} m_camera;
-	DirectionalLight m_dirLight;
 
 };
 

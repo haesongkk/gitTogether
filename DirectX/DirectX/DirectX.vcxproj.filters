@@ -71,7 +71,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Output\Shader\Shared.fxh">
+    <None Include="..\Output\Shader\Shared.hlsli">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

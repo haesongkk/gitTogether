@@ -50,107 +50,23 @@ void Renderer::Run()
 
 void Renderer::Update()
 {
-    //m_objects[0]->GetRotate().y += 0.0001;
-
-    for (auto obj : m_objects)
-    {
-        Matrix mScale = DirectX::XMMatrixScaling(obj->GetScale().x, obj->GetScale().y, obj->GetScale().z);
-        Matrix mRot = DirectX::XMMatrixRotationX(obj->GetRotate().x)
-            * DirectX::XMMatrixRotationY(obj->GetRotate().y)
-            * DirectX::XMMatrixRotationZ(obj->GetRotate().z);
-        Matrix mTrans = DirectX::XMMatrixTranslation(obj->GetPos().x, obj->GetPos().y, obj->GetPos().z);
-        Matrix mBasis = DirectX::XMMatrixIdentity();
-        if (obj->GetParentObject()) mBasis = obj->GetParentObject()->GetMatrix();
-        obj->GetMatrix() = mScale * mRot * mTrans * mBasis;
-    }
-
-    if (m_camera.nearZ <= 0.0001f) { m_camera.nearZ = 0.0001f; }
-    if (m_camera.nearZ >= 9.9f) { m_camera.nearZ = 9.9f; }
-    if (m_camera.fovY <= 0.f) { m_camera.fovY = 0.01; }
-
-    m_camera.viewMatrix = DirectX::XMMatrixLookToLH(m_camera.pos, m_camera.dir, m_camera.headDir);
-    m_camera.projMatrix = DirectX::XMMatrixPerspectiveFovLH(m_camera.fovY, m_width / (FLOAT)m_height, m_camera.nearZ, m_camera.farZ);
+    UpdateScene();
+    UpdateObject();
 }
 
 void Renderer::Render()
 {
-    ImGui_ImplDX11_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
-    ImGui::SetNextWindowSize(ImVec2(200, 200));
-
-    ImGui::Begin("settings");
-
-    ImGui::Text("color");
-    ImGui::ColorEdit3("##color", (float*)&(m_dirLight.color));
-
-    ImGui::Text("direction");
-    ImGui::DragFloat3("##dir", (float*)&(m_dirLight.dir), 0.1f, -1.f, 1.f);
-
-    ImGui::Text("yaw");
-    ImGui::DragFloat("##yaw", (float*)&(m_objects[0]->GetRotate().y), 0.1, -100.f, 100.f);
-
-    ImGui::End();
-
-    ImGui::Render();
-    m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Color{ 0.0f, 0.3f, 0.5f, 1.0f });
-    m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    m_pDeviceContext->IASetInputLayout(m_pInputLayout);
-
-   
-
-    for (const auto& obj : m_objects)
-    {
-        m_TB.mWorld = XMMatrixTranspose(obj->GetMatrix());
-        m_TB.mView = XMMatrixTranspose(m_camera.viewMatrix);
-        m_TB.mProjection = XMMatrixTranspose(m_camera.projMatrix);
-        m_pDeviceContext->UpdateSubresource(m_pTransformBuffer, 0, nullptr, &m_TB, 0, 0);
-
-        m_pDeviceContext->IASetVertexBuffers(0, 1, &(obj->GetVB()), &(obj->GetStride()), &(obj->GetOffset()));
-        m_pDeviceContext->IASetIndexBuffer(obj->GetIB(), DXGI_FORMAT_R16_UINT, 0);
-
-        m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
-        m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pTransformBuffer);
-
-        m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
-        m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pTransformBuffer);
-        m_pDeviceContext->PSSetShaderResources(0, 1, &(obj->GetTRV()));
-        m_pDeviceContext->PSSetSamplers(0, 1, &(obj->GetSL()));
-
-        m_pDeviceContext->DrawIndexed(obj->GetIndicies().size(), 0, 0);
-    }
-
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-    m_pSwapChain->Present(0, 0);
-
+    RenderScene();
+    RenderObject();
+    RenderImGui();
 }
 
 void Renderer::Final()
 {
-    ImGui_ImplDX11_Shutdown();
-    ImGui_ImplWin32_Shutdown();
-    ImGui::DestroyContext();
-
-    for (auto& obj : m_objects)
-    {
-        Helper::SafeRelease(obj->GetIB());
-        Helper::SafeRelease(obj->GetVB());
-        delete obj;
-    }
-
-    Helper::SafeRelease(m_pDevice);
-    Helper::SafeRelease(m_pDeviceContext);
-    Helper::SafeRelease(m_pSwapChain);
-    Helper::SafeRelease(m_pRenderTargetView);
-    Helper::SafeRelease(m_pDepthStencilView);
-
-    Helper::SafeRelease(m_pVertexShader);
-    Helper::SafeRelease(m_pPixelShader);
-    Helper::SafeRelease(m_pInputLayout);
-    Helper::SafeRelease(m_pTransformBuffer);
-
+    FinalImGui();
+    FianlScene();
+    FinalObject();
+    FinalDX();
 }
 
 void Renderer::InitWindow(HINSTANCE hInstance)
@@ -297,9 +213,21 @@ void Renderer::InitScene()
     cbDesc.Usage = D3D11_USAGE_DEFAULT;
     cbDesc.ByteWidth = sizeof(TransformBuffer);
     cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    cbDesc.CPUAccessFlags = 0;
     m_pDevice->CreateBuffer(&cbDesc, nullptr, &m_pTransformBuffer);
     assert(m_pTransformBuffer);
+
+    cbDesc.Usage = D3D11_USAGE_DEFAULT;
+    cbDesc.ByteWidth = sizeof(LightBuffer);
+    cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    m_pDevice->CreateBuffer(&cbDesc, nullptr, &m_pLightBuffer);
+    assert(m_pLightBuffer);
+
+    cbDesc.Usage = D3D11_USAGE_DEFAULT;
+    cbDesc.ByteWidth = sizeof(MarterialBuffer);
+    cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    m_pDevice->CreateBuffer(&cbDesc, nullptr, &m_pMaterialBuffer);
+    assert(m_pMaterialBuffer);
+
 }
 
 void Renderer::InitImGui()
@@ -424,4 +352,137 @@ void Renderer::InitObj()
     m_objects[0]->GetScale() = { 1.2,1.2,1.2 };
     m_objects[0]->GetParentObject() = nullptr;
 
+}
+
+void Renderer::UpdateScene()
+{
+    if (m_camera.nearZ <= 0.0001f) { m_camera.nearZ = 0.0001f; }
+    if (m_camera.nearZ >= 9.9f) { m_camera.nearZ = 9.9f; }
+    if (m_camera.fovY <= 0.f) { m_camera.fovY = 0.01; }
+
+    m_camera.viewMatrix = DirectX::XMMatrixLookToLH(m_camera.pos, m_camera.dir, m_camera.headDir);
+    m_camera.projMatrix = DirectX::XMMatrixPerspectiveFovLH(m_camera.fovY, m_width / (FLOAT)m_height, m_camera.nearZ, m_camera.farZ);
+
+    m_light.EyePosition = m_camera.pos;
+}
+
+void Renderer::UpdateObject()
+{
+    for (auto obj : m_objects)
+    {
+        Matrix mScale = DirectX::XMMatrixScaling(obj->GetScale().x, obj->GetScale().y, obj->GetScale().z);
+        Matrix mRot = DirectX::XMMatrixRotationX(obj->GetRotate().x)
+            * DirectX::XMMatrixRotationY(obj->GetRotate().y)
+            * DirectX::XMMatrixRotationZ(obj->GetRotate().z);
+        Matrix mTrans = DirectX::XMMatrixTranslation(obj->GetPos().x, obj->GetPos().y, obj->GetPos().z);
+        Matrix mBasis = DirectX::XMMatrixIdentity();
+        if (obj->GetParentObject()) mBasis = obj->GetParentObject()->GetMatrix();
+        obj->GetMatrix() = mScale * mRot * mTrans * mBasis;
+    }
+}
+
+void Renderer::RenderScene()
+{
+    m_pSwapChain->Present(0, 0);
+
+
+    m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Color{ 0.0f, 0.3f, 0.5f, 1.0f });
+    m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_pDeviceContext->IASetInputLayout(m_pInputLayout);
+}
+
+void Renderer::RenderImGui()
+{
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+    ImGui::SetNextWindowSize(ImVec2(200, 200));
+
+    ImGui::Begin("settings");
+
+    ImGui::Text("yaw");
+    ImGui::DragFloat("##yaw", (float*)&(m_objects[0]->GetRotate().y), 0.1, -100.f, 100.f);
+
+    ImGui::Text("pitch");
+    ImGui::DragFloat("##pitch", (float*)&(m_objects[0]->GetRotate().x), 0.1, -100.f, 100.f);
+
+    ImGui::Text("camera position");
+    ImGui::DragFloat3("##camera", (float*)&(m_camera.pos), 0.1, -100.f, 100.f);
+
+    ImGui::Text("specular power");
+    ImGui::SliderFloat("##power", (float*)&(m_material.SpecularPower), 2.0f, 4096.0f);
+
+    ImGui::End();
+
+    ImGui::Render();
+    
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+}
+
+void Renderer::RenderObject()
+{
+    for (const auto& obj : m_objects)
+    {
+        m_transform.mWorld = XMMatrixTranspose(obj->GetMatrix());
+        m_transform.mView = XMMatrixTranspose(m_camera.viewMatrix);
+        m_transform.mProjection = XMMatrixTranspose(m_camera.projMatrix);
+        m_pDeviceContext->UpdateSubresource(m_pTransformBuffer, 0, nullptr, &m_transform, 0, 0);
+
+        m_pDeviceContext->UpdateSubresource(m_pLightBuffer, 0, nullptr, &m_light, 0, 0);
+        m_pDeviceContext->UpdateSubresource(m_pMaterialBuffer, 0, nullptr, &m_material, 0, 0);
+
+        m_pDeviceContext->IASetVertexBuffers(0, 1, &(obj->GetVB()), &(obj->GetStride()), &(obj->GetOffset()));
+        m_pDeviceContext->IASetIndexBuffer(obj->GetIB(), DXGI_FORMAT_R16_UINT, 0);
+
+        m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
+        m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pTransformBuffer);
+        m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pLightBuffer);
+        m_pDeviceContext->VSSetConstantBuffers(2, 1, &m_pMaterialBuffer);
+
+        m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
+        m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pTransformBuffer);
+        m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pLightBuffer);
+        m_pDeviceContext->PSSetConstantBuffers(2, 1, &m_pMaterialBuffer);
+        m_pDeviceContext->PSSetShaderResources(0, 1, &(obj->GetTRV()));
+        m_pDeviceContext->PSSetSamplers(0, 1, &(obj->GetSL()));
+
+        m_pDeviceContext->DrawIndexed(obj->GetIndicies().size(), 0, 0);
+    }
+}
+
+void Renderer::FinalImGui()
+{
+    ImGui_ImplDX11_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
+}
+
+void Renderer::FianlScene()
+{
+    Helper::SafeRelease(m_pVertexShader);
+    Helper::SafeRelease(m_pPixelShader);
+    Helper::SafeRelease(m_pInputLayout);
+    Helper::SafeRelease(m_pTransformBuffer);
+}
+
+void Renderer::FinalObject()
+{
+    for (auto& obj : m_objects)
+    {
+        Helper::SafeRelease(obj->GetIB());
+        Helper::SafeRelease(obj->GetVB());
+        delete obj;
+    }
+}
+
+void Renderer::FinalDX()
+{
+    Helper::SafeRelease(m_pDevice);
+    Helper::SafeRelease(m_pDeviceContext);
+    Helper::SafeRelease(m_pSwapChain);
+    Helper::SafeRelease(m_pRenderTargetView);
+    Helper::SafeRelease(m_pDepthStencilView);
 }
