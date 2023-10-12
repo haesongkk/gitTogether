@@ -53,6 +53,15 @@
     <Image Include="..\Output\Texture\seafloor.dds">
       <Filter>Texture</Filter>
     </Image>
+    <Image Include="..\Output\Texture\Bricks059_1K-JPG_Color.jpg">
+      <Filter>Texture</Filter>
+    </Image>
+    <Image Include="..\Output\Texture\Bricks059_1K-JPG_NormalDX.jpg">
+      <Filter>Texture</Filter>
+    </Image>
+    <Image Include="..\Output\Texture\Bricks059_Specular.png">
+      <Filter>Texture</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DirectX.cpp">

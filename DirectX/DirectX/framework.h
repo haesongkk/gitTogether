@@ -12,6 +12,7 @@
 #include <d3dcompiler.h>
 #include <directxtk/Simplemath.h>
 #include <Directxtk/DDSTextureLoader.h>
+#include <Directxtk/WICTextureLoader.h>
 
 #include <imgui.h>
 #include <imgui_impl_win32.h>

@@ -146,6 +146,9 @@
     <ResourceCompile Include="DirectX.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\Output\Texture\Bricks059_1K-JPG_Color.jpg" />
+    <Image Include="..\Output\Texture\Bricks059_1K-JPG_NormalDX.jpg" />
+    <Image Include="..\Output\Texture\Bricks059_Specular.png" />
     <Image Include="..\Output\Texture\seafloor.dds" />
     <Image Include="DirectX.ico" />
     <Image Include="small.ico" />

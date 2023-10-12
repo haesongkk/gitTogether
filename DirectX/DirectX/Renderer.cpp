@@ -180,6 +180,7 @@ void Renderer::InitScene()
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TANGENT" , 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
 
     DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
@@ -274,10 +275,10 @@ void Renderer::InitObj()
             { Vector3(1.0f, 1.0f, -1.0f),  Vector3(1.0f, 0.0f, 0.0f),  Vector2(0.0f, 0.0f) },
             { Vector3(1.0f, 1.0f, 1.0f),   Vector3(1.0f, 0.0f, 0.0f),  Vector2(1.0f, 0.0f) },
 
-            { Vector3(-1.0f, -1.0f, -1.0f),Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 1.0f) },
-            { Vector3(1.0f, -1.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 1.0f) },
-            { Vector3(1.0f, 1.0f, -1.0f),  Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 0.0f) },
-            { Vector3(-1.0f, 1.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 0.0f) },
+            { Vector3(-1.0f, -1.0f, -1.0f),Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 1.0f),Vector3(1.0f, 0.0f, 0.0f) },
+            { Vector3(1.0f, -1.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 1.0f),Vector3(1.0f, 0.0f, 0.0f) },
+            { Vector3(1.0f, 1.0f, -1.0f),  Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 0.0f),Vector3(1.0f, 0.0f, 0.0f) },
+            { Vector3(-1.0f, 1.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 0.0f),Vector3(1.0f, 0.0f, 0.0f) },
 
             { Vector3(-1.0f, -1.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f),  Vector2(1.0f, 1.0f) },
             { Vector3(1.0f, -1.0f, 1.0f),  Vector3(0.0f, 0.0f, 1.0f),  Vector2(0.0f, 1.0f) },
@@ -332,8 +333,13 @@ void Renderer::InitObj()
         obj->GetStride() = sizeof(Vertex);
         obj->GetOffset() = 0;
 
-        CreateDDSTextureFromFile(m_pDevice, L"./Texture/seafloor.dds", nullptr, &(obj->GetTRV()));
+        CreateWICTextureFromFile(m_pDevice, L"./Texture/Bricks059_1K-JPG_Color.jpg", nullptr, &(obj->GetTRV()));
+        CreateWICTextureFromFile(m_pDevice, L"./Texture/Bricks059_1K-JPG_NormalDX.jpg", nullptr, &(obj->GetNRV()));
+        CreateWICTextureFromFile(m_pDevice, L"./Texture/Bricks059_Specular.png", nullptr, &(obj->GetSRV()));
+       
         assert(obj->GetTRV());
+        assert(obj->GetNRV());
+        assert(obj->GetSRV());
 
         D3D11_SAMPLER_DESC sampDesc = {};
         sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -385,8 +391,7 @@ void Renderer::RenderScene()
 {
     m_pSwapChain->Present(0, 0);
 
-
-    m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Color{ 0.0f, 0.3f, 0.5f, 1.0f });
+    m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Color{ 0.1f, 0.1f, 0.3f, 1.0f });
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -402,18 +407,16 @@ void Renderer::RenderImGui()
 
     ImGui::Begin("settings");
 
-    ImGui::Text("yaw");
-    ImGui::DragFloat("##yaw", (float*)&(m_objects[0]->GetRotate().y), 0.1, -100.f, 100.f);
-
-    ImGui::Text("pitch");
-    ImGui::DragFloat("##pitch", (float*)&(m_objects[0]->GetRotate().x), 0.1, -100.f, 100.f);
-
     ImGui::Text("camera position");
     ImGui::DragFloat3("##camera", (float*)&(m_camera.pos), 0.1, -100.f, 100.f);
 
     ImGui::Text("specular power");
     ImGui::SliderFloat("##power", (float*)&(m_material.SpecularPower), 2.0f, 4096.0f);
 
+
+    ImGui::Text("using");
+    ImGui::Checkbox("UseNormalMap", &m_material.UseNormalMap);
+    ImGui::Checkbox("UseSpecularMap", &m_light.UseSpecularMap);
     ImGui::End();
 
     ImGui::Render();
@@ -438,15 +441,21 @@ void Renderer::RenderObject()
         m_pDeviceContext->IASetIndexBuffer(obj->GetIB(), DXGI_FORMAT_R16_UINT, 0);
 
         m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
+
         m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pTransformBuffer);
         m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pLightBuffer);
         m_pDeviceContext->VSSetConstantBuffers(2, 1, &m_pMaterialBuffer);
 
         m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
+
         m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pTransformBuffer);
         m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pLightBuffer);
         m_pDeviceContext->PSSetConstantBuffers(2, 1, &m_pMaterialBuffer);
+
         m_pDeviceContext->PSSetShaderResources(0, 1, &(obj->GetTRV()));
+        m_pDeviceContext->PSSetShaderResources(1, 1, &(obj->GetNRV()));
+        m_pDeviceContext->PSSetShaderResources(2, 1, &(obj->GetSRV()));
+
         m_pDeviceContext->PSSetSamplers(0, 1, &(obj->GetSL()));
 
         m_pDeviceContext->DrawIndexed(obj->GetIndicies().size(), 0, 0);

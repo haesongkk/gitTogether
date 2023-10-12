@@ -10,9 +10,11 @@ PS_INPUT main(VS_INPUT input)
 
     output.Norm = mul(float4(input.Norm, 1), World).xyz;
 
-    output.Tex = input.Tex;
+    output.TexCoord = input.Tex;
 
     output.Norm = normalize(mul(input.Norm, (float3x3)World));
+
+    output.TangentWorld = normalize(mul(input.TangentModel, (float3x3) World));
 
     return output;
 }

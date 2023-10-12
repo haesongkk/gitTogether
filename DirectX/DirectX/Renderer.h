@@ -4,11 +4,14 @@ struct Vertex
 	Vector3 position;
 	Vector2 tex;
 	Vector3 norm;
+	Vector3 tangent;
 
 	Vertex() : position(Vector3()), norm(Vector3()), tex(Vector2()) { }
 
 	Vertex(Vector3 position, Vector3 normal, Vector2 tex)
 		: position(position), norm(normal), tex(tex) { }
+	Vertex(Vector3 position, Vector3 normal, Vector2 tex, Vector3 tangent)
+		: position(position), norm(normal), tex(tex), tangent(tangent) { }
 };
 class Object
 {
@@ -19,6 +22,8 @@ public:
 	ID3D11Buffer*& GetVB() { return m_pVertexBuffer; }
 	ID3D11Buffer*& GetIB() { return m_pIndexBuffer; }
 	ID3D11ShaderResourceView*& GetTRV() { return m_pTextureRV; }
+	ID3D11ShaderResourceView*& GetNRV() { return m_pNormalRV; }
+	ID3D11ShaderResourceView*& GetSRV() { return m_pSpecularRV; }
 	ID3D11SamplerState*& GetSL() { return m_pSamplerLinear; }
 
 	UINT& GetStride() { return m_VertextBufferStride; }
@@ -36,6 +41,9 @@ private:
 	ID3D11Buffer* m_pIndexBuffer = nullptr;
 
 	ID3D11ShaderResourceView* m_pTextureRV = nullptr;
+	ID3D11ShaderResourceView* m_pNormalRV = nullptr;	
+	ID3D11ShaderResourceView* m_pSpecularRV = nullptr;	
+
 	ID3D11SamplerState* m_pSamplerLinear = nullptr;
 
 	UINT m_VertextBufferStride = 0; // 버텍스 하나의 크기.
@@ -113,13 +121,13 @@ protected:
 
 	struct LightBuffer
 	{
-		Vector3 Direction = { 0.0f, 0.0f, 1.0f };
-		float pad0;
-		Vector4 Ambient = { 0.1f,0.1f,0.1f,0.1f };
+		Vector3 Direction = { 0.0f, 0.0f, 1.0f }; 
+		float pad0;								  
+		Vector4 Ambient = { 0.0f,0.0f,0.0f,0.0f };
 		Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
 		Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
-		Vector3 EyePosition;
-		bool UseBlinnPhong = true;
+		Vector3 EyePosition;					  
+		bool UseSpecularMap = true;
 	} m_light;
 
 	struct MarterialBuffer
@@ -128,12 +136,13 @@ protected:
 		Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
 		Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
 		float  SpecularPower = 2000;
-		Vector3 dummy;
+		bool UseNormalMap = true;
+		Vector2 pad0;								  
 	} m_material;
 
 	struct Camera
 	{
-		Vector3 pos = { 0,0,-5 };
+		Vector3 pos = { 0,0,-3 };
 		Vector3 dir = { 0,0,1 };
 		Vector3 headDir = { 0,1,0 };
 		Matrix viewMatrix;
