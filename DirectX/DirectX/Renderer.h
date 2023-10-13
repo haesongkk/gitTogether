@@ -1,66 +1,5 @@
 #pragma once
-struct Vertex
-{
-	Vector3 position;
-	Vector2 tex;
-	Vector3 norm;
-	Vector3 tangent;
-
-	Vertex() : position(Vector3()), norm(Vector3()), tex(Vector2()) { }
-
-	Vertex(Vector3 position, Vector3 normal, Vector2 tex)
-		: position(position), norm(normal), tex(tex) { }
-	Vertex(Vector3 position, Vector3 normal, Vector2 tex, Vector3 tangent)
-		: position(position), norm(normal), tex(tex), tangent(tangent) { }
-};
-class Object
-{
-public:
-	vector<Vertex>& GetVertices() { return m_vertices; }
-	vector<WORD>& GetIndicies() { return m_indices; }
-
-	ID3D11Buffer*& GetVB() { return m_pVertexBuffer; }
-	ID3D11Buffer*& GetIB() { return m_pIndexBuffer; }
-	ID3D11ShaderResourceView*& GetTRV() { return m_pTextureRV; }
-	ID3D11ShaderResourceView*& GetNRV() { return m_pNormalRV; }
-	ID3D11ShaderResourceView*& GetSRV() { return m_pSpecularRV; }
-	ID3D11SamplerState*& GetSL() { return m_pSamplerLinear; }
-
-	UINT& GetStride() { return m_VertextBufferStride; }
-	UINT& GetOffset() { return m_VertextBufferOffset; }
-
-	Matrix& GetMatrix() { return m_matrix; }
-	Object*& GetParentObject() { return m_pParentObject; }
-
-	Vector3& GetPos() { return m_position; }
-	Vector3& GetScale() { return m_scale; }
-	Vector3& GetRotate() { return m_rotate; }
-
-private:
-	ID3D11Buffer* m_pVertexBuffer = nullptr;
-	ID3D11Buffer* m_pIndexBuffer = nullptr;
-
-	ID3D11ShaderResourceView* m_pTextureRV = nullptr;
-	ID3D11ShaderResourceView* m_pNormalRV = nullptr;	
-	ID3D11ShaderResourceView* m_pSpecularRV = nullptr;	
-
-	ID3D11SamplerState* m_pSamplerLinear = nullptr;
-
-	UINT m_VertextBufferStride = 0; // 버텍스 하나의 크기.
-	UINT m_VertextBufferOffset = 0;	// 버텍스 버퍼의 오프셋.
-
-	vector<Vertex> m_vertices = {};
-	vector<WORD> m_indices = {};
-
-	Matrix m_matrix;
-	Object* m_pParentObject = nullptr;
-
-	Vector3 m_position = { 0,0,0 };
-	Vector3 m_scale = { 1,1,1 };
-	Vector3 m_rotate = { 0,0,0 };
-
-};
-
+class Mesh;
 class Renderer
 {
 public:
@@ -74,22 +13,18 @@ public:
 	void InitDX();
 	void InitScene();
 	void InitImGui();
-	void InitObj();
 
 	void UpdateScene();
-	void UpdateObject();
 
 	void RenderScene();
 	void RenderImGui();
-	void RenderObject();
 
 	void FinalImGui();
 	void FianlScene();
-	void FinalObject();
 	void FinalDX();
 
 
-protected:
+private:
 	HWND m_hWnd;
 	WNDCLASSEXW m_wcex;
 
@@ -105,12 +40,13 @@ protected:
 	ID3D11VertexShader* m_pVertexShader = nullptr;
 	ID3D11PixelShader* m_pPixelShader = nullptr;
 	ID3D11InputLayout* m_pInputLayout = nullptr;
+	ID3D11SamplerState* m_pSamplerLinear = nullptr;
 
 	ID3D11Buffer* m_pTransformBuffer = nullptr;
 	ID3D11Buffer* m_pLightBuffer = nullptr;
 	ID3D11Buffer* m_pMaterialBuffer = nullptr;
 
-	vector<Object*> m_objects;
+	vector<Mesh*> m_meshes;
 
 	struct TransformBuffer
 	{
@@ -153,5 +89,6 @@ protected:
 		Matrix projMatrix;
 	} m_camera;
 
+	friend class Mesh;
 };
 

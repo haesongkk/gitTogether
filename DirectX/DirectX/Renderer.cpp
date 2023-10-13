@@ -1,6 +1,7 @@
 #include "framework.h"
 #include "Renderer.h"
 #include "Helper.h"
+#include "Mesh.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -25,7 +26,10 @@ void Renderer::Init(HINSTANCE hInstance)
     InitDX();
     InitScene();
     InitImGui();
-    InitObj();
+
+    Mesh::pRenderer = this;
+    m_meshes.push_back(new Mesh);
+    for (auto obj : m_meshes) obj->Init();
 }
 
 void Renderer::Run()
@@ -51,21 +55,22 @@ void Renderer::Run()
 void Renderer::Update()
 {
     UpdateScene();
-    UpdateObject();
+    for (auto obj : m_meshes) obj->Update();
 }
 
 void Renderer::Render()
 {
     RenderScene();
-    RenderObject();
     RenderImGui();
+    for (auto obj : m_meshes) obj->Render();
 }
 
 void Renderer::Final()
 {
     FinalImGui();
     FianlScene();
-    FinalObject();
+    for (auto obj : m_meshes) obj->Final();
+
     FinalDX();
 }
 
@@ -229,6 +234,17 @@ void Renderer::InitScene()
     m_pDevice->CreateBuffer(&cbDesc, nullptr, &m_pMaterialBuffer);
     assert(m_pMaterialBuffer);
 
+    D3D11_SAMPLER_DESC sampDesc = {};
+    sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    sampDesc.MinLOD = 0;
+    sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+    m_pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear);
+    assert(m_pSamplerLinear);
+
 }
 
 void Renderer::InitImGui()
@@ -247,119 +263,6 @@ void Renderer::InitImGui()
     ImGui_ImplDX11_Init(this->m_pDevice, this->m_pDeviceContext);
 }
 
-void Renderer::InitObj()
-{
-    m_objects.push_back(new Object);
-
-    for (auto obj : m_objects)
-    {
-        obj->GetVertices() =
-        {
-            { Vector3(-1.0f, 1.0f, -1.0f), Vector3(0.0f, 1.0f, 0.0f),  Vector2(1.0f, 0.0f) },
-            { Vector3(1.0f, 1.0f, -1.0f),  Vector3(0.0f, 1.0f, 0.0f),  Vector2(0.0f, 0.0f) },
-            { Vector3(1.0f, 1.0f, 1.0f),   Vector3(0.0f, 1.0f, 0.0f),  Vector2(0.0f, 1.0f) },
-            { Vector3(-1.0f, 1.0f, 1.0f),  Vector3(0.0f, 1.0f, 0.0f),  Vector2(1.0f, 1.0f) },
-
-            { Vector3(-1.0f, -1.0f, -1.0f),Vector3(0.0f, -1.0f, 0.0f), Vector2(0.0f, 0.0f) },
-            { Vector3(1.0f, -1.0f, -1.0f), Vector3(0.0f, -1.0f, 0.0f), Vector2(1.0f, 0.0f) },
-            { Vector3(1.0f, -1.0f, 1.0f),  Vector3(0.0f, -1.0f, 0.0f), Vector2(1.0f, 1.0f) },
-            { Vector3(-1.0f, -1.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f), Vector2(0.0f, 1.0f) },
-
-            { Vector3(-1.0f, -1.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector2(0.0f, 1.0f) },
-            { Vector3(-1.0f, -1.0f, -1.0f),Vector3(-1.0f, 0.0f, 0.0f), Vector2(1.0f, 1.0f) },
-            { Vector3(-1.0f, 1.0f, -1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector2(1.0f, 0.0f) },
-            { Vector3(-1.0f, 1.0f, 1.0f),  Vector3(-1.0f, 0.0f, 0.0f), Vector2(0.0f, 0.0f) },
-
-            { Vector3(1.0f, -1.0f, 1.0f),  Vector3(1.0f, 0.0f, 0.0f),  Vector2(1.0f, 1.0f) },
-            { Vector3(1.0f, -1.0f, -1.0f), Vector3(1.0f, 0.0f, 0.0f),  Vector2(0.0f, 1.0f) },
-            { Vector3(1.0f, 1.0f, -1.0f),  Vector3(1.0f, 0.0f, 0.0f),  Vector2(0.0f, 0.0f) },
-            { Vector3(1.0f, 1.0f, 1.0f),   Vector3(1.0f, 0.0f, 0.0f),  Vector2(1.0f, 0.0f) },
-
-            { Vector3(-1.0f, -1.0f, -1.0f),Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 1.0f),Vector3(1.0f, 0.0f, 0.0f) },
-            { Vector3(1.0f, -1.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 1.0f),Vector3(1.0f, 0.0f, 0.0f) },
-            { Vector3(1.0f, 1.0f, -1.0f),  Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 0.0f),Vector3(1.0f, 0.0f, 0.0f) },
-            { Vector3(-1.0f, 1.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 0.0f),Vector3(1.0f, 0.0f, 0.0f) },
-
-            { Vector3(-1.0f, -1.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f),  Vector2(1.0f, 1.0f) },
-            { Vector3(1.0f, -1.0f, 1.0f),  Vector3(0.0f, 0.0f, 1.0f),  Vector2(0.0f, 1.0f) },
-            { Vector3(1.0f, 1.0f, 1.0f),   Vector3(0.0f, 0.0f, 1.0f),  Vector2(0.0f, 0.0f) },
-            { Vector3(-1.0f, 1.0f, 1.0f),  Vector3(0.0f, 0.0f, 1.0f),  Vector2(1.0f, 0.0f) },
-        };
-
-        int nVertices = obj->GetVertices().size();
-        Vertex* vertices = new Vertex[nVertices];
-        for (int i = 0; i < nVertices; i++)
-            vertices[i] = obj->GetVertices()[i];
-
-        D3D11_BUFFER_DESC vbDesc = {};
-        auto a = sizeof(Vertex);
-        vbDesc.ByteWidth = sizeof(Vertex) * nVertices;
-        vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-        vbDesc.Usage = D3D11_USAGE_DEFAULT;
-        D3D11_SUBRESOURCE_DATA vbData = {};
-        vbData.pSysMem = vertices;
-        m_pDevice->CreateBuffer(&vbDesc, &vbData, &(obj->GetVB()));
-        assert(obj->GetVB());
-        Helper::SafeDeleteArray(vertices);
-
-        obj->GetIndicies() =
-        {
-            3,1,0,    2,1,3,
-            6,4,5,    7,4,6,
-            11,9,8,   10,9,11,
-            14,12,13, 15,12,14,
-            19,17,16, 18,17,19,
-            22,20,21, 23,20,22
-        };
-
-        int nIndices = obj->GetIndicies().size();
-        WORD* indices = new WORD[nIndices];
-        for (int j = 0; j < nIndices; j++)
-            indices[j] = obj->GetIndicies()[j];
-
-        D3D11_BUFFER_DESC ibDesc = {};
-        ibDesc.ByteWidth = sizeof(WORD) * nIndices;
-        ibDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-        ibDesc.Usage = D3D11_USAGE_DEFAULT;
-        ibDesc.CPUAccessFlags = 0;
-
-        D3D11_SUBRESOURCE_DATA ibData = {};
-        ibData.pSysMem = indices;
-
-        m_pDevice->CreateBuffer(&ibDesc, &ibData, &(obj->GetIB()));
-        assert(obj->GetIB());
-        Helper::SafeDeleteArray(indices);
-
-        obj->GetStride() = sizeof(Vertex);
-        obj->GetOffset() = 0;
-
-        CreateWICTextureFromFile(m_pDevice, L"./Texture/Bricks059_1K-JPG_Color.jpg", nullptr, &(obj->GetTRV()));
-        CreateWICTextureFromFile(m_pDevice, L"./Texture/Bricks059_1K-JPG_NormalDX.jpg", nullptr, &(obj->GetNRV()));
-        CreateWICTextureFromFile(m_pDevice, L"./Texture/Bricks059_Specular.png", nullptr, &(obj->GetSRV()));
-       
-        assert(obj->GetTRV());
-        assert(obj->GetNRV());
-        assert(obj->GetSRV());
-
-        D3D11_SAMPLER_DESC sampDesc = {};
-        sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-        sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-        sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-        sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-        sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-        sampDesc.MinLOD = 0;
-        sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-        m_pDevice->CreateSamplerState(&sampDesc, &(obj->GetSL()));
-        assert(obj->GetSL());
-
-    }
-
-    m_objects[0]->GetPos() = { 0,0,0 };
-    m_objects[0]->GetScale() = { 1.2,1.2,1.2 };
-    m_objects[0]->GetParentObject() = nullptr;
-
-}
-
 void Renderer::UpdateScene()
 {
     if (m_camera.nearZ <= 0.0001f) { m_camera.nearZ = 0.0001f; }
@@ -372,21 +275,6 @@ void Renderer::UpdateScene()
     m_light.EyePosition = m_camera.pos;
 }
 
-void Renderer::UpdateObject()
-{
-    for (auto obj : m_objects)
-    {
-        Matrix mScale = DirectX::XMMatrixScaling(obj->GetScale().x, obj->GetScale().y, obj->GetScale().z);
-        Matrix mRot = DirectX::XMMatrixRotationX(obj->GetRotate().x)
-            * DirectX::XMMatrixRotationY(obj->GetRotate().y)
-            * DirectX::XMMatrixRotationZ(obj->GetRotate().z);
-        Matrix mTrans = DirectX::XMMatrixTranslation(obj->GetPos().x, obj->GetPos().y, obj->GetPos().z);
-        Matrix mBasis = DirectX::XMMatrixIdentity();
-        if (obj->GetParentObject()) mBasis = obj->GetParentObject()->GetMatrix();
-        obj->GetMatrix() = mScale * mRot * mTrans * mBasis;
-    }
-}
-
 void Renderer::RenderScene()
 {
     m_pSwapChain->Present(0, 0);
@@ -396,6 +284,22 @@ void Renderer::RenderScene()
 
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     m_pDeviceContext->IASetInputLayout(m_pInputLayout);
+
+    m_transform.mView = XMMatrixTranspose(m_camera.viewMatrix);
+    m_transform.mProjection = XMMatrixTranspose(m_camera.projMatrix);
+
+    m_pDeviceContext->UpdateSubresource(m_pLightBuffer, 0, nullptr, &m_light, 0, 0);
+    m_pDeviceContext->UpdateSubresource(m_pMaterialBuffer, 0, nullptr, &m_material, 0, 0);
+
+    m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
+    m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pLightBuffer);
+    m_pDeviceContext->VSSetConstantBuffers(2, 1, &m_pMaterialBuffer);
+
+    m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
+    m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pLightBuffer);
+    m_pDeviceContext->PSSetConstantBuffers(2, 1, &m_pMaterialBuffer);
+
+    m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 }
 
 void Renderer::RenderImGui()
@@ -425,42 +329,6 @@ void Renderer::RenderImGui()
 
 }
 
-void Renderer::RenderObject()
-{
-    for (const auto& obj : m_objects)
-    {
-        m_transform.mWorld = XMMatrixTranspose(obj->GetMatrix());
-        m_transform.mView = XMMatrixTranspose(m_camera.viewMatrix);
-        m_transform.mProjection = XMMatrixTranspose(m_camera.projMatrix);
-        m_pDeviceContext->UpdateSubresource(m_pTransformBuffer, 0, nullptr, &m_transform, 0, 0);
-
-        m_pDeviceContext->UpdateSubresource(m_pLightBuffer, 0, nullptr, &m_light, 0, 0);
-        m_pDeviceContext->UpdateSubresource(m_pMaterialBuffer, 0, nullptr, &m_material, 0, 0);
-
-        m_pDeviceContext->IASetVertexBuffers(0, 1, &(obj->GetVB()), &(obj->GetStride()), &(obj->GetOffset()));
-        m_pDeviceContext->IASetIndexBuffer(obj->GetIB(), DXGI_FORMAT_R16_UINT, 0);
-
-        m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
-
-        m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pTransformBuffer);
-        m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pLightBuffer);
-        m_pDeviceContext->VSSetConstantBuffers(2, 1, &m_pMaterialBuffer);
-
-        m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
-
-        m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pTransformBuffer);
-        m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pLightBuffer);
-        m_pDeviceContext->PSSetConstantBuffers(2, 1, &m_pMaterialBuffer);
-
-        m_pDeviceContext->PSSetShaderResources(0, 1, &(obj->GetTRV()));
-        m_pDeviceContext->PSSetShaderResources(1, 1, &(obj->GetNRV()));
-        m_pDeviceContext->PSSetShaderResources(2, 1, &(obj->GetSRV()));
-
-        m_pDeviceContext->PSSetSamplers(0, 1, &(obj->GetSL()));
-
-        m_pDeviceContext->DrawIndexed(obj->GetIndicies().size(), 0, 0);
-    }
-}
 
 void Renderer::FinalImGui()
 {
@@ -477,16 +345,6 @@ void Renderer::FianlScene()
     Helper::SafeRelease(m_pTransformBuffer);
 }
 
-void Renderer::FinalObject()
-{
-    for (auto& obj : m_objects)
-    {
-        Helper::SafeRelease(obj->GetIB());
-        Helper::SafeRelease(obj->GetVB());
-        delete obj;
-    }
-}
-
 void Renderer::FinalDX()
 {
     Helper::SafeRelease(m_pDevice);
@@ -495,3 +353,4 @@ void Renderer::FinalDX()
     Helper::SafeRelease(m_pRenderTargetView);
     Helper::SafeRelease(m_pDepthStencilView);
 }
+
