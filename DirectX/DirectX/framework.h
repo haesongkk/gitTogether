@@ -3,10 +3,13 @@
 #include "targetver.h"
 
 #define WIN32_LEAN_AND_MEAN 
+#define NOMINMAX
 #include <windows.h>
 
 #include <vector>
 #include <string>
+
+#include <filesystem>
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
@@ -17,6 +20,10 @@
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
+
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")

@@ -3,77 +3,25 @@
 
 #include "Renderer.h"
 #include "Helper.h"
+#include "GameObject.h"
+
 Renderer* Mesh::pRenderer = nullptr;
+Renderer* Material::pRenderer = nullptr;
+
+Mesh::Mesh(GameObject* _pOwner)
+    :m_pOwner(_pOwner)
+{
+}
 
 void Mesh::Init()
 {
-    vector<Vertex> vertices =
-    {
-        { Vector3(-1.0f, 1.0f, -1.0f), Vector3(0.0f, 1.0f, 0.0f),  Vector2(1.0f, 0.0f) },
-        { Vector3(1.0f, 1.0f, -1.0f),  Vector3(0.0f, 1.0f, 0.0f),  Vector2(0.0f, 0.0f) },
-        { Vector3(1.0f, 1.0f, 1.0f),   Vector3(0.0f, 1.0f, 0.0f),  Vector2(0.0f, 1.0f) },
-        { Vector3(-1.0f, 1.0f, 1.0f),  Vector3(0.0f, 1.0f, 0.0f),  Vector2(1.0f, 1.0f) },
-
-        { Vector3(-1.0f, -1.0f, -1.0f),Vector3(0.0f, -1.0f, 0.0f), Vector2(0.0f, 0.0f) },
-        { Vector3(1.0f, -1.0f, -1.0f), Vector3(0.0f, -1.0f, 0.0f), Vector2(1.0f, 0.0f) },
-        { Vector3(1.0f, -1.0f, 1.0f),  Vector3(0.0f, -1.0f, 0.0f), Vector2(1.0f, 1.0f) },
-        { Vector3(-1.0f, -1.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f), Vector2(0.0f, 1.0f) },
-
-        { Vector3(-1.0f, -1.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector2(0.0f, 1.0f) },
-        { Vector3(-1.0f, -1.0f, -1.0f),Vector3(-1.0f, 0.0f, 0.0f), Vector2(1.0f, 1.0f) },
-        { Vector3(-1.0f, 1.0f, -1.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector2(1.0f, 0.0f) },
-        { Vector3(-1.0f, 1.0f, 1.0f),  Vector3(-1.0f, 0.0f, 0.0f), Vector2(0.0f, 0.0f) },
-
-        { Vector3(1.0f, -1.0f, 1.0f),  Vector3(1.0f, 0.0f, 0.0f),  Vector2(1.0f, 1.0f) },
-        { Vector3(1.0f, -1.0f, -1.0f), Vector3(1.0f, 0.0f, 0.0f),  Vector2(0.0f, 1.0f) },
-        { Vector3(1.0f, 1.0f, -1.0f),  Vector3(1.0f, 0.0f, 0.0f),  Vector2(0.0f, 0.0f) },
-        { Vector3(1.0f, 1.0f, 1.0f),   Vector3(1.0f, 0.0f, 0.0f),  Vector2(1.0f, 0.0f) },
-
-        { Vector3(-1.0f, -1.0f, -1.0f),Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 1.0f),Vector3(1.0f, 0.0f, 0.0f) },
-        { Vector3(1.0f, -1.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 1.0f),Vector3(1.0f, 0.0f, 0.0f) },
-        { Vector3(1.0f, 1.0f, -1.0f),  Vector3(0.0f, 0.0f, -1.0f), Vector2(1.0f, 0.0f),Vector3(1.0f, 0.0f, 0.0f) },
-        { Vector3(-1.0f, 1.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f), Vector2(0.0f, 0.0f),Vector3(1.0f, 0.0f, 0.0f) },
-
-        { Vector3(-1.0f, -1.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f),  Vector2(1.0f, 1.0f) },
-        { Vector3(1.0f, -1.0f, 1.0f),  Vector3(0.0f, 0.0f, 1.0f),  Vector2(0.0f, 1.0f) },
-        { Vector3(1.0f, 1.0f, 1.0f),   Vector3(0.0f, 0.0f, 1.0f),  Vector2(0.0f, 0.0f) },
-        { Vector3(-1.0f, 1.0f, 1.0f),  Vector3(0.0f, 0.0f, 1.0f),  Vector2(1.0f, 0.0f) },
-    };
-
-    vector<WORD> indices =
-    {
-        3,1,0,    2,1,3,
-        6,4,5,    7,4,6,
-        11,9,8,   10,9,11,
-        14,12,13, 15,12,14,
-        19,17,16, 18,17,19,
-        22,20,21, 23,20,22
-    };
-
-    CreateVertexBuffer(vertices);
-    CreateIndexBuffer(indices);
-    CreateResourceView(L"./Texture/Bricks059_1K-JPG_Color.jpg", &pTRV);
-    CreateResourceView(L"./Texture/Bricks059_1K-JPG_NormalDX.jpg", &pNRV);
-    CreateResourceView(L"./Texture/Bricks059_Specular.png", &pSRV);
-}
-
-void Mesh::Update()
-{
-    Matrix mScale = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z);
-    Matrix mRot = DirectX::XMMatrixRotationX(rotate.x)
-        * DirectX::XMMatrixRotationY(rotate.y)
-        * DirectX::XMMatrixRotationZ(rotate.z);
-    Matrix mTrans = DirectX::XMMatrixTranslation(position.x, position.y, position.z);
-    Matrix mBasis = DirectX::XMMatrixIdentity();
-    if (pParentObject) mBasis = pParentObject->matrix;
-    matrix = mScale * mRot * mTrans * mBasis;
 }
 
 void Mesh::Render()
 {
     ID3D11DeviceContext* dc = pRenderer->m_pDeviceContext;
 
-    pRenderer->m_transform.mWorld = XMMatrixTranspose(matrix);
+    pRenderer->m_transform.mWorld = XMMatrixTranspose(m_pOwner->GetMatrix());
     dc->UpdateSubresource(
         pRenderer->m_pTransformBuffer,
         0,
@@ -88,9 +36,7 @@ void Mesh::Render()
     dc->IASetVertexBuffers(0, 1, &pVB, &VertextBufferStride, &VertextBufferOffset);
     dc->IASetIndexBuffer(pIB, DXGI_FORMAT_R16_UINT, 0);
 
-    dc->PSSetShaderResources(0, 1, &pTRV);
-    dc->PSSetShaderResources(1, 1, &pNRV);
-    dc->PSSetShaderResources(2, 1, &pSRV);
+    
     dc->PSSetSamplers(0, 1, &(pRenderer->m_pSamplerLinear));
 
     dc->DrawIndexed(indexCount, 0, 0);
@@ -100,9 +46,6 @@ void Mesh::Final()
 {
     Helper::SafeRelease(pIB);
     Helper::SafeRelease(pVB);
-    Helper::SafeRelease(pTRV);
-    Helper::SafeRelease(pNRV);
-    Helper::SafeRelease(pSRV);
     delete this;
 }
 
@@ -141,11 +84,35 @@ void Mesh::CreateIndexBuffer(vector<WORD>& _indices)
     assert(pIB);
 }
 
-void Mesh::CreateResourceView(const wstring& _filePath, ID3D11ShaderResourceView** _ppRV)
+Material::Material(GameObject* _pOwner)
+    :m_pOwner(_pOwner)
 {
-    HRESULT hr;
-    hr = CreateDDSTextureFromFile(pRenderer->m_pDevice, _filePath.c_str(), nullptr, _ppRV);
-    if (FAILED(hr))
-        CreateWICTextureFromFile(pRenderer->m_pDevice, _filePath.c_str(), nullptr, _ppRV);
-    assert(*_ppRV);
+}
+
+void Material::Init()
+{
+}
+
+void Material::Render()
+{
+    ID3D11DeviceContext* dc = pRenderer->m_pDeviceContext;
+
+    for (int i = 0; i < TextureIndex::End; i++)
+        dc->PSSetShaderResources(0, i, &(m_pTextures[i]));
+}
+
+void Material::Final()
+{
+    for (int i = 0; i < TextureIndex::End; i++)
+        Helper::SafeRelease(m_pTextures[i]);
+}
+
+void Material::CreateTextureFromFile(const wstring& _filePath, TextureIndex _txId)
+{
+    CreateDDSTextureFromFile(pRenderer->m_pDevice, _filePath.c_str(), nullptr, &(m_pTextures[_txId]));
+
+    if(!m_pTextures[_txId])
+        CreateWICTextureFromFile(pRenderer->m_pDevice, _filePath.c_str(), nullptr, &(m_pTextures[_txId]));
+
+    assert(m_pTextures[_txId]);
 }

@@ -1,5 +1,5 @@
 #pragma once
-class Mesh;
+class GameObject;
 class Renderer
 {
 public:
@@ -46,7 +46,7 @@ private:
 	ID3D11Buffer* m_pLightBuffer = nullptr;
 	ID3D11Buffer* m_pMaterialBuffer = nullptr;
 
-	vector<Mesh*> m_meshes;
+	vector<GameObject*> m_pGameObjects;;
 
 	struct TransformBuffer
 	{
@@ -90,5 +90,6 @@ private:
 	} m_camera;
 
 	friend class Mesh;
+	friend class Material;
 };
 

@@ -21,14 +21,6 @@ namespace Helper
 		}
 	}
 	
-	template <class T>
-	void SafeDeleteArray(T& _t)
-	{
-		if (_t)
-		{
-			delete[] _t;
-			_t = nullptr;
-		}
-	}
+	wstring ToWstring(const string& _str);
+	string ToString(const wstring& _wstr);
 };
-

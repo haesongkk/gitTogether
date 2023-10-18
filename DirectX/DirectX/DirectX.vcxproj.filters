@@ -23,6 +23,12 @@
     <Filter Include="Mesh">
       <UniqueIdentifier>{2e03741a-c4bb-4df9-adc7-5d7e4c55830d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameObject">
+      <UniqueIdentifier>{5c86d34a-f9a9-41d9-8099-de23766440bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FbxLoader">
+      <UniqueIdentifier>{1b999462-8369-4699-b097-58d0dfb5fc40}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -42,6 +48,12 @@
     </ClInclude>
     <ClInclude Include="Mesh.h">
       <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="FbxLoader.h">
+      <Filter>FbxLoader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -79,6 +91,15 @@
     <ClCompile Include="Mesh.cpp">
       <Filter>Mesh</Filter>
     </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="FbxLoader.cpp">
+      <Filter>FbxLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="Helper.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Output\Shader\BasicPixelShader.hlsl">
@@ -89,7 +110,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Output\Shader\Shared.hlsli">
+    <None Include="..\Output\Shader\Shared.fxh">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

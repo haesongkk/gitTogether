@@ -2,6 +2,8 @@
 #include "Renderer.h"
 #include "Helper.h"
 #include "Mesh.h"
+#include "GameObject.h"
+#include "FbxLoader.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -28,8 +30,13 @@ void Renderer::Init(HINSTANCE hInstance)
     InitImGui();
 
     Mesh::pRenderer = this;
-    m_meshes.push_back(new Mesh);
-    for (auto obj : m_meshes) obj->Init();
+    Material::pRenderer = this;
+
+    FbxLoader loader;
+
+    m_pGameObjects.push_back(loader.LoadGameObject(m_pDevice,"./Resource/box.fbx"));
+
+    for (auto obj : m_pGameObjects) obj->Init();
 }
 
 void Renderer::Run()
@@ -55,21 +62,21 @@ void Renderer::Run()
 void Renderer::Update()
 {
     UpdateScene();
-    for (auto obj : m_meshes) obj->Update();
+    for (auto obj : m_pGameObjects) obj->Update();
 }
 
 void Renderer::Render()
 {
     RenderScene();
     RenderImGui();
-    for (auto obj : m_meshes) obj->Render();
+    for (auto obj : m_pGameObjects) obj->Render();
 }
 
 void Renderer::Final()
 {
     FinalImGui();
     FianlScene();
-    for (auto obj : m_meshes) obj->Final();
+    for (auto obj : m_pGameObjects) obj->Final();
 
     FinalDX();
 }
