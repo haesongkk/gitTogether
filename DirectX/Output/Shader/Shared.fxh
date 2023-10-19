@@ -1,6 +1,8 @@
 Texture2D txDiffuse : register(t0);
 Texture2D txNormal : register(t1);
 Texture2D txSpecular : register(t2);
+Texture2D txEmissive : register(t3);
+Texture2D txOpacity : register(t4);
 
 SamplerState samLinear : register(s0);
 
@@ -19,7 +21,7 @@ cbuffer LightBuffer : register(b1)
     float4 LightDiffuse;
     float4 LightSpecular;
     float3 EyePosition;
-    bool UseSpecularMap;
+    float DL_pad1;
 }
 
 cbuffer MarterialBuffer : register(b2)
@@ -28,8 +30,16 @@ cbuffer MarterialBuffer : register(b2)
     float4 MaterialDiffuse;
     float4 MaterialSpecular;
     float MaterialSpecularPower;
-    bool UseNormalMap;
-    float2 Materialpad0;
+    float3 Materialpad0;
+}
+
+cbuffer UsingBuffer : register(b3)
+{
+    bool UsingDiffuseMap;
+    bool UsingNormalMap;
+    bool UsingSpecularMap;
+    bool UsingEmissiveMap;
+    bool UsingOpacityMap;
 }
 
 struct VS_INPUT

@@ -45,8 +45,9 @@ private:
 	ID3D11Buffer* m_pTransformBuffer = nullptr;
 	ID3D11Buffer* m_pLightBuffer = nullptr;
 	ID3D11Buffer* m_pMaterialBuffer = nullptr;
+	ID3D11Buffer* m_pUsingBuffer = nullptr;
 
-	vector<GameObject*> m_pGameObjects;;
+	vector<GameObject*> m_pGameObjects;
 
 	struct TransformBuffer
 	{
@@ -59,11 +60,11 @@ private:
 	{
 		Vector3 Direction = { 0.0f, 0.0f, 1.0f }; 
 		float pad0;								  
-		Vector4 Ambient = { 0.0f,0.0f,0.0f,0.0f };
+		Vector4 Ambient = { 0.0f,0.0f,0.0f,1.0f };
 		Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
 		Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
 		Vector3 EyePosition;					  
-		bool UseSpecularMap = true;
+		float pad1;								  
 	} m_light;
 
 	struct MarterialBuffer
@@ -72,24 +73,44 @@ private:
 		Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
 		Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
 		float  SpecularPower = 2000;
-		bool UseNormalMap = true;
-		Vector2 pad0;								  
+		Vector3 pad0;								  
 	} m_material;
+
+	struct UsingBuffer
+	{
+		// bool 크기가 다름;;
+		bool UsingDiffuseMap = true; 
+		bool padding0[3];
+		bool UsingNormalMap = true;
+		bool padding1[3];
+		bool UsingSpecularMap = true;
+		bool padding2[3];
+		bool UsingEmissiveMap = true;
+		bool padding3[3];
+
+		bool UsingOpacityMap = true;
+		bool padding4[3];
+
+		Vector3 padding5;
+	} m_using;
 
 	struct Camera
 	{
-		Vector3 pos = { 0,0,-3 };
+		Vector3 pos = { 0,10,-20 };
 		Vector3 dir = { 0,0,1 };
 		Vector3 headDir = { 0,1,0 };
 		Matrix viewMatrix;
 
 		float fovY = 1.570796327f;
-		float nearZ = 0.01f;
-		float farZ = 100.0f;
+		float nearZ = 0.0001f;
+		float farZ = 10000.0f;
 		Matrix projMatrix;
 	} m_camera;
 
 	friend class Mesh;
 	friend class Material;
+
+	ID3D11BlendState* m_pAlphaBlendState = nullptr;
+
 };
 

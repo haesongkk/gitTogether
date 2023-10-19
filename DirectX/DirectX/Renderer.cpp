@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "Helper.h"
 #include "Mesh.h"
+#include "Material.h"
 #include "GameObject.h"
 #include "FbxLoader.h"
 
@@ -34,7 +35,12 @@ void Renderer::Init(HINSTANCE hInstance)
 
     FbxLoader loader;
 
-    m_pGameObjects.push_back(loader.LoadGameObject(m_pDevice,"./Resource/box.fbx"));
+    m_pGameObjects.push_back(loader.LoadGameObject(m_pDevice,"./Resource/Character.fbx"));
+    m_pGameObjects.push_back(loader.LoadGameObject(m_pDevice,"./Resource/Tree.fbx"));
+    m_pGameObjects[0]->m_scale = { 0.1,0.1,0.1 };
+    m_pGameObjects[0]->m_position = { -5,0,0 };
+    m_pGameObjects[1]->m_scale = { 5,5,5 };
+    m_pGameObjects[1]->m_position = { 5,0,0 };
 
     for (auto obj : m_pGameObjects) obj->Init();
 }
@@ -68,8 +74,8 @@ void Renderer::Update()
 void Renderer::Render()
 {
     RenderScene();
-    RenderImGui();
     for (auto obj : m_pGameObjects) obj->Render();
+    RenderImGui();
 }
 
 void Renderer::Final()
@@ -178,6 +184,22 @@ void Renderer::InitDX()
 
     m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
 
+     D3D11_BLEND_DESC blendDesc = {};
+    blendDesc.AlphaToCoverageEnable = false;
+    blendDesc.IndependentBlendEnable = false;
+    blendDesc.RenderTarget[0].BlendEnable = true;
+    blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+    blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+    blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+    blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+    blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+    m_pDevice->CreateBlendState(&blendDesc, &m_pAlphaBlendState);
+
+    assert(m_pAlphaBlendState);
+
 }
 
 void Renderer::InitScene()
@@ -241,6 +263,12 @@ void Renderer::InitScene()
     m_pDevice->CreateBuffer(&cbDesc, nullptr, &m_pMaterialBuffer);
     assert(m_pMaterialBuffer);
 
+    cbDesc.Usage = D3D11_USAGE_DEFAULT;
+    cbDesc.ByteWidth = sizeof(UsingBuffer);
+    cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    m_pDevice->CreateBuffer(&cbDesc, nullptr, &m_pUsingBuffer);
+    assert(m_pUsingBuffer);
+
     D3D11_SAMPLER_DESC sampDesc = {};
     sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
     sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -251,6 +279,8 @@ void Renderer::InitScene()
     sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
     m_pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear);
     assert(m_pSamplerLinear);
+
+   
 
 }
 
@@ -289,6 +319,11 @@ void Renderer::RenderScene()
     m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Color{ 0.1f, 0.1f, 0.3f, 1.0f });
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
+    if (m_using.UsingOpacityMap)
+        m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState, nullptr, 0xffffffff);
+    else
+        m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     m_pDeviceContext->IASetInputLayout(m_pInputLayout);
 
@@ -307,6 +342,7 @@ void Renderer::RenderScene()
     m_pDeviceContext->PSSetConstantBuffers(2, 1, &m_pMaterialBuffer);
 
     m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
+
 }
 
 void Renderer::RenderImGui()
@@ -314,20 +350,22 @@ void Renderer::RenderImGui()
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
-    ImGui::SetNextWindowSize(ImVec2(200, 200));
+    ImGui::SetNextWindowSize(ImVec2(200, 300));
 
     ImGui::Begin("settings");
 
     ImGui::Text("camera position");
-    ImGui::DragFloat3("##camera", (float*)&(m_camera.pos), 0.1, -100.f, 100.f);
+    ImGui::DragFloat3("##camera", (float*)&(m_camera.pos), 0.1, -10000.f, 10000.f);
 
-    ImGui::Text("specular power");
-    ImGui::SliderFloat("##power", (float*)&(m_material.SpecularPower), 2.0f, 4096.0f);
-
+    ImGui::Text("light dir");
+    ImGui::DragFloat3("##light", (float*)&(m_light.Direction), 0.1, -1.f, 1.f);
 
     ImGui::Text("using");
-    ImGui::Checkbox("UseNormalMap", &m_material.UseNormalMap);
-    ImGui::Checkbox("UseSpecularMap", &m_light.UseSpecularMap);
+    ImGui::Checkbox("UsingDiffuseMap", &(m_using.UsingDiffuseMap));
+    ImGui::Checkbox("UsingNormalMap", &(m_using.UsingNormalMap));
+    ImGui::Checkbox("UsingSpecularMap", &(m_using.UsingSpecularMap));
+    ImGui::Checkbox("UsingEmissiveMap", &(m_using.UsingEmissiveMap));
+    ImGui::Checkbox("UsingOpacityMap", &(m_using.UsingOpacityMap));
     ImGui::End();
 
     ImGui::Render();

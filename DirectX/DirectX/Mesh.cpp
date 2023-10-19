@@ -4,9 +4,9 @@
 #include "Renderer.h"
 #include "Helper.h"
 #include "GameObject.h"
+#include "Material.h"
 
 Renderer* Mesh::pRenderer = nullptr;
-Renderer* Material::pRenderer = nullptr;
 
 Mesh::Mesh(GameObject* _pOwner)
     :m_pOwner(_pOwner)
@@ -38,6 +38,10 @@ void Mesh::Render()
 
     
     dc->PSSetSamplers(0, 1, &(pRenderer->m_pSamplerLinear));
+
+
+    Material* myMatt = m_pOwner->m_pMaterials[m_materialIndex];
+    myMatt->Render();
 
     dc->DrawIndexed(indexCount, 0, 0);
 }
@@ -82,37 +86,4 @@ void Mesh::CreateIndexBuffer(vector<WORD>& _indices)
 
     pRenderer->m_pDevice->CreateBuffer(&ibDesc, &ibData, &pIB);
     assert(pIB);
-}
-
-Material::Material(GameObject* _pOwner)
-    :m_pOwner(_pOwner)
-{
-}
-
-void Material::Init()
-{
-}
-
-void Material::Render()
-{
-    ID3D11DeviceContext* dc = pRenderer->m_pDeviceContext;
-
-    for (int i = 0; i < TextureIndex::End; i++)
-        dc->PSSetShaderResources(0, i, &(m_pTextures[i]));
-}
-
-void Material::Final()
-{
-    for (int i = 0; i < TextureIndex::End; i++)
-        Helper::SafeRelease(m_pTextures[i]);
-}
-
-void Material::CreateTextureFromFile(const wstring& _filePath, TextureIndex _txId)
-{
-    CreateDDSTextureFromFile(pRenderer->m_pDevice, _filePath.c_str(), nullptr, &(m_pTextures[_txId]));
-
-    if(!m_pTextures[_txId])
-        CreateWICTextureFromFile(pRenderer->m_pDevice, _filePath.c_str(), nullptr, &(m_pTextures[_txId]));
-
-    assert(m_pTextures[_txId]);
 }

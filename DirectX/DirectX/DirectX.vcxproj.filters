@@ -29,6 +29,9 @@
     <Filter Include="FbxLoader">
       <UniqueIdentifier>{1b999462-8369-4699-b097-58d0dfb5fc40}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Material">
+      <UniqueIdentifier>{6586f7bc-555f-4f38-b815-92e2ac459de9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -54,6 +57,9 @@
     </ClInclude>
     <ClInclude Include="FbxLoader.h">
       <Filter>FbxLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Material</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -99,6 +105,9 @@
     </ClCompile>
     <ClCompile Include="Helper.cpp">
       <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Material</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

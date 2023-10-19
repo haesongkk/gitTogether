@@ -1,6 +1,7 @@
 #include "framework.h"
 #include "GameObject.h"
 #include "Mesh.h"
+#include "Material.h"
 
 void GameObject::Init()
 {
@@ -23,7 +24,7 @@ void GameObject::Update()
 
 void GameObject::Render()
 {
-    for (auto obj : m_pMaterials) obj->Render();
+    //for (auto obj : m_pMaterials) obj->Render();
     for (auto obj : m_pMeshes) obj->Render();
 }
 

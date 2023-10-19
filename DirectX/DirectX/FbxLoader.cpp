@@ -2,6 +2,7 @@
 #include "FbxLoader.h"
 #include "GameObject.h"
 #include "Mesh.h"
+#include "Material.h"
 #include "Helper.h"
 
 GameObject* FbxLoader::LoadGameObject(ID3D11Device* device, const string& _filePath)
@@ -18,10 +19,10 @@ GameObject* FbxLoader::LoadGameObject(ID3D11Device* device, const string& _fileP
 	const aiScene* scene = importer.ReadFile(_filePath.c_str(), importFlags);
 	assert(scene);
 
-	for (int i = 0; i < scene->mNumMaterials; ++i)
-		pMeshes.push_back(CreateMesh(device, scene->mMeshes[i], pGameObject));
-
 	for (int i = 0; i < scene->mNumMeshes; ++i)
+		pMeshes.push_back(CreateMesh(device, scene->mMeshes[i], pGameObject));
+	
+	for (int i = 0; i < scene->mNumMaterials; ++i)
 		pMaterials.push_back(CreateMaterial(device, scene->mMaterials[i], pGameObject));
 
 	importer.FreeScene();
@@ -67,7 +68,7 @@ Material* FbxLoader::CreateMaterial(ID3D11Device* device, aiMaterial* _pMaterial
 	Material* material = new Material(_obj);
 
 	aiString texturePath;
-	wstring basePath = L"../Resource/";
+	wstring basePath = L"./Resource/";
 
 	filesystem::path path;
 	wstring finalPath;
