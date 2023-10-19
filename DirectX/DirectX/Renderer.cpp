@@ -298,6 +298,11 @@ void Renderer::InitImGui()
 
     ImGui_ImplWin32_Init(m_hWnd);
     ImGui_ImplDX11_Init(this->m_pDevice, this->m_pDeviceContext);
+
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+    ImGui::SetNextWindowSize(ImVec2(200, 300));
 }
 
 void Renderer::UpdateScene()
@@ -319,10 +324,7 @@ void Renderer::RenderScene()
     m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Color{ 0.1f, 0.1f, 0.3f, 1.0f });
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    if (m_using.UsingOpacityMap)
-        m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState, nullptr, 0xffffffff);
-    else
-        m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+    
 
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     m_pDeviceContext->IASetInputLayout(m_pInputLayout);
@@ -341,37 +343,32 @@ void Renderer::RenderScene()
     m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pLightBuffer);
     m_pDeviceContext->PSSetConstantBuffers(2, 1, &m_pMaterialBuffer);
 
+    /*m_pDeviceContext->UpdateSubresource(m_pUsingBuffer, 0, nullptr, &m_using, 0, 0);
+
+    m_pDeviceContext->PSSetConstantBuffers(3, 1, &m_pUsingBuffer);
+    m_pDeviceContext->VSSetConstantBuffers(3, 1, &m_pUsingBuffer);*/
+
     m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
 }
 
 void Renderer::RenderImGui()
 {
+    ImGui::SetNextWindowSize(ImVec2(200, 200));
+    ImGui::Begin("settings");
+    ImGui::Text("camera position");
+    ImGui::DragFloat3("##camera", (float*)&(m_camera.pos), 0.1, -10000.f, 10000.f);
+    ImGui::Text("light dir");
+    ImGui::DragFloat3("##light", (float*)&(m_light.Direction), 0.1, -1.f, 1.f);
+    ImGui::End();
+
+
+    ImGui::Render();
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
-    ImGui::SetNextWindowSize(ImVec2(200, 300));
-
-    ImGui::Begin("settings");
-
-    ImGui::Text("camera position");
-    ImGui::DragFloat3("##camera", (float*)&(m_camera.pos), 0.1, -10000.f, 10000.f);
-
-    ImGui::Text("light dir");
-    ImGui::DragFloat3("##light", (float*)&(m_light.Direction), 0.1, -1.f, 1.f);
-
-    ImGui::Text("using");
-    ImGui::Checkbox("UsingDiffuseMap", &(m_using.UsingDiffuseMap));
-    ImGui::Checkbox("UsingNormalMap", &(m_using.UsingNormalMap));
-    ImGui::Checkbox("UsingSpecularMap", &(m_using.UsingSpecularMap));
-    ImGui::Checkbox("UsingEmissiveMap", &(m_using.UsingEmissiveMap));
-    ImGui::Checkbox("UsingOpacityMap", &(m_using.UsingOpacityMap));
-    ImGui::End();
-
-    ImGui::Render();
-    
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
 }
 
 

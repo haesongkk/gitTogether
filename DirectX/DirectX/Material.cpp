@@ -7,32 +7,36 @@
 Renderer* Material::pRenderer = nullptr;
 
 Material::Material(GameObject* _pOwner)
-    :m_pOwner(_pOwner)
-{
-}
-
-void Material::Init()
+    :m_pOwner(_pOwner), m_pTextures{}
 {
 }
 
 void Material::Render()
 {
     ID3D11DeviceContext* dc = pRenderer->m_pDeviceContext;
-    if (!m_pTextures[TextureIndex::Opacity])
-        m_pTextures[TextureIndex::Opacity] = m_pTextures[TextureIndex::Diffuse];
+
     for (int i = 0; i < TextureIndex::End; i++)
     {
-        if (!m_pTextures[i])
-        {
-            if (i == TextureIndex::Emissive)
-                pRenderer->m_using.UsingEmissiveMap = false;
-        }
         dc->PSSetShaderResources(i, 1, &m_pTextures[i]);
     }
-    dc->UpdateSubresource(pRenderer->m_pUsingBuffer, 0, nullptr, &pRenderer->m_using, 0, 0);
 
-    dc->PSSetConstantBuffers(3, 1, &pRenderer->m_pUsingBuffer);
-    dc->VSSetConstantBuffers(3, 1, &pRenderer->m_pUsingBuffer);
+    pRenderer->m_using.UsingDiffuseMap = m_pTextures[TextureIndex::Diffuse];
+    pRenderer->m_using.UsingNormalMap = m_pTextures[TextureIndex::Normal];
+    pRenderer->m_using.UsingSpecularMap = m_pTextures[TextureIndex::Specular];
+    pRenderer->m_using.UsingEmissiveMap = m_pTextures[TextureIndex::Emissive];
+    pRenderer->m_using.UsingOpacityMap = m_pTextures[TextureIndex::Opacity];
+
+    if (pRenderer->m_using.UsingOpacityMap)
+        dc->OMSetBlendState(pRenderer->m_pAlphaBlendState, nullptr, 0xffffffff);
+    else
+        dc->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+
+    dc->UpdateSubresource(pRenderer->m_pUsingBuffer, 0, nullptr, &(pRenderer->m_using), 0, 0);
+
+    dc->PSSetConstantBuffers(3, 1, &(pRenderer->m_pUsingBuffer));
+    dc->VSSetConstantBuffers(3, 1, &(pRenderer->m_pUsingBuffer));
+
+    
 }
 
 void Material::Final()

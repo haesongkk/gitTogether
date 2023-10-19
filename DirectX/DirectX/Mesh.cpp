@@ -44,6 +44,8 @@ void Mesh::Render()
     myMatt->Render();
 
     dc->DrawIndexed(indexCount, 0, 0);
+
+    
 }
 
 void Mesh::Final()

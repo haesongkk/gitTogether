@@ -2,6 +2,7 @@
 #include "GameObject.h"
 #include "Mesh.h"
 #include "Material.h"
+#include "Renderer.h"
 
 void GameObject::Init()
 {
@@ -20,6 +21,8 @@ void GameObject::Update()
     Matrix mBasis = DirectX::XMMatrixIdentity();
     if (m_pParentObject) mBasis = m_pParentObject->GetMatrix();
     m_matrix = mScale * mRot * mTrans * mBasis;
+
+    
 }
 
 void GameObject::Render()

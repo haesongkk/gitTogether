@@ -30,7 +30,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     }
 
     // opacity
-    float opacity = 1.0f;
+    float opacity = 0.0f;
     if (UsingOpacityMap)
     {
         opacity = txOpacity.Sample(samLinear, input.TexCoord).a;

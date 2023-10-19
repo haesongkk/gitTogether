@@ -14,9 +14,10 @@ public:
 
 	ID3D11ShaderResourceView* m_pTextures[TextureIndex::End];
 
+
 public:
 	Material(GameObject* _pOwner);
-	void Init();
+	void Init() { }
 	void Render();
 	void Final();
 
