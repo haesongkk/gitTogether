@@ -3,12 +3,10 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "Renderer.h"
+#include "Node.h"
 
 void GameObject::Init()
 {
-    m_pMeshes.push_back(new Mesh(this));
-    for (auto obj : m_pMaterials) obj->Init();
-    for (auto obj : m_pMeshes) obj->Init();
 }
 
 void GameObject::Update()
@@ -19,20 +17,16 @@ void GameObject::Update()
         * DirectX::XMMatrixRotationZ(m_rotate.z);
     Matrix mTrans = DirectX::XMMatrixTranslation(m_position.x, m_position.y, m_position.z);
     Matrix mBasis = DirectX::XMMatrixIdentity();
-    if (m_pParentObject) mBasis = m_pParentObject->GetMatrix();
+    //if (m_pParentObject) mBasis = m_pParentObject->GetMatrix();
     m_matrix = mScale * mRot * mTrans * mBasis;
-
-    
 }
 
 void GameObject::Render()
 {
-    //for (auto obj : m_pMaterials) obj->Render();
-    for (auto obj : m_pMeshes) obj->Render();
+    m_pRootNode->Update();
+
 }
 
 void GameObject::Final()
 {
-    for (auto obj : m_pMaterials) obj->Final();
-    for (auto obj : m_pMeshes) obj->Final();
 }

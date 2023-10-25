@@ -19,16 +19,14 @@ class Mesh
 {
 public:
 	Mesh(GameObject* _pOwner);
-	void Init();
+	~Mesh();
 	void Render();
-	void Final();
 
 	void CreateVertexBuffer(vector<Vertex>& _vertices);
 	void CreateIndexBuffer(vector<WORD>& _indices);
 
 	void SetMaterialIndex(UINT _index) { m_materialIndex = _index; }
 	
-
 	static Renderer* pRenderer;
 	GameObject* m_pOwner;
 

@@ -1,11 +1,11 @@
 #pragma once
 class Mesh;
 class Material;
+class Animation;
+class Node;
 class GameObject
 {
 	Matrix m_matrix = {};
-	GameObject* m_pParentObject = nullptr;
-
 
 public:
 	Vector3 m_position = { 0,0,0 };
@@ -14,6 +14,9 @@ public:
 
 	vector<Mesh*> m_pMeshes;
 	vector<Material*> m_pMaterials;
+	vector<Animation*> m_pAnimations;
+	vector<Node*> m_pNodes;
+	Node* m_pRootNode;
 
 public:
 	void Init();

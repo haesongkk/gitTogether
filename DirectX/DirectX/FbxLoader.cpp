@@ -3,6 +3,8 @@
 #include "GameObject.h"
 #include "Mesh.h"
 #include "Material.h"
+#include "Animation.h"
+#include "Node.h"
 #include "Helper.h"
 
 GameObject* FbxLoader::LoadGameObject(ID3D11Device* device, const string& _filePath)
@@ -15,20 +17,28 @@ GameObject* FbxLoader::LoadGameObject(ID3D11Device* device, const string& _fileP
 
 	vector<Mesh*> pMeshes;
 	vector<Material*> pMaterials;
+	vector<Animation*> pAnimations;
 
 	const aiScene* scene = importer.ReadFile(_filePath.c_str(), importFlags);
 	assert(scene);
 
 	for (int i = 0; i < scene->mNumMeshes; ++i)
 		pMeshes.push_back(CreateMesh(device, scene->mMeshes[i], pGameObject));
+	pGameObject->m_pMeshes = pMeshes;
 	
 	for (int i = 0; i < scene->mNumMaterials; ++i)
 		pMaterials.push_back(CreateMaterial(device, scene->mMaterials[i], pGameObject));
+	pGameObject->m_pMaterials = pMaterials;
+
+	pGameObject->m_pRootNode = CreateNode(scene->mRootNode, nullptr, pGameObject);
+
+	for (int i = 0; i < scene->mNumAnimations; i++)
+		for (int j = 0; j < scene->mAnimations[i]->mNumChannels; j++)
+			pAnimations.push_back(CreateAnimation(scene->mAnimations[i]->mChannels[j], pGameObject));
+	pGameObject->m_pAnimations = pAnimations;
 
 	importer.FreeScene();
 
-	pGameObject->m_pMeshes = pMeshes;
-	pGameObject->m_pMaterials = pMaterials;
 
 	return pGameObject;
 }
@@ -109,5 +119,59 @@ Material* FbxLoader::CreateMaterial(ID3D11Device* device, aiMaterial* _pMaterial
 		finalPath = basePath + path.filename().wstring();
 		material->CreateTextureFromFile(finalPath.c_str(), Material::TextureIndex::Opacity);
 	}
+
 	return material;
+}
+
+Animation* FbxLoader::CreateAnimation(aiNodeAnim* nodeAnimation, GameObject* obj)
+{
+	assert(nodeAnimation != nullptr);
+	assert(nodeAnimation->mNumPositionKeys == nodeAnimation->mNumRotationKeys);
+	assert(nodeAnimation->mNumRotationKeys == nodeAnimation->mNumScalingKeys);
+
+	Animation* animation = new Animation(obj);
+
+
+	for (size_t i = 0; i < nodeAnimation->mNumPositionKeys; i++)
+	{
+		Animation::Key key;
+
+		aiVectorKey& pos = nodeAnimation->mPositionKeys[i];
+		aiQuatKey& rot = nodeAnimation->mRotationKeys[i];
+		aiVectorKey& scl = nodeAnimation->mScalingKeys[i];
+
+		assert(pos.mTime == rot.mTime);
+		assert(rot.mTime == scl.mTime);
+
+		key.time = pos.mTime;
+		key.position = Vector3(pos.mValue.x, pos.mValue.y, pos.mValue.z);
+		key.rotation = Quaternion(rot.mValue.x, rot.mValue.y, rot.mValue.z, rot.mValue.w);
+		key.scale = Vector3(scl.mValue.x, scl.mValue.y, scl.mValue.z);
+
+		animation->m_keys.push_back(key);
+	}
+
+	for (auto node : obj->m_pNodes)
+		if (node->m_name == nodeAnimation->mNodeName.C_Str())
+			animation->m_pConnectNode = node;
+
+	return animation;
+}
+
+Node* FbxLoader::CreateNode(aiNode* aiNodeInfo, Node* parent, GameObject* obj)
+{
+	Node* node = new Node(obj);
+	obj->m_pNodes.push_back(node);
+
+	node->m_name = aiNodeInfo->mName.C_Str();
+	node->m_pParent = parent;
+	node->m_matrix = XMMatrixTranspose(XMMATRIX(aiNodeInfo->mTransformation[0]));
+
+	for (int i = 0; i < aiNodeInfo->mNumMeshes; i++)
+		node->m_pMeshes.push_back(obj->m_pMeshes[aiNodeInfo->mMeshes[i]]);
+
+	for (int i = 0; i < aiNodeInfo->mNumChildren; i++)
+		node->m_children.push_back(CreateNode(aiNodeInfo->mChildren[i], node, obj));
+
+	return node;
 }

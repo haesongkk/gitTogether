@@ -36,6 +36,7 @@ private:
 	IDXGISwapChain* m_pSwapChain = nullptr;
 	ID3D11RenderTargetView* m_pRenderTargetView = nullptr;
 	ID3D11DepthStencilView* m_pDepthStencilView = nullptr;
+	ID3D11BlendState* m_pAlphaBlendState = nullptr;
 
 	ID3D11VertexShader* m_pVertexShader = nullptr;
 	ID3D11PixelShader* m_pPixelShader = nullptr;
@@ -96,7 +97,7 @@ private:
 
 	struct Camera
 	{
-		Vector3 pos = { 0,10,-20 };
+		Vector3 pos = { 0,0,-5 };
 		Vector3 dir = { 0,0,1 };
 		Vector3 headDir = { 0,1,0 };
 		Matrix viewMatrix;
@@ -109,8 +110,6 @@ private:
 
 	friend class Mesh;
 	friend class Material;
-
-	ID3D11BlendState* m_pAlphaBlendState = nullptr;
-
+	friend class Node;
 };
 

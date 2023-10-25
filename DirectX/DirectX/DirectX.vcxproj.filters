@@ -14,9 +14,6 @@
     <Filter Include="Helper">
       <UniqueIdentifier>{ab8b9ca9-4e74-496c-92b4-fd7bb4ed7460}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Texture">
-      <UniqueIdentifier>{236e3c79-c365-48f2-8d78-40500262bdc5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Renderer">
       <UniqueIdentifier>{4202230a-2ac9-411f-9b47-7d5c598197b0}</UniqueIdentifier>
     </Filter>
@@ -31,6 +28,12 @@
     </Filter>
     <Filter Include="Material">
       <UniqueIdentifier>{6586f7bc-555f-4f38-b815-92e2ac459de9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Animation">
+      <UniqueIdentifier>{26c8a4b0-d19c-4240-a2e8-ff916e14c5ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Node">
+      <UniqueIdentifier>{cdd43a33-9ab1-449d-87d2-c17c8e982881}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -61,6 +64,12 @@
     <ClInclude Include="Material.h">
       <Filter>Material</Filter>
     </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Node.h">
+      <Filter>Node</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectX.rc">
@@ -73,18 +82,6 @@
     </Image>
     <Image Include="DirectX.ico">
       <Filter>리소스 파일</Filter>
-    </Image>
-    <Image Include="..\Output\Texture\seafloor.dds">
-      <Filter>Texture</Filter>
-    </Image>
-    <Image Include="..\Output\Texture\Bricks059_1K-JPG_Color.jpg">
-      <Filter>Texture</Filter>
-    </Image>
-    <Image Include="..\Output\Texture\Bricks059_1K-JPG_NormalDX.jpg">
-      <Filter>Texture</Filter>
-    </Image>
-    <Image Include="..\Output\Texture\Bricks059_Specular.png">
-      <Filter>Texture</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
@@ -108,6 +105,12 @@
     </ClCompile>
     <ClCompile Include="Material.cpp">
       <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Node.cpp">
+      <Filter>Node</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

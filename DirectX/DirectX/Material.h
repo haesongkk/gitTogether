@@ -17,9 +17,8 @@ public:
 
 public:
 	Material(GameObject* _pOwner);
-	void Init() { }
+	~Material();
 	void Render();
-	void Final();
 
 	void CreateTextureFromFile(const wstring& _filePath, TextureIndex _txId);
 };

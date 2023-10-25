@@ -5,6 +5,7 @@
 #include "Material.h"
 #include "GameObject.h"
 #include "FbxLoader.h"
+#include "Node.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -32,15 +33,11 @@ void Renderer::Init(HINSTANCE hInstance)
 
     Mesh::pRenderer = this;
     Material::pRenderer = this;
+    Node::pRenderer = this;
 
     FbxLoader loader;
 
-    m_pGameObjects.push_back(loader.LoadGameObject(m_pDevice,"./Resource/Character.fbx"));
-    m_pGameObjects.push_back(loader.LoadGameObject(m_pDevice,"./Resource/Tree.fbx"));
-    m_pGameObjects[0]->m_scale = { 0.1,0.1,0.1 };
-    m_pGameObjects[0]->m_position = { -5,0,0 };
-    m_pGameObjects[1]->m_scale = { 5,5,5 };
-    m_pGameObjects[1]->m_position = { 5,0,0 };
+    m_pGameObjects.push_back(loader.LoadGameObject(m_pDevice,"./Resource/walk.fbx"));
 
     for (auto obj : m_pGameObjects) obj->Init();
 }
@@ -199,16 +196,10 @@ void Renderer::InitDX()
     m_pDevice->CreateBlendState(&blendDesc, &m_pAlphaBlendState);
 
     assert(m_pAlphaBlendState);
-
 }
 
 void Renderer::InitScene()
 {
-    // 마지막으로 주의를 기울여야 할 것은 버퍼에 데이터가 어떻게 배열되는지 알려주는 AlignedByteOffset 입니다. 
-    // 이 레이아웃에서는 처음 12 byte를 위치 벡터에 사용하고 다음 16 byte를 색상으로 사용할 것임을 알려줘야 하는데, 
-    // AlignedByteOffset이 각 요소가 어디서 시작하는지 보여줍니다. 
-    // 여기서 직접 값을 입력하기보다 D3D11_APPEND_ALIGNED_ELEMENT 를 지정하여 자동으로 알아내도록 합니다. 
-    // 나머지는 이 튜토리얼에서 크게 중요하지 않기 때문에 기본값으로 두었습니다.
     D3D11_INPUT_ELEMENT_DESC layout[] =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -298,11 +289,6 @@ void Renderer::InitImGui()
 
     ImGui_ImplWin32_Init(m_hWnd);
     ImGui_ImplDX11_Init(this->m_pDevice, this->m_pDeviceContext);
-
-    ImGui_ImplDX11_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
-    ImGui::SetNextWindowSize(ImVec2(200, 300));
 }
 
 void Renderer::UpdateScene()
@@ -321,10 +307,8 @@ void Renderer::RenderScene()
 {
     m_pSwapChain->Present(0, 0);
 
-    m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Color{ 0.1f, 0.1f, 0.3f, 1.0f });
+    m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, Color{ 0.05f, 0.05f, 0.1f, 1.0f });
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-    
 
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     m_pDeviceContext->IASetInputLayout(m_pInputLayout);
@@ -343,32 +327,29 @@ void Renderer::RenderScene()
     m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pLightBuffer);
     m_pDeviceContext->PSSetConstantBuffers(2, 1, &m_pMaterialBuffer);
 
-    /*m_pDeviceContext->UpdateSubresource(m_pUsingBuffer, 0, nullptr, &m_using, 0, 0);
-
-    m_pDeviceContext->PSSetConstantBuffers(3, 1, &m_pUsingBuffer);
-    m_pDeviceContext->VSSetConstantBuffers(3, 1, &m_pUsingBuffer);*/
-
     m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
 }
 
 void Renderer::RenderImGui()
 {
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
     ImGui::SetNextWindowSize(ImVec2(200, 200));
+
     ImGui::Begin("settings");
     ImGui::Text("camera position");
     ImGui::DragFloat3("##camera", (float*)&(m_camera.pos), 0.1, -10000.f, 10000.f);
     ImGui::Text("light dir");
     ImGui::DragFloat3("##light", (float*)&(m_light.Direction), 0.1, -1.f, 1.f);
+    ImGui::Text("rotate");
+    ImGui::DragFloat3("##rotate", (float*)&(m_pGameObjects[0]->m_rotate), 0.1f, -360.f, 360.f);
     ImGui::End();
 
 
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-    ImGui_ImplDX11_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
 }
 
 

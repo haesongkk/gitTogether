@@ -13,25 +13,16 @@ Mesh::Mesh(GameObject* _pOwner)
 {
 }
 
-void Mesh::Init()
+Mesh::~Mesh()
 {
+    Helper::SafeRelease(pIB);
+    Helper::SafeRelease(pVB);
 }
 
 void Mesh::Render()
 {
     ID3D11DeviceContext* dc = pRenderer->m_pDeviceContext;
 
-    pRenderer->m_transform.mWorld = XMMatrixTranspose(m_pOwner->GetMatrix());
-    dc->UpdateSubresource(
-        pRenderer->m_pTransformBuffer,
-        0,
-        nullptr,
-        &(pRenderer->m_transform),
-        0,
-        0);
-
-    dc->VSSetConstantBuffers(0, 1, &(pRenderer->m_pTransformBuffer));
-    dc->PSSetConstantBuffers(0, 1, &(pRenderer->m_pTransformBuffer));
 
     dc->IASetVertexBuffers(0, 1, &pVB, &VertextBufferStride, &VertextBufferOffset);
     dc->IASetIndexBuffer(pIB, DXGI_FORMAT_R16_UINT, 0);
@@ -44,15 +35,6 @@ void Mesh::Render()
     myMatt->Render();
 
     dc->DrawIndexed(indexCount, 0, 0);
-
-    
-}
-
-void Mesh::Final()
-{
-    Helper::SafeRelease(pIB);
-    Helper::SafeRelease(pVB);
-    delete this;
 }
 
 void Mesh::CreateVertexBuffer(vector<Vertex>& _vertices)

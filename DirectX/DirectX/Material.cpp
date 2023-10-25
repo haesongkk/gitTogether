@@ -11,6 +11,12 @@ Material::Material(GameObject* _pOwner)
 {
 }
 
+Material::~Material()
+{
+    for (int i = 0; i < TextureIndex::End; i++)
+        Helper::SafeRelease(m_pTextures[i]);
+}
+
 void Material::Render()
 {
     ID3D11DeviceContext* dc = pRenderer->m_pDeviceContext;
@@ -35,14 +41,6 @@ void Material::Render()
 
     dc->PSSetConstantBuffers(3, 1, &(pRenderer->m_pUsingBuffer));
     dc->VSSetConstantBuffers(3, 1, &(pRenderer->m_pUsingBuffer));
-
-    
-}
-
-void Material::Final()
-{
-    for (int i = 0; i < TextureIndex::End; i++)
-        Helper::SafeRelease(m_pTextures[i]);
 }
 
 void Material::CreateTextureFromFile(const wstring& _filePath, TextureIndex _txId)
