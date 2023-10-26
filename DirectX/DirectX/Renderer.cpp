@@ -6,6 +6,7 @@
 #include "GameObject.h"
 #include "FbxLoader.h"
 #include "Node.h"
+#include "Animation.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -40,6 +41,7 @@ void Renderer::Init(HINSTANCE hInstance)
     m_pGameObjects.push_back(loader.LoadGameObject(m_pDevice,"./Resource/walk.fbx"));
 
     for (auto obj : m_pGameObjects) obj->Init();
+    m_pGameObjects[0]->m_scale = { 0.01,0.01,0.01 };
 }
 
 void Renderer::Run()
@@ -345,6 +347,8 @@ void Renderer::RenderImGui()
     ImGui::DragFloat3("##light", (float*)&(m_light.Direction), 0.1, -1.f, 1.f);
     ImGui::Text("rotate");
     ImGui::DragFloat3("##rotate", (float*)&(m_pGameObjects[0]->m_rotate), 0.1f, -360.f, 360.f);
+    ImGui::Text("fps");
+    ImGui::DragInt("##fps", (int*)&Animation::fps, 1, 12, 48);
     ImGui::End();
 
 

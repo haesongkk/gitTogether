@@ -14,8 +14,12 @@ public:
 		Vector3 scale = { 1,1,1 };
 	};
 	vector<Key> m_keys;
+	int m_curKey = 0;
+	float m_curTime = 0.f;
 
-	Node* m_pConnectNode;
+	float m_timer = 0.f;
+	static int fps;
+	Node* m_pConnectNode = nullptr;
 
 	void Update();
 	GameObject* m_pOwner;

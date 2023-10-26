@@ -4,6 +4,8 @@
 #include "Material.h"
 #include "Renderer.h"
 #include "Node.h"
+#include "Animation.h"
+
 
 void GameObject::Init()
 {
@@ -19,6 +21,8 @@ void GameObject::Update()
     Matrix mBasis = DirectX::XMMatrixIdentity();
     //if (m_pParentObject) mBasis = m_pParentObject->GetMatrix();
     m_matrix = mScale * mRot * mTrans * mBasis;
+    for (auto ani : m_pAnimations)
+        ani->Update();
 }
 
 void GameObject::Render()

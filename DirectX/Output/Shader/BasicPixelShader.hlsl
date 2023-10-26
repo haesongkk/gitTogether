@@ -19,7 +19,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     float4 texDiffuse = (float4)1;
     if (UsingDiffuseMap)
     {
-        //texDiffuse = txDiffuse.Sample(samLinear, input.TexCoord);
+        texDiffuse = txDiffuse.Sample(samLinear, input.TexCoord);
     }
 
     // emmisive

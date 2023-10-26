@@ -13,11 +13,11 @@ void Node::Update()
 
     Matrix mBasis = DirectX::XMMatrixIdentity();
 
-    if (m_pParent) mBasis = m_pParent->m_matrix;
+    if (m_pParent) mBasis = m_pParent->m_worldMatrix;
     else mBasis = m_pOwner->GetMatrix();
 
-    Matrix matrix =  m_matrix * mBasis;
-    pRenderer->m_transform.mWorld = XMMatrixTranspose(matrix);
+    m_worldMatrix =  m_relativeMatrix * mBasis;
+    pRenderer->m_transform.mWorld = XMMatrixTranspose(m_worldMatrix);
     dc->UpdateSubresource(
         pRenderer->m_pTransformBuffer,
         0,

@@ -12,7 +12,8 @@ public:
 	GameObject* m_pOwner = nullptr;
 	Node(GameObject* _pOwner) : m_pOwner(_pOwner) { }
 
-	Matrix m_matrix = {};
+	Matrix m_worldMatrix = {};
+	Matrix m_relativeMatrix = {};
 
 	vector<Mesh*> m_pMeshes = {};
 	vector<Node*> m_children = {};

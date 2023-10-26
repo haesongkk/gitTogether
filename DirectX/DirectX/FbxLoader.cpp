@@ -13,7 +13,7 @@ GameObject* FbxLoader::LoadGameObject(ID3D11Device* device, const string& _fileP
 
 	Assimp::Importer importer;
 	unsigned int importFlags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace |
-		aiProcess_ConvertToLeftHanded;
+		aiProcess_ConvertToLeftHanded | aiProcess_FlipWindingOrder;
 
 	vector<Mesh*> pMeshes;
 	vector<Material*> pMaterials;
@@ -67,6 +67,10 @@ Mesh* FbxLoader::CreateMesh(ID3D11Device* _device, aiMesh* _mesh, GameObject* _o
 		indices.push_back(_mesh->mFaces[i].mIndices[0]);
 		indices.push_back(_mesh->mFaces[i].mIndices[1]);
 		indices.push_back(_mesh->mFaces[i].mIndices[2]);
+
+		indices.push_back(_mesh->mFaces[i].mIndices[0]);
+		indices.push_back(_mesh->mFaces[i].mIndices[2]);
+		indices.push_back(_mesh->mFaces[i].mIndices[1]);
 	}
 	mesh->CreateIndexBuffer(indices);
 
@@ -165,7 +169,7 @@ Node* FbxLoader::CreateNode(aiNode* aiNodeInfo, Node* parent, GameObject* obj)
 
 	node->m_name = aiNodeInfo->mName.C_Str();
 	node->m_pParent = parent;
-	node->m_matrix = XMMatrixTranspose(XMMATRIX(aiNodeInfo->mTransformation[0]));
+	node->m_relativeMatrix = XMMatrixTranspose(XMMATRIX(aiNodeInfo->mTransformation[0]));
 
 	for (int i = 0; i < aiNodeInfo->mNumMeshes; i++)
 		node->m_pMeshes.push_back(obj->m_pMeshes[aiNodeInfo->mMeshes[i]]);
