@@ -4,8 +4,6 @@ class Node;
 class Animation
 {
 public:
-	Animation(GameObject* _pOwner)
-		:m_pOwner(_pOwner) { }
 	struct Key
 	{
 		float time = 0.f;
@@ -14,14 +12,20 @@ public:
 		Vector3 scale = { 1,1,1 };
 	};
 	vector<Key> m_keys;
-	int m_curKey = 0;
-	float m_curTime = 0.f;
-
-	float m_timer = 0.f;
-	static int fps;
 	Node* m_pConnectNode = nullptr;
 
-	void Update();
+	Animation(GameObject* _pOwner)
+		:m_pOwner(_pOwner) { }
 	GameObject* m_pOwner;
+
+	void Update();
+
+	static int fps;
+
+private:
+	int m_curKey = 0;
+	float m_curTime = 0.f;
+	float m_timer = 0.f;
+
 };
 

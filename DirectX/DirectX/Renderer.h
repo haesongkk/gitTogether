@@ -61,7 +61,7 @@ private:
 	{
 		Vector3 Direction = { 0.0f, 0.0f, 1.0f }; 
 		float pad0;								  
-		Vector4 Ambient = { 0.0f,0.0f,0.0f,1.0f };
+		Vector4 Ambient = { 0.1f,0.1f,0.1f,1.0f };
 		Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
 		Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
 		Vector3 EyePosition;					  
@@ -73,7 +73,7 @@ private:
 		Vector4 Ambient = { 1.0f,1.0f,1.0f,1.0f };
 		Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
 		Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
-		float  SpecularPower = 2000;
+		float  SpecularPower = 1000;
 		Vector3 pad0;								  
 	} m_material;
 
@@ -97,7 +97,7 @@ private:
 
 	struct Camera
 	{
-		Vector3 pos = { 0,3,-10 };
+		Vector3 pos = { 0,7.5,-10 };
 		Vector3 dir = { 0,0,1 };
 		Vector3 headDir = { 0,1,0 };
 		Matrix viewMatrix;

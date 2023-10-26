@@ -6,24 +6,25 @@ class Node;
 class GameObject
 {
 	Matrix m_matrix = {};
+	GameObject* m_pParentObject = nullptr;
 
 public:
 	Vector3 m_position = { 0,0,0 };
 	Vector3 m_scale = { 1,1,1 };
 	Vector3 m_rotate = { 0,0,0 };
 
-	vector<Mesh*> m_pMeshes;
-	vector<Material*> m_pMaterials;
-	vector<Animation*> m_pAnimations;
-	vector<Node*> m_pNodes;
-	Node* m_pRootNode;
+	vector<Material*> m_pMaterials = {};
+	vector<Mesh*> m_pMeshes = {};
+	vector<Node*> m_pNodes = {};
+	vector<Animation*> m_pAnimations = {};
+
+	Node* m_pRootNode = nullptr;
 
 public:
-	void Init();
 	void Update();
 	void Render();
-	void Final();
 
+public:
 	Matrix GetMatrix() { return m_matrix; }
 
 };

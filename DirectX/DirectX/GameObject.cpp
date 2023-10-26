@@ -6,11 +6,6 @@
 #include "Node.h"
 #include "Animation.h"
 
-
-void GameObject::Init()
-{
-}
-
 void GameObject::Update()
 {
     Matrix mScale = DirectX::XMMatrixScaling(m_scale.x, m_scale.y, m_scale.z);
@@ -18,19 +13,16 @@ void GameObject::Update()
         * DirectX::XMMatrixRotationY(m_rotate.y)
         * DirectX::XMMatrixRotationZ(m_rotate.z);
     Matrix mTrans = DirectX::XMMatrixTranslation(m_position.x, m_position.y, m_position.z);
+
     Matrix mBasis = DirectX::XMMatrixIdentity();
-    //if (m_pParentObject) mBasis = m_pParentObject->GetMatrix();
+    if (m_pParentObject) mBasis = m_pParentObject->GetMatrix();
     m_matrix = mScale * mRot * mTrans * mBasis;
-    for (auto ani : m_pAnimations)
-        ani->Update();
+
+    for (auto anim : m_pAnimations)
+        anim->Update();
 }
 
 void GameObject::Render()
 {
-    m_pRootNode->Update();
-
-}
-
-void GameObject::Final()
-{
+    m_pRootNode->Render();
 }

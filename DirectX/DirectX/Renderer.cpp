@@ -38,10 +38,9 @@ void Renderer::Init(HINSTANCE hInstance)
 
     FbxLoader loader;
 
-    m_pGameObjects.push_back(loader.LoadGameObject(m_pDevice,"./Resource/walk.fbx"));
+    m_pGameObjects.push_back(loader.LoadGameObject(m_pDevice,"./Resource/BoxHuman.fbx"));
 
-    for (auto obj : m_pGameObjects) obj->Init();
-    m_pGameObjects[0]->m_scale = { 0.01,0.01,0.01 };
+    m_pGameObjects[0]->m_scale = { 0.02,0.02,0.02 };
 }
 
 void Renderer::Run()
@@ -81,8 +80,6 @@ void Renderer::Final()
 {
     FinalImGui();
     FianlScene();
-    for (auto obj : m_pGameObjects) obj->Final();
-
     FinalDX();
 }
 
@@ -347,10 +344,9 @@ void Renderer::RenderImGui()
     ImGui::DragFloat3("##light", (float*)&(m_light.Direction), 0.1, -1.f, 1.f);
     ImGui::Text("rotate");
     ImGui::DragFloat3("##rotate", (float*)&(m_pGameObjects[0]->m_rotate), 0.1f, -360.f, 360.f);
-    ImGui::Text("fps");
-    ImGui::DragInt("##fps", (int*)&Animation::fps, 1, 12, 48);
+    ImGui::Text("speed");
+    ImGui::DragInt("##fps", (int*)&Animation::fps, 1, 1, 60);
     ImGui::End();
-
 
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

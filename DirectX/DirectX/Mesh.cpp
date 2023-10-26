@@ -21,18 +21,14 @@ Mesh::~Mesh()
 
 void Mesh::Render()
 {
-    ID3D11DeviceContext* dc = pRenderer->m_pDeviceContext;
+    m_pConnectMaterial->Render();
 
+    ID3D11DeviceContext* dc = pRenderer->m_pDeviceContext;
 
     dc->IASetVertexBuffers(0, 1, &pVB, &VertextBufferStride, &VertextBufferOffset);
     dc->IASetIndexBuffer(pIB, DXGI_FORMAT_R16_UINT, 0);
 
-    
     dc->PSSetSamplers(0, 1, &(pRenderer->m_pSamplerLinear));
-
-
-    Material* myMatt = m_pOwner->m_pMaterials[m_materialIndex];
-    myMatt->Render();
 
     dc->DrawIndexed(indexCount, 0, 0);
 }
@@ -70,4 +66,9 @@ void Mesh::CreateIndexBuffer(vector<WORD>& _indices)
 
     pRenderer->m_pDevice->CreateBuffer(&ibDesc, &ibData, &pIB);
     assert(pIB);
+}
+
+void Mesh::SetMaterialIndex(UINT _index)
+{
+    m_pConnectMaterial = m_pOwner->m_pMaterials[_index];
 }

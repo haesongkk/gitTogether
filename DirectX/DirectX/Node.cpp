@@ -7,7 +7,7 @@
 
 Renderer* Node::pRenderer = nullptr;
 
-void Node::Update()
+void Node::Render()
 {
     ID3D11DeviceContext* dc = pRenderer->m_pDeviceContext;
 
@@ -33,5 +33,5 @@ void Node::Update()
         mesh->Render();
 
     for (auto node : m_children)
-        node->Update();
+        node->Render();
 }

@@ -22,14 +22,14 @@ GameObject* FbxLoader::LoadGameObject(ID3D11Device* device, const string& _fileP
 	const aiScene* scene = importer.ReadFile(_filePath.c_str(), importFlags);
 	assert(scene);
 
-	for (int i = 0; i < scene->mNumMeshes; ++i)
-		pMeshes.push_back(CreateMesh(device, scene->mMeshes[i], pGameObject));
-	pGameObject->m_pMeshes = pMeshes;
-	
 	for (int i = 0; i < scene->mNumMaterials; ++i)
 		pMaterials.push_back(CreateMaterial(device, scene->mMaterials[i], pGameObject));
 	pGameObject->m_pMaterials = pMaterials;
 
+	for (int i = 0; i < scene->mNumMeshes; ++i)
+		pMeshes.push_back(CreateMesh(device, scene->mMeshes[i], pGameObject));
+	pGameObject->m_pMeshes = pMeshes;
+	
 	pGameObject->m_pRootNode = CreateNode(scene->mRootNode, nullptr, pGameObject);
 
 	for (int i = 0; i < scene->mNumAnimations; i++)
@@ -38,7 +38,6 @@ GameObject* FbxLoader::LoadGameObject(ID3D11Device* device, const string& _fileP
 	pGameObject->m_pAnimations = pAnimations;
 
 	importer.FreeScene();
-
 
 	return pGameObject;
 }

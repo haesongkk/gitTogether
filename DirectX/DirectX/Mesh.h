@@ -15,6 +15,7 @@ struct Vertex
 };
 class GameObject;
 class Renderer;
+class Material;
 class Mesh
 {
 public:
@@ -25,10 +26,11 @@ public:
 	void CreateVertexBuffer(vector<Vertex>& _vertices);
 	void CreateIndexBuffer(vector<WORD>& _indices);
 
-	void SetMaterialIndex(UINT _index) { m_materialIndex = _index; }
+	void SetMaterialIndex(UINT _index);
 	
 	static Renderer* pRenderer;
 	GameObject* m_pOwner;
+	Material* m_pConnectMaterial;
 
 	ID3D11Buffer* pVB = nullptr;
 	ID3D11Buffer* pIB = nullptr;
@@ -36,6 +38,5 @@ public:
 	UINT VertextBufferStride = 0; // 버텍스 하나의 크기.
 	UINT VertextBufferOffset = 0;	// 버텍스 버퍼의 오프셋.
 	UINT indexCount = 0;
-	UINT m_materialIndex = 0;
 
 };

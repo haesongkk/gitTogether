@@ -30,7 +30,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     }
 
     // opacity
-    float opacity = 0.0f;
+    float opacity = 1.0f;
     if (UsingOpacityMap)
     {
         opacity = txOpacity.Sample(samLinear, input.TexCoord).a;
@@ -48,6 +48,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     float SDot = max(dot(vNormal, vHalf), 0);
 
     float power = pow(SDot, MaterialSpecularPower);
+
     float4 specular = power * LightSpecular * MaterialSpecular;
     if (UsingSpecularMap)
     {
@@ -55,7 +56,6 @@ float4 main(PS_INPUT input) : SV_TARGET
     }
 
     float4 finalColor = diffuse + specular + ambient + emmisive;
-    return float4(finalColor.xyz,opacity);
 
-    
+    return float4(finalColor.xyz, opacity);
 }
