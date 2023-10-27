@@ -24,7 +24,6 @@ public:
 
 private:
 	int m_curKey = 0;
-	float m_curTime = 0.f;
 	float m_timer = 0.f;
 
 };

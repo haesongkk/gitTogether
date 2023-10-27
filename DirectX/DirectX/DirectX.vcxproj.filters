@@ -70,6 +70,7 @@
     <ClInclude Include="Node.h">
       <Filter>Node</Filter>
     </ClInclude>
+    <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectX.rc">
@@ -112,6 +113,7 @@
     <ClCompile Include="Node.cpp">
       <Filter>Node</Filter>
     </ClCompile>
+    <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Output\Shader\BasicPixelShader.hlsl">

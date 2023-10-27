@@ -59,7 +59,7 @@ private:
 
 	struct LightBuffer
 	{
-		Vector3 Direction = { 0.0f, 0.0f, 1.0f }; 
+		Vector3 Direction = { 0.3f, 0.0f, 0.6f }; 
 		float pad0;								  
 		Vector4 Ambient = { 0.1f,0.1f,0.1f,1.0f };
 		Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
@@ -73,7 +73,7 @@ private:
 		Vector4 Ambient = { 1.0f,1.0f,1.0f,1.0f };
 		Vector4 Diffuse = { 1.0f,1.0f,1.0f,1.0f };
 		Vector4 Specular = { 1.0f,1.0f,1.0f,1.0f };
-		float  SpecularPower = 1000;
+		float  SpecularPower = 200;
 		Vector3 pad0;								  
 	} m_material;
 
@@ -97,13 +97,13 @@ private:
 
 	struct Camera
 	{
-		Vector3 pos = { 0,7.5,-10 };
+		Vector3 pos = { 0,300,-500 };
 		Vector3 dir = { 0,0,1 };
 		Vector3 headDir = { 0,1,0 };
 		Matrix viewMatrix;
 
 		float fovY = 1.570796327f;
-		float nearZ = 0.0001f;
+		float nearZ = 0.1f;
 		float farZ = 10000.0f;
 		Matrix projMatrix;
 	} m_camera;

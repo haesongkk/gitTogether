@@ -7,6 +7,7 @@
 #include "FbxLoader.h"
 #include "Node.h"
 #include "Animation.h"
+#include "Timer.h"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -39,8 +40,6 @@ void Renderer::Init(HINSTANCE hInstance)
     FbxLoader loader;
 
     m_pGameObjects.push_back(loader.LoadGameObject(m_pDevice,"./Resource/BoxHuman.fbx"));
-
-    m_pGameObjects[0]->m_scale = { 0.02,0.02,0.02 };
 }
 
 void Renderer::Run()
@@ -65,6 +64,7 @@ void Renderer::Run()
 
 void Renderer::Update()
 {
+    Timer::GetInst()->Update();
     UpdateScene();
     for (auto obj : m_pGameObjects) obj->Update();
 }
@@ -121,7 +121,7 @@ void Renderer::InitDX()
     swapDesc.BufferDesc.Height = m_height;
     swapDesc.BufferDesc.RefreshRate.Numerator = 60;
     swapDesc.BufferDesc.RefreshRate.Denominator = 1;
-    swapDesc.SampleDesc.Count = 1;
+    swapDesc.SampleDesc.Count = 4;
     swapDesc.SampleDesc.Quality = 0;
 
     UINT creationFlags = 0;
@@ -159,7 +159,7 @@ void Renderer::InitDX()
     descDepth.MipLevels = 1;
     descDepth.ArraySize = 1;
     descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    descDepth.SampleDesc.Count = 1;
+    descDepth.SampleDesc.Count = 4;
     descDepth.SampleDesc.Quality = 0;
     descDepth.Usage = D3D11_USAGE_DEFAULT;
     descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
@@ -172,7 +172,7 @@ void Renderer::InitDX()
 
     D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
     descDSV.Format = descDepth.Format;
-    descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
     descDSV.Texture2D.MipSlice = 0;
     m_pDevice->CreateDepthStencilView(textureDepthStencil, &descDSV, &m_pDepthStencilView);
     assert(m_pDepthStencilView);
@@ -269,9 +269,6 @@ void Renderer::InitScene()
     sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
     m_pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear);
     assert(m_pSamplerLinear);
-
-   
-
 }
 
 void Renderer::InitImGui()
@@ -335,16 +332,12 @@ void Renderer::RenderImGui()
     ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
-    ImGui::SetNextWindowSize(ImVec2(200, 200));
+    ImGui::SetNextWindowSize(ImVec2(200, 150));
 
     ImGui::Begin("settings");
-    ImGui::Text("camera position");
-    ImGui::DragFloat3("##camera", (float*)&(m_camera.pos), 0.1, -10000.f, 10000.f);
-    ImGui::Text("light dir");
-    ImGui::DragFloat3("##light", (float*)&(m_light.Direction), 0.1, -1.f, 1.f);
-    ImGui::Text("rotate");
+    ImGui::Text("rotate (radian)");
     ImGui::DragFloat3("##rotate", (float*)&(m_pGameObjects[0]->m_rotate), 0.1f, -360.f, 360.f);
-    ImGui::Text("speed");
+    ImGui::Text("key frame fps");
     ImGui::DragInt("##fps", (int*)&Animation::fps, 1, 1, 60);
     ImGui::End();
 

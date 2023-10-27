@@ -2,29 +2,29 @@
 #include "Animation.h"
 #include "GameObject.h"
 #include "Node.h"
+#include "Timer.h"
 
 int Animation::fps = 30;
 
 void Animation::Update()
 {
-	auto preTime = m_curTime;
-	m_curTime = GetTickCount64() / 1000.f;
-
-	auto deltaTime = m_curTime - preTime;
-	m_timer += deltaTime;
-
-	if (m_timer > m_keys[m_curKey].time / fps)
-	{
-		++m_curKey %= m_keys.size();
-		if (m_curKey == 0) m_timer = 0;
-	}
+	m_timer += Timer::GetInst()->GetDeltaTime();
 	
 	auto nextKey = (m_curKey + 1) % m_keys.size();
-
-	auto interval = (m_keys[nextKey].time - m_keys[m_curKey].time) / fps;
-	auto ratio = (m_keys[nextKey].time / fps - m_timer) / interval;
+		
+	if (m_timer > m_keys[nextKey].time / fps)
+	{
+		++m_curKey %= m_keys.size();
+		++nextKey %= m_keys.size();
+		if (nextKey == 0)
+			m_timer -= m_keys.back().time / fps;
+	}
 
 	// º¸°£
+	auto interval = (m_keys[nextKey].time - m_keys[m_curKey].time) / fps;
+	auto ratio = (m_timer - m_keys[m_curKey].time / fps) / interval;
+	int curKey = m_timer / (m_keys.size() / fps);
+	
 	Vector3 scale, pos;
 	Quaternion rot;
 
