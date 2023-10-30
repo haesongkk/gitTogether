@@ -23,8 +23,7 @@ void Animation::Update()
 	// º¸°£
 	auto interval = (m_keys[nextKey].time - m_keys[m_curKey].time) / fps;
 	auto ratio = (m_timer - m_keys[m_curKey].time / fps) / interval;
-	int curKey = m_timer / (m_keys.size() / fps);
-	
+
 	Vector3 scale, pos;
 	Quaternion rot;
 

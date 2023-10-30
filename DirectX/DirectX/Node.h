@@ -21,6 +21,7 @@ public:
 	vector<Mesh*> m_pMeshes = {};
 	vector<Node*> m_children = {};
 	
+	void Update();
 	void Render();
 
 };

@@ -3,10 +3,14 @@
 
 void Timer::Update()
 {
-	auto preTime = m_curTime;
-	m_curTime = GetTickCount64() / 1000.f;
-	m_deltatime = m_curTime - preTime;
+	m_previousTime = m_currentTime;
+	QueryPerformanceCounter(&m_currentTime);
+	m_deltaTime = (float)(m_currentTime.QuadPart - m_previousTime.QuadPart) / (float)(m_frequency.QuadPart);
 }
 
 Timer::Timer()
-	:m_curTime(GetTickCount64() / 1000.f) { }
+{
+	QueryPerformanceFrequency(&m_frequency);
+	QueryPerformanceCounter(&m_previousTime);
+	QueryPerformanceCounter(&m_currentTime);
+}

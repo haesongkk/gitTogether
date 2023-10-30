@@ -7,16 +7,23 @@
 
 Renderer* Node::pRenderer = nullptr;
 
-void Node::Render()
+void Node::Update()
 {
-    ID3D11DeviceContext* dc = pRenderer->m_pDeviceContext;
-
     Matrix mBasis = DirectX::XMMatrixIdentity();
 
     if (m_pParent) mBasis = m_pParent->m_worldMatrix;
     else mBasis = m_pOwner->GetMatrix();
 
-    m_worldMatrix =  m_relativeMatrix * mBasis;
+    m_worldMatrix = m_relativeMatrix * mBasis;
+
+    for (auto node : m_children)
+        node->Update();
+}
+
+void Node::Render()
+{
+    ID3D11DeviceContext* dc = pRenderer->m_pDeviceContext;
+    
     pRenderer->m_transform.mWorld = XMMatrixTranspose(m_worldMatrix);
     dc->UpdateSubresource(
         pRenderer->m_pTransformBuffer,

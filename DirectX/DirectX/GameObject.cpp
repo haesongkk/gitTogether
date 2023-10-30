@@ -18,8 +18,11 @@ void GameObject::Update()
     if (m_pParentObject) mBasis = m_pParentObject->GetMatrix();
     m_matrix = mScale * mRot * mTrans * mBasis;
 
+
     for (auto anim : m_pAnimations)
         anim->Update();
+
+    m_pRootNode->Update();
 }
 
 void GameObject::Render()

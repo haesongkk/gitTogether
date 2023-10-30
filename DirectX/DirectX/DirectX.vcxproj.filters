@@ -35,6 +35,9 @@
     <Filter Include="Node">
       <UniqueIdentifier>{cdd43a33-9ab1-449d-87d2-c17c8e982881}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Timer">
+      <UniqueIdentifier>{60317997-6144-48d2-83bc-3079927e310e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -70,7 +73,9 @@
     <ClInclude Include="Node.h">
       <Filter>Node</Filter>
     </ClInclude>
-    <ClInclude Include="Timer.h" />
+    <ClInclude Include="Timer.h">
+      <Filter>Timer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectX.rc">
@@ -113,7 +118,9 @@
     <ClCompile Include="Node.cpp">
       <Filter>Node</Filter>
     </ClCompile>
-    <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="Timer.cpp">
+      <Filter>Timer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Output\Shader\BasicPixelShader.hlsl">
