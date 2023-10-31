@@ -163,6 +163,6 @@ private:
 
 	CASEParser* m_pASEParser;
 	MeshObject* m_Genji;			/// ASE Parser에서 데이터 입력 예시. (13강부터)
-
+	std::vector<MeshObject*> m_MeshList;
 };
 

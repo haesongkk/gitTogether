@@ -59,14 +59,17 @@ DRDX11Renderer::DRDX11Renderer()
 
 	m_pASEParser = new CASEParser();
 	m_pASEParser->Init();
-	//m_pASEParser->Load((LPSTR)"../ASEFile/genji_blender.ASE");
+	//m_pASEParser->Load((LPSTR)"../ASEFile/genji_max.ASE");
 	m_pASEParser->Load((LPSTR)"../ASEFile/03IK-Joe_onlymesh.ASE");
 	//m_pASEParser->Load((LPSTR)"../ASEFile/P38.ASE");
 	//m_pASEParser->Load((LPSTR)"../ASEFile/teapot.ASE");
 
 
 	///m_pASEParser->Translate_Optimize(m_pASEParser->GetMesh(0));
-	m_pASEParser->ConvertAll(m_pASEParser->GetMesh(0));
+	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
+	{
+		m_pASEParser->ConvertAll(m_pASEParser->GetMesh(i));
+	}
 
 }
 
@@ -256,12 +259,20 @@ bool DRDX11Renderer::Initialize(int hinst, int hWnd, int screenWidth, int screen
 	m_TestCrate->Initialize();
 
 	// ASE Parser / Mesh 예시
-	m_Genji = new MeshObject(md3dDevice, md3dImmediateContext, mSolidRS);
-	m_Genji->Initialize();
-	m_Genji->BuildGeometryBuffers2();
+	//m_Genji = new MeshObject(md3dDevice, md3dImmediateContext, mSolidRS);
+	//m_Genji->Initialize();
+	//m_Genji->BuildGeometryBuffers2();
 
 	/// 위의 빌드 기하버퍼 대신에 이것을 써서 ASE 파일 로드
-	m_Genji->LoadGeomerty(m_pASEParser->GetMesh(0));
+	//m_Genji->LoadGeomerty(m_pASEParser->GetMesh(1));
+	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
+	{
+		MeshObject* mesh = new MeshObject(md3dDevice, md3dImmediateContext, mSolidRS);
+		mesh->Initialize();
+		mesh->LoadGeomerty(m_pASEParser->GetMesh(i));
+
+		m_MeshList.push_back(mesh);
+	}
 
 	// 어댑터 정보를 얻는다.
 	GetAdapterInfo();
@@ -308,7 +319,12 @@ void DRDX11Renderer::Update(float deltaTime)
 	// Crate 예시
 	m_TestCrate->Update(m_pCamera);
 
-	m_Genji->Update(m_pCamera);
+	//m_Genji->Update(m_pCamera);
+
+	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
+	{
+		m_MeshList[i]->Update(m_pCamera);
+	}
 }
 
 void DRDX11Renderer::OnMouseDown(int x, int y)
@@ -370,8 +386,12 @@ void DRDX11Renderer::Draw_Test()
 	///m_TestCrate->Render();	// 텍스쳐 예시
 
 	// ASE Parser 예시
-	m_Genji->Render();
+	//m_Genji->Render();
 
+	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
+	{
+		m_MeshList[i]->Render();
+	}
 
 	///----------------------------------------------------------------------------------------------------
 	/// 폰트 등 UI를 그린다. 위의 DrawPrimitive보다 뒤에 해야 한다.

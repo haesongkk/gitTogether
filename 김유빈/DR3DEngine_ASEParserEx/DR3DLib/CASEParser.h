@@ -103,6 +103,7 @@ public:
 	// Export
 	//--------------------------------------------------
 	Mesh* GetMesh(int index);
+	int GetMeshNum();
 
 
 public:

@@ -99,6 +99,12 @@ ASEParser::Mesh* CASEParser::GetMesh(int index)
 	return m_MeshList[index];
 }
 
+int CASEParser::GetMeshNum()
+{
+	return m_MeshList.size();
+}
+
+
 //----------------------------------------------------------------
 // 재귀 호출됨을 전제로 하는 분기 함수이다.
 //
@@ -168,40 +174,40 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 			// SCENE
 			//--------------------
 
-		case TOKENR_SCENE:
-			//
-			break;
-		case TOKENR_SCENE_FILENAME:
-			m_scenedata.m_filename = Parsing_String();		// 일관성 있는 함수의 사용을 위해 String과 Int도 만들어줬다.
-			break;
-		case TOKENR_SCENE_FIRSTFRAME:
-			m_scenedata.m_firstframe = Parsing_NumberLong();
-			break;
-		case TOKENR_SCENE_LASTFRAME:
-			m_scenedata.m_lastframe = Parsing_NumberLong();
-			break;
-		case TOKENR_SCENE_FRAMESPEED:
-			m_scenedata.m_framespeed = Parsing_NumberLong();
-			break;
-		case TOKENR_SCENE_TICKSPERFRAME:
-			m_scenedata.m_ticksperframe = Parsing_NumberLong();
-			break;
-		case TOKENR_SCENE_MESHFRAMESTEP:
-			m_scenedata.m_meshframestep = Parsing_NumberLong();
-			break;
-		case TOKENR_SCENE_KEYFRAMESTEP:
-			m_scenedata.m_keyframestep = Parsing_NumberLong();
-			break;
-		case TOKENR_SCENE_BACKGROUND_STATIC:
-			m_scenedata.m_scene_background_static.x = Parsing_NumberFloat();
-			m_scenedata.m_scene_background_static.y = Parsing_NumberFloat();
-			m_scenedata.m_scene_background_static.z = Parsing_NumberFloat();
-			break;
-		case TOKENR_SCENE_AMBIENT_STATIC:
-			m_scenedata.m_scene_ambient_static.x = Parsing_NumberFloat();
-			m_scenedata.m_scene_ambient_static.y = Parsing_NumberFloat();
-			m_scenedata.m_scene_ambient_static.z = Parsing_NumberFloat();
-			break;
+		//case TOKENR_SCENE:
+		//	//
+		//	break;
+		//case TOKENR_SCENE_FILENAME:
+		//	m_scenedata.m_filename = Parsing_String();		// 일관성 있는 함수의 사용을 위해 String과 Int도 만들어줬다.
+		//	break;
+		//case TOKENR_SCENE_FIRSTFRAME:
+		//	m_scenedata.m_firstframe = Parsing_NumberLong();
+		//	break;
+		//case TOKENR_SCENE_LASTFRAME:
+		//	m_scenedata.m_lastframe = Parsing_NumberLong();
+		//	break;
+		//case TOKENR_SCENE_FRAMESPEED:
+		//	m_scenedata.m_framespeed = Parsing_NumberLong();
+		//	break;
+		//case TOKENR_SCENE_TICKSPERFRAME:
+		//	m_scenedata.m_ticksperframe = Parsing_NumberLong();
+		//	break;
+		//case TOKENR_SCENE_MESHFRAMESTEP:
+		//	m_scenedata.m_meshframestep = Parsing_NumberLong();
+		//	break;
+		//case TOKENR_SCENE_KEYFRAMESTEP:
+		//	m_scenedata.m_keyframestep = Parsing_NumberLong();
+		//	break;
+		//case TOKENR_SCENE_BACKGROUND_STATIC:
+		//	m_scenedata.m_scene_background_static.x = Parsing_NumberFloat();
+		//	m_scenedata.m_scene_background_static.y = Parsing_NumberFloat();
+		//	m_scenedata.m_scene_background_static.z = Parsing_NumberFloat();
+		//	break;
+		//case TOKENR_SCENE_AMBIENT_STATIC:
+		//	m_scenedata.m_scene_ambient_static.x = Parsing_NumberFloat();
+		//	m_scenedata.m_scene_ambient_static.y = Parsing_NumberFloat();
+		//	m_scenedata.m_scene_ambient_static.z = Parsing_NumberFloat();
+		//	break;
 
 		case TOKENR_SCENE_ENVMAP:
 		{
@@ -232,14 +238,13 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 		case TOKENR_GEOMOBJECT:
 			/// new Mesh
 			m_parsingmode = eGeomobject;
-			Create_onemesh_to_list();
 
 			break;
 
 		case TOKENR_NODE_NAME:
 			// 어쩄든 지금은 오브젝트들을 구별 할 수 있는 유일한 값이다.
 			// 모드에 따라 넣어야 할 곳이 다르다.
-			m_OneMesh->m_nodename = Parsing_String();
+			//m_OneMesh->m_nodename = Parsing_String();
 			break;
 
 		case TOKENR_NODE_PARENT:
@@ -264,56 +269,56 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 			break;
 
 		case TOKENR_INHERIT_POS:
-			m_OneMesh->m_inherit_pos = Parsing_NumberVector3();
-			// 카메라는 NodeTM이 두번 나온다. 두번째라면 넣지 않는다.
+		//	m_OneMesh->m_inherit_pos = Parsing_NumberVector3();
+		//	// 카메라는 NodeTM이 두번 나온다. 두번째라면 넣지 않는다.
 
-			break;
-		case TOKENR_INHERIT_ROT:
-			m_OneMesh->m_inherit_rot = Parsing_NumberVector3();
+		//	break;
+		//case TOKENR_INHERIT_ROT:
+		//	m_OneMesh->m_inherit_rot = Parsing_NumberVector3();
 
-			break;
-		case TOKENR_INHERIT_SCL:
-			m_OneMesh->m_inherit_scl = Parsing_NumberVector3();
+		//	break;
+		//case TOKENR_INHERIT_SCL:
+		//	m_OneMesh->m_inherit_scl = Parsing_NumberVector3();
 
-			break;
-		case TOKENR_TM_ROW0:
-			m_OneMesh->m_tm_row0 = Parsing_NumberVector3();
+		//	break;
+		//case TOKENR_TM_ROW0:
+		//	m_OneMesh->m_tm_row0 = Parsing_NumberVector3();
 
-			break;
-		case TOKENR_TM_ROW1:
-			m_OneMesh->m_tm_row1 = Parsing_NumberVector3();
+		//	break;
+		//case TOKENR_TM_ROW1:
+		//	m_OneMesh->m_tm_row1 = Parsing_NumberVector3();
 
-			break;
-		case TOKENR_TM_ROW2:
-			m_OneMesh->m_tm_row2 = Parsing_NumberVector3();
+		//	break;
+		//case TOKENR_TM_ROW2:
+		//	m_OneMesh->m_tm_row2 = Parsing_NumberVector3();
 
-			break;
-		case TOKENR_TM_ROW3:
-			m_OneMesh->m_tm_row3 = Parsing_NumberVector3();
+		//	break;
+		//case TOKENR_TM_ROW3:
+		//	m_OneMesh->m_tm_row3 = Parsing_NumberVector3();
 
-			break;
-		case TOKENR_TM_POS:
-			m_OneMesh->m_tm_pos = Parsing_NumberVector3();
+		//	break;
+		//case TOKENR_TM_POS:
+		//	m_OneMesh->m_tm_pos = Parsing_NumberVector3();
 
-			break;
-		case TOKENR_TM_ROTAXIS:
-			m_OneMesh->m_tm_rotaxis = Parsing_NumberVector3();
+		//	break;
+		//case TOKENR_TM_ROTAXIS:
+		//	m_OneMesh->m_tm_rotaxis = Parsing_NumberVector3();
 
-			break;
-		case TOKENR_TM_ROTANGLE:
-			m_OneMesh->m_tm_rotangle = Parsing_NumberFloat();
+		//	break;
+		//case TOKENR_TM_ROTANGLE:
+		//	m_OneMesh->m_tm_rotangle = Parsing_NumberFloat();
 
-			break;
-		case TOKENR_TM_SCALE:
-			m_OneMesh->m_tm_scale = Parsing_NumberVector3();
+		//	break;
+		//case TOKENR_TM_SCALE:
+		//	m_OneMesh->m_tm_scale = Parsing_NumberVector3();
 
-			break;
-		case TOKENR_TM_SCALEAXIS:
-			m_OneMesh->m_tm_scaleaxis = Parsing_NumberVector3();
+		//	break;
+		//case TOKENR_TM_SCALEAXIS:
+		//	m_OneMesh->m_tm_scaleaxis = Parsing_NumberVector3();
 
-			break;
-		case TOKENR_TM_SCALEAXISANG:
-			m_OneMesh->m_tm_scaleaxisang = Parsing_NumberFloat();
+		//	break;
+		//case TOKENR_TM_SCALEAXISANG:
+		//	m_OneMesh->m_tm_scaleaxisang = Parsing_NumberFloat();
 
 			// 현재 카메라 상태였다면 이미 노드를 읽은 것으로 표시해준다.
 			break;
@@ -324,6 +329,8 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 		case TOKENR_MESH:
 		{
 			/// 아래의 함수에서 m_OneMesh가 생긴다.
+			Create_onemesh_to_list();
+
 		}
 		break;
 
@@ -522,7 +529,7 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 	// 여기까지 왔다면 while()을 벗어났다는 것이고 그 말은
 	// 괄호를 닫았다는 것이므로
 	// 리턴하자 (재귀함수)
-
+	auto a = m_MeshList;
 	return;
 }
 
