@@ -6,7 +6,7 @@
 
 Renderer* Material::pRenderer = nullptr;
 
-Material::Material(GameObject* _pOwner)
+Material::Material(Model* _pOwner)
     :m_pOwner(_pOwner), m_pTextures{}
 {
 }
@@ -21,6 +21,7 @@ void Material::Render()
 {
     ID3D11DeviceContext* dc = pRenderer->m_pDeviceContext;
 
+    pRenderer->m_material.Diffuse = m_baseColor;
     for (int i = 0; i < TextureIndex::End; i++)
     {
         dc->PSSetShaderResources(i, 1, &m_pTextures[i]);
@@ -38,8 +39,11 @@ void Material::Render()
         dc->OMSetBlendState(nullptr, nullptr, 0xffffffff);
 
     dc->UpdateSubresource(pRenderer->m_pUsingBuffer, 0, nullptr, &(pRenderer->m_using), 0, 0);
+    dc->UpdateSubresource(pRenderer->m_pMaterialBuffer, 0, nullptr, &(pRenderer->m_material), 0, 0);
 
+    dc->PSSetConstantBuffers(2, 1, &(pRenderer->m_pMaterialBuffer));
     dc->PSSetConstantBuffers(3, 1, &(pRenderer->m_pUsingBuffer));
+    dc->VSSetConstantBuffers(2, 1, &(pRenderer->m_pMaterialBuffer));
     dc->VSSetConstantBuffers(3, 1, &(pRenderer->m_pUsingBuffer));
 }
 

@@ -3,12 +3,13 @@
 
 #include "Renderer.h"
 #include "Helper.h"
-#include "GameObject.h"
+#include "Model.h"
 #include "Material.h"
+#include "Bone.h"
 
 Renderer* Mesh::pRenderer = nullptr;
 
-Mesh::Mesh(GameObject* _pOwner)
+Mesh::Mesh(Model* _pOwner)
     :m_pOwner(_pOwner)
 {
 }
@@ -31,6 +32,16 @@ void Mesh::Render()
     dc->PSSetSamplers(0, 1, &(pRenderer->m_pSamplerLinear));
 
     dc->DrawIndexed(indexCount, 0, 0);
+}
+
+void Mesh::Update()
+{
+    assert(m_pBones.size() < 128);
+    for (int i = 0; i < m_pBones.size(); i++)
+    {
+        m_pBones[i]->Update();
+        pRenderer->m_bones.bonePallete[i] = (m_pBones[i]->m_matrix * m_pBones[i]->m_offsetMatrix).Transpose();
+    }
 }
 
 void Mesh::CreateVertexBuffer(vector<Vertex>& _vertices)
@@ -72,3 +83,18 @@ void Mesh::SetMaterialIndex(UINT _index)
 {
     m_pConnectMaterial = m_pOwner->m_pMaterials[_index];
 }
+
+bool Vertex::AddBoneData(int _index, float _weight)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        if (boneWeights[i] == 0.f)
+        {
+            boneIndices[i] = _index;
+            boneWeights[i] = _weight;
+            return true;
+        }
+    }
+    return false; // 정보 저장 실패
+}
+

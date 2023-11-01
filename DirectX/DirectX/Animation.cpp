@@ -1,6 +1,6 @@
 #include "framework.h"
 #include "Animation.h"
-#include "GameObject.h"
+#include "Model.h"
 #include "Node.h"
 #include "Timer.h"
 

@@ -1,12 +1,12 @@
 #include "framework.h"
-#include "GameObject.h"
+#include "Model.h"
 #include "Mesh.h"
 #include "Material.h"
 #include "Renderer.h"
 #include "Node.h"
 #include "Animation.h"
 
-void GameObject::Update()
+void Model::Update()
 {
     Matrix mScale = DirectX::XMMatrixScaling(m_scale.x, m_scale.y, m_scale.z);
     Matrix mRot = DirectX::XMMatrixRotationX(m_rotate.x)
@@ -25,7 +25,7 @@ void GameObject::Update()
     m_pRootNode->Update();
 }
 
-void GameObject::Render()
+void Model::Render()
 {
     m_pRootNode->Render();
 }

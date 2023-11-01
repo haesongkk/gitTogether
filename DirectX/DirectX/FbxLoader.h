@@ -1,16 +1,19 @@
 #pragma once
-class GameObject;
+class Model;
 class Mesh;
 class Material;
 class Animation;
 class Node;
+struct Vertex;
+class Bone;
 class FbxLoader
 {
 public:
-	GameObject* LoadGameObject(ID3D11Device* device, const string& _filePath);
-	Mesh* CreateMesh(ID3D11Device* device, aiMesh* mesh, GameObject* obj);
-	Material* CreateMaterial(ID3D11Device* device, aiMaterial* matt, GameObject* obj);
-	Animation* CreateAnimation(aiNodeAnim* nodeAnimation, GameObject* obj);
-	Node* CreateNode(aiNode* aiNodeInfo, Node* parent, GameObject* obj);
+	Model* LoadGameObject(ID3D11Device* device, const string& _filePath);
+	Mesh* CreateMesh(ID3D11Device* device, aiMesh* mesh, Model* obj);
+	Material* CreateMaterial(ID3D11Device* device, aiMaterial* matt, Model* obj);
+	Animation* CreateAnimation(aiNodeAnim* nodeAnimation, Model* obj);
+	Node* CreateNode(aiNode* aiNodeInfo, Node* parent, Model* obj);
+	Bone* CreateBone(aiBone* aiBone, Mesh* ownerMesh, vector<Vertex>& verticies, int boneIndex);
 };
 
