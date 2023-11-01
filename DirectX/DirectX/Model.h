@@ -3,10 +3,10 @@ class Mesh;
 class Material;
 class Animation;
 class Node;
-class GameObject
+class Model
 {
 	Matrix m_matrix = {};
-	GameObject* m_pParentObject = nullptr;
+	Model* m_pParentObject = nullptr;
 
 public:
 	Vector3 m_position = { 0,0,0 };

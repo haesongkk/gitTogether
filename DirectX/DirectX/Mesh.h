@@ -6,6 +6,11 @@ struct Vertex
 	Vector3 norm;
 	Vector3 tangent;
 
+	int boneIndices[4] = {};
+	float boneWeights[4] = {};
+
+	bool AddBoneData(int _index, float _weight);
+
 	Vertex() : position(Vector3()), norm(Vector3()), tex(Vector2()) { }
 
 	Vertex(Vector3 position, Vector3 normal, Vector2 tex)
@@ -13,24 +18,28 @@ struct Vertex
 	Vertex(Vector3 position, Vector3 normal, Vector2 tex, Vector3 tangent)
 		: position(position), norm(normal), tex(tex), tangent(tangent) { }
 };
-class GameObject;
+
+class Model;
 class Renderer;
 class Material;
+class Bone;
+class Node;
 class Mesh
 {
 public:
-	Mesh(GameObject* _pOwner);
+	Mesh(Model* _pOwner);
 	~Mesh();
 	void Render();
-
+	void Update();
 	void CreateVertexBuffer(vector<Vertex>& _vertices);
 	void CreateIndexBuffer(vector<WORD>& _indices);
 
 	void SetMaterialIndex(UINT _index);
 	
 	static Renderer* pRenderer;
-	GameObject* m_pOwner;
+	Model* m_pOwner;
 	Material* m_pConnectMaterial;
+	Node* m_pParentNode = nullptr;
 
 	ID3D11Buffer* pVB = nullptr;
 	ID3D11Buffer* pIB = nullptr;
@@ -38,5 +47,7 @@ public:
 	UINT VertextBufferStride = 0; // 버텍스 하나의 크기.
 	UINT VertextBufferOffset = 0;	// 버텍스 버퍼의 오프셋.
 	UINT indexCount = 0;
+
+	vector<Bone*> m_pBones;
 
 };

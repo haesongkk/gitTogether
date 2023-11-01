@@ -1,5 +1,5 @@
 #pragma once
-class GameObject;
+class Model;
 class Renderer
 {
 public:
@@ -47,8 +47,9 @@ private:
 	ID3D11Buffer* m_pLightBuffer = nullptr;
 	ID3D11Buffer* m_pMaterialBuffer = nullptr;
 	ID3D11Buffer* m_pUsingBuffer = nullptr;
+	ID3D11Buffer* m_pBonesBuffer = nullptr;
 
-	vector<GameObject*> m_pGameObjects;
+	vector<Model*> m_pGameObjects;
 
 	struct TransformBuffer
 	{
@@ -95,9 +96,14 @@ private:
 		Vector3 padding5;
 	} m_using;
 
+	struct BoneBuffer
+	{
+		Matrix bonePallete[128] = {};
+	} m_bones;
+
 	struct Camera
 	{
-		Vector3 pos = { 0,300,-500 };
+		Vector3 pos = { 0,200,-350 };
 		Vector3 dir = { 0,0,1 };
 		Vector3 headDir = { 0,1,0 };
 		Matrix viewMatrix;

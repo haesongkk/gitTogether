@@ -1,19 +1,25 @@
 #include "framework.h"
 #include "FbxLoader.h"
-#include "GameObject.h"
+
+#include "Model.h"
 #include "Mesh.h"
 #include "Material.h"
 #include "Animation.h"
 #include "Node.h"
 #include "Helper.h"
+#include "Bone.h"
 
-GameObject* FbxLoader::LoadGameObject(ID3D11Device* device, const string& _filePath)
+Model* FbxLoader::LoadGameObject(ID3D11Device* device, const string& _filePath)
 {
-	GameObject* pGameObject = new GameObject;
+	Model* pGameObject = new Model;
 
 	Assimp::Importer importer;
-	unsigned int importFlags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_GenUVCoords | aiProcess_CalcTangentSpace |
-		aiProcess_ConvertToLeftHanded | aiProcess_FlipWindingOrder;
+	unsigned int importFlags = aiProcess_Triangulate
+		| aiProcess_GenNormals
+		| aiProcess_GenUVCoords
+		| aiProcess_CalcTangentSpace
+		| aiProcess_LimitBoneWeights
+		| aiProcess_ConvertToLeftHanded;
 
 	vector<Mesh*> pMeshes;
 	vector<Material*> pMaterials;
@@ -32,17 +38,20 @@ GameObject* FbxLoader::LoadGameObject(ID3D11Device* device, const string& _fileP
 	
 	pGameObject->m_pRootNode = CreateNode(scene->mRootNode, nullptr, pGameObject);
 
+
 	for (int i = 0; i < scene->mNumAnimations; i++)
 		for (int j = 0; j < scene->mAnimations[i]->mNumChannels; j++)
 			pAnimations.push_back(CreateAnimation(scene->mAnimations[i]->mChannels[j], pGameObject));
 	pGameObject->m_pAnimations = pAnimations;
+
+
 
 	importer.FreeScene();
 
 	return pGameObject;
 }
 
-Mesh* FbxLoader::CreateMesh(ID3D11Device* _device, aiMesh* _mesh, GameObject* _obj)
+Mesh* FbxLoader::CreateMesh(ID3D11Device* _device, aiMesh* _mesh, Model* _obj)
 {
 	Mesh* mesh = new Mesh(_obj);
 
@@ -58,7 +67,14 @@ Mesh* FbxLoader::CreateMesh(ID3D11Device* _device, aiMesh* _mesh, GameObject* _o
 		memcpy_s(&vertex.tangent, sizeof(vertex.tangent), &_mesh->mTangents[i], sizeof(_mesh->mTangents[i]));
 		verticies.push_back(vertex);
 	}
+
+	vector<Bone*> bones = {};
+	for (int i = 0; i < _mesh->mNumBones; i++)
+		bones.push_back(CreateBone(_mesh->mBones[i], mesh, verticies,i));
+	mesh->m_pBones = bones;
+
 	mesh->CreateVertexBuffer(verticies);
+
 
 	vector<WORD> indices;
 	for (UINT i = 0; i < _mesh->mNumFaces; ++i)
@@ -73,10 +89,11 @@ Mesh* FbxLoader::CreateMesh(ID3D11Device* _device, aiMesh* _mesh, GameObject* _o
 	}
 	mesh->CreateIndexBuffer(indices);
 
+
 	return mesh;
 }
 
-Material* FbxLoader::CreateMaterial(ID3D11Device* device, aiMaterial* _pMaterial, GameObject* _obj)
+Material* FbxLoader::CreateMaterial(ID3D11Device* device, aiMaterial* _pMaterial, Model* _obj)
 {
 	Material* material = new Material(_obj);
 
@@ -87,6 +104,11 @@ Material* FbxLoader::CreateMaterial(ID3D11Device* device, aiMaterial* _pMaterial
 	wstring finalPath;
 	string name = _pMaterial->GetName().C_Str();
 
+	aiColor3D color(0.f, 0.f, 0.f);
+	if (AI_SUCCESS == _pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, color))
+	{
+		material->m_baseColor = { color.r,color.g,color.b,1.f };
+	}
 
 	if (AI_SUCCESS == _pMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath))
 	{
@@ -126,7 +148,7 @@ Material* FbxLoader::CreateMaterial(ID3D11Device* device, aiMaterial* _pMaterial
 	return material;
 }
 
-Animation* FbxLoader::CreateAnimation(aiNodeAnim* nodeAnimation, GameObject* obj)
+Animation* FbxLoader::CreateAnimation(aiNodeAnim* nodeAnimation, Model* obj)
 {
 	assert(nodeAnimation != nullptr);
 	assert(nodeAnimation->mNumPositionKeys == nodeAnimation->mNumRotationKeys);
@@ -161,7 +183,7 @@ Animation* FbxLoader::CreateAnimation(aiNodeAnim* nodeAnimation, GameObject* obj
 	return animation;
 }
 
-Node* FbxLoader::CreateNode(aiNode* aiNodeInfo, Node* parent, GameObject* obj)
+Node* FbxLoader::CreateNode(aiNode* aiNodeInfo, Node* parent, Model* obj)
 {
 	Node* node = new Node(obj);
 	obj->m_pNodes.push_back(node);
@@ -171,10 +193,29 @@ Node* FbxLoader::CreateNode(aiNode* aiNodeInfo, Node* parent, GameObject* obj)
 	node->m_relativeMatrix = XMMatrixTranspose(XMMATRIX(aiNodeInfo->mTransformation[0]));
 
 	for (int i = 0; i < aiNodeInfo->mNumMeshes; i++)
+	{
+		obj->m_pMeshes[aiNodeInfo->mMeshes[i]]->m_pParentNode = node;
 		node->m_pMeshes.push_back(obj->m_pMeshes[aiNodeInfo->mMeshes[i]]);
+	}
 
 	for (int i = 0; i < aiNodeInfo->mNumChildren; i++)
 		node->m_children.push_back(CreateNode(aiNodeInfo->mChildren[i], node, obj));
 
 	return node;
+}
+
+Bone* FbxLoader::CreateBone(aiBone* aiBone, Mesh* ownerMesh, vector<Vertex>& vertices, int boneIndex)
+{
+	Bone* bone = new Bone;
+	bone->m_name = aiBone->mName.C_Str();
+	bone->m_offsetMatrix = Matrix(&aiBone->mOffsetMatrix.a1).Transpose();
+	bone->m_pOwner = ownerMesh;
+
+	if(aiBone->mNode)
+		bone->m_nodeName = aiBone->mNode->mName.C_Str();
+
+	for (int i = 0; i < aiBone->mNumWeights; i++)
+		assert(vertices[aiBone->mWeights[i].mVertexId].AddBoneData(boneIndex, aiBone->mWeights[i].mWeight));
+
+	return bone;
 }

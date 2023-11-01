@@ -134,8 +134,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="Bone.h" />
     <ClInclude Include="FbxLoader.h" />
-    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Material.h" />
@@ -148,9 +149,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="Bone.cpp" />
     <ClCompile Include="DirectX.cpp" />
     <ClCompile Include="FbxLoader.cpp" />
-    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -168,9 +170,11 @@
   <ItemGroup>
     <FxCompile Include="..\Output\Shader\BasicPixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="..\Output\Shader\BasicVertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

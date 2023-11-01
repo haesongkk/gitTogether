@@ -2,9 +2,9 @@
 class Timer
 {
 public:
-	static Timer* GetInst()
+	static unique_ptr<Timer>& GetInst()
 	{
-		static Timer* timer = new Timer;
+		static unique_ptr<Timer> timer = make_unique<Timer>();
 		return timer;
 	}
 	float GetDeltaTime()
@@ -12,13 +12,9 @@ public:
 		return m_deltaTime;
 	}
 	void Update();
-	void Release()
-	{
-		delete this;
-	}
 	
-private:
 	Timer();
+private:
 	LARGE_INTEGER m_currentTime;
 	LARGE_INTEGER m_previousTime;
 	LARGE_INTEGER m_frequency;

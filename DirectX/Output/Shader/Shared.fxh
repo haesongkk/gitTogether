@@ -42,13 +42,19 @@ cbuffer UsingBuffer : register(b3)
     bool UsingOpacityMap;
 }
 
+cbuffer BoneBuffer : register(b4)
+{
+    matrix BoneMatrixPalletes[128];
+}
+
 struct VS_INPUT
 {
     float4 Pos : POSITION;
     float2 Tex : TEXCOORD0;
     float3 Norm : NORMAL;
     float3 TangentModel : TANGENT;
-
+    int4 BoneIndicies : BLENDINDICES;
+    float4 BoneWeights : BLENDWEIGHTS;
 };
 
 struct PS_INPUT
@@ -58,5 +64,4 @@ struct PS_INPUT
     float2 TexCoord : TEXCOORD0;
     float3 Norm : NORMAL;
     float3 TangentWorld : TANGENT;
-
 };

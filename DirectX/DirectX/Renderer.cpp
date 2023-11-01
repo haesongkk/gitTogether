@@ -3,7 +3,7 @@
 #include "Helper.h"
 #include "Mesh.h"
 #include "Material.h"
-#include "GameObject.h"
+#include "Model.h"
 #include "FbxLoader.h"
 #include "Node.h"
 #include "Animation.h"
@@ -39,7 +39,7 @@ void Renderer::Init(HINSTANCE hInstance)
 
     FbxLoader loader;
 
-    m_pGameObjects.push_back(loader.LoadGameObject(m_pDevice,"./Resource/BoxHuman.fbx"));
+    m_pGameObjects.push_back(loader.LoadGameObject(m_pDevice,"./Resource/SkinningTest.fbx"));
 }
 
 void Renderer::Run()
@@ -50,7 +50,7 @@ void Renderer::Run()
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
         {
             if (msg.message == WM_QUIT) break;
-
+            if (msg.message == WM_DESTROY) break;
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
@@ -205,17 +205,19 @@ void Renderer::InitScene()
         { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "TANGENT" , 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "BLENDINDICES" , 0, DXGI_FORMAT_R32G32B32_UINT, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "BLENDWEIGHTS" , 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
 
     DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
     ID3DBlob* vertexShaderBuffer = nullptr;
     ID3DBlob* pixelShaderBuffer = nullptr;
 
-    D3DCompileFromFile(L"./Shader/BasicVertexShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_4_0",
+    D3DCompileFromFile(L"./Shader/BasicVertexShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0",
         dwShaderFlags, 0, &vertexShaderBuffer, nullptr);
     assert(vertexShaderBuffer);
 
-    D3DCompileFromFile(L"./Shader/BasicPixelShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_4_0",
+    D3DCompileFromFile(L"./Shader/BasicPixelShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0",
         dwShaderFlags, 0, &pixelShaderBuffer, nullptr);
     assert(pixelShaderBuffer);
 
@@ -258,6 +260,12 @@ void Renderer::InitScene()
     cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     m_pDevice->CreateBuffer(&cbDesc, nullptr, &m_pUsingBuffer);
     assert(m_pUsingBuffer);
+
+    cbDesc.Usage = D3D11_USAGE_DEFAULT;
+    cbDesc.ByteWidth = sizeof(BoneBuffer);
+    cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    m_pDevice->CreateBuffer(&cbDesc, nullptr, &m_pBonesBuffer);
+    assert(m_pBonesBuffer);
 
     D3D11_SAMPLER_DESC sampDesc = {};
     sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -313,15 +321,15 @@ void Renderer::RenderScene()
     m_transform.mProjection = XMMatrixTranspose(m_camera.projMatrix);
 
     m_pDeviceContext->UpdateSubresource(m_pLightBuffer, 0, nullptr, &m_light, 0, 0);
-    m_pDeviceContext->UpdateSubresource(m_pMaterialBuffer, 0, nullptr, &m_material, 0, 0);
+    m_pDeviceContext->UpdateSubresource(m_pBonesBuffer, 0, nullptr, &m_bones, 0, 0);
 
     m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
     m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pLightBuffer);
-    m_pDeviceContext->VSSetConstantBuffers(2, 1, &m_pMaterialBuffer);
+    m_pDeviceContext->VSSetConstantBuffers(4, 1, &m_pBonesBuffer);
 
     m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
     m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pLightBuffer);
-    m_pDeviceContext->PSSetConstantBuffers(2, 1, &m_pMaterialBuffer);
+    m_pDeviceContext->PSSetConstantBuffers(4, 1, &m_pBonesBuffer);
 
     m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
@@ -337,6 +345,8 @@ void Renderer::RenderImGui()
     ImGui::Begin("settings");
     ImGui::Text("rotate (radian)");
     ImGui::DragFloat3("##rotate", (float*)&(m_pGameObjects[0]->m_rotate), 0.1f, -360.f, 360.f);
+    ImGui::Text("camera");
+    ImGui::DragFloat3("##camera", (float*)&(m_camera.pos), 1.f, -10000.f, 10000.f);
     ImGui::Text("key frame fps");
     ImGui::DragInt("##fps", (int*)&Animation::fps, 1, 1, 60);
     ImGui::End();

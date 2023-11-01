@@ -1,11 +1,11 @@
 #pragma once
-class GameObject;
+class Model;
 class Renderer;
 class Material
 {
 public:
 	static Renderer* pRenderer;
-	GameObject* m_pOwner;
+	Model* m_pOwner;
 
 	enum TextureIndex
 	{
@@ -13,10 +13,11 @@ public:
 	};
 
 	ID3D11ShaderResourceView* m_pTextures[TextureIndex::End];
+	Vector4 m_baseColor = { };
 
 
 public:
-	Material(GameObject* _pOwner);
+	Material(Model* _pOwner);
 	~Material();
 	void Render();
 

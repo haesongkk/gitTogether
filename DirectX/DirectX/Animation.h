@@ -1,5 +1,5 @@
 #pragma once
-class GameObject;
+class Model;
 class Node;
 class Animation
 {
@@ -14,9 +14,9 @@ public:
 	vector<Key> m_keys;
 	Node* m_pConnectNode = nullptr;
 
-	Animation(GameObject* _pOwner)
+	Animation(Model* _pOwner)
 		:m_pOwner(_pOwner) { }
-	GameObject* m_pOwner;
+	Model* m_pOwner;
 
 	void Update();
 

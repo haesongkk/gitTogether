@@ -17,26 +17,29 @@
     <Filter Include="Renderer">
       <UniqueIdentifier>{4202230a-2ac9-411f-9b47-7d5c598197b0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mesh">
-      <UniqueIdentifier>{2e03741a-c4bb-4df9-adc7-5d7e4c55830d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GameObject">
-      <UniqueIdentifier>{5c86d34a-f9a9-41d9-8099-de23766440bb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="FbxLoader">
       <UniqueIdentifier>{1b999462-8369-4699-b097-58d0dfb5fc40}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Material">
-      <UniqueIdentifier>{6586f7bc-555f-4f38-b815-92e2ac459de9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Animation">
       <UniqueIdentifier>{26c8a4b0-d19c-4240-a2e8-ff916e14c5ba}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Node">
-      <UniqueIdentifier>{cdd43a33-9ab1-449d-87d2-c17c8e982881}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Timer">
       <UniqueIdentifier>{60317997-6144-48d2-83bc-3079927e310e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model">
+      <UniqueIdentifier>{5c86d34a-f9a9-41d9-8099-de23766440bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model\Mesh">
+      <UniqueIdentifier>{2e03741a-c4bb-4df9-adc7-5d7e4c55830d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model\Material">
+      <UniqueIdentifier>{6586f7bc-555f-4f38-b815-92e2ac459de9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model\Bone">
+      <UniqueIdentifier>{76b25a7e-5c52-450e-be9f-1f3080d27061}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model\Node">
+      <UniqueIdentifier>{cdd43a33-9ab1-449d-87d2-c17c8e982881}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -56,25 +59,28 @@
       <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>Mesh</Filter>
+      <Filter>Model\Mesh</Filter>
     </ClInclude>
-    <ClInclude Include="GameObject.h">
-      <Filter>GameObject</Filter>
+    <ClInclude Include="Model.h">
+      <Filter>Model</Filter>
     </ClInclude>
     <ClInclude Include="FbxLoader.h">
       <Filter>FbxLoader</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
-      <Filter>Material</Filter>
+      <Filter>Model\Material</Filter>
     </ClInclude>
     <ClInclude Include="Animation.h">
       <Filter>Animation</Filter>
     </ClInclude>
     <ClInclude Include="Node.h">
-      <Filter>Node</Filter>
+      <Filter>Model\Node</Filter>
     </ClInclude>
     <ClInclude Include="Timer.h">
       <Filter>Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="Bone.h">
+      <Filter>Model\Bone</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -98,10 +104,10 @@
       <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>Mesh</Filter>
+      <Filter>Model\Mesh</Filter>
     </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>GameObject</Filter>
+    <ClCompile Include="Model.cpp">
+      <Filter>Model</Filter>
     </ClCompile>
     <ClCompile Include="FbxLoader.cpp">
       <Filter>FbxLoader</Filter>
@@ -110,16 +116,19 @@
       <Filter>Helper</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
-      <Filter>Material</Filter>
+      <Filter>Model\Material</Filter>
     </ClCompile>
     <ClCompile Include="Animation.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
     <ClCompile Include="Node.cpp">
-      <Filter>Node</Filter>
+      <Filter>Model\Node</Filter>
     </ClCompile>
     <ClCompile Include="Timer.cpp">
       <Filter>Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="Bone.cpp">
+      <Filter>Model\Bone</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

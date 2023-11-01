@@ -3,7 +3,7 @@
 
 #include "Mesh.h"
 #include "Renderer.h"
-#include "GameObject.h"
+#include "Model.h"
 
 Renderer* Node::pRenderer = nullptr;
 
@@ -16,8 +16,13 @@ void Node::Update()
 
     m_worldMatrix = m_relativeMatrix * mBasis;
 
+
     for (auto node : m_children)
         node->Update();
+
+    for (auto mesh : m_pMeshes)
+        mesh->Update();
+
 }
 
 void Node::Render()
