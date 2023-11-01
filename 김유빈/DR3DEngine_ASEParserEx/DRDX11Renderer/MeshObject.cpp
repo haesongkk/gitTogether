@@ -126,6 +126,29 @@ void MeshObject::LoadGeomerty(ASEParser::Mesh* meshData)
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = &indices[0];
 	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mIB));
+
+	XMFLOAT4X4 myNodeTM;
+	myNodeTM._11 = meshData->m_tm_row0.x;
+	myNodeTM._12 = meshData->m_tm_row0.y;
+	myNodeTM._13 = meshData->m_tm_row0.z;
+
+	myNodeTM._21 = meshData->m_tm_row1.x;
+	myNodeTM._22 = meshData->m_tm_row1.y;
+	myNodeTM._23 = meshData->m_tm_row1.z;
+
+	myNodeTM._31 = meshData->m_tm_row2.x;
+	myNodeTM._32 = meshData->m_tm_row2.y;
+	myNodeTM._33 = meshData->m_tm_row2.z;
+
+	myNodeTM._41 = meshData->m_tm_row3.x;
+	myNodeTM._42 = meshData->m_tm_row3.y;
+	myNodeTM._43 = meshData->m_tm_row3.z;
+
+	/// ¿ä±â
+	XMFLOAT4X4 parentNodeTM;
+	//for(auto v : )
+	//parentNodeTM = meshData->m
+	//mLocalTM = myNodeTM * meshData->m_tm
 }
 
 void MeshObject::Update(DRCamera* pCamera)

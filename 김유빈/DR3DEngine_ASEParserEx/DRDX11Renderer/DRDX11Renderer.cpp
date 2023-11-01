@@ -274,6 +274,12 @@ bool DRDX11Renderer::Initialize(int hinst, int hWnd, int screenWidth, int screen
 		m_MeshList.push_back(mesh);
 	}
 
+	/// 요기
+	//for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
+	//{
+	//	if (m_MeshList[i])
+	//}
+
 	// 어댑터 정보를 얻는다.
 	GetAdapterInfo();
 

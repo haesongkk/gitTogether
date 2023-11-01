@@ -50,7 +50,7 @@ private:
 	XMFLOAT4X4 mWorld;	// Define transformations from local spaces to world space.
 	XMFLOAT4X4 mView;
 	XMFLOAT4X4 mProj;
-
+	XMFLOAT4X4 mLocalTM;	// NodeTM * inverse Parent's NodeTM 
 	// 렌더스테이트도 바깥에서 받아온다.
 	ID3D11RasterizerState* m_pRenderstate;
 
