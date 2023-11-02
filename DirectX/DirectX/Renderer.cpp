@@ -321,15 +321,18 @@ void Renderer::RenderScene()
     m_transform.mProjection = XMMatrixTranspose(m_camera.projMatrix);
 
     m_pDeviceContext->UpdateSubresource(m_pLightBuffer, 0, nullptr, &m_light, 0, 0);
-    m_pDeviceContext->UpdateSubresource(m_pBonesBuffer, 0, nullptr, &m_bones, 0, 0);
+    m_pDeviceContext->UpdateSubresource(m_pTransformBuffer, 0, nullptr, &m_transform, 0, 0);
+   
 
     m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
     m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pLightBuffer);
-    m_pDeviceContext->VSSetConstantBuffers(4, 1, &m_pBonesBuffer);
+    m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pTransformBuffer);
 
     m_pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
     m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pLightBuffer);
-    m_pDeviceContext->PSSetConstantBuffers(4, 1, &m_pBonesBuffer);
+    m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pTransformBuffer);
+
+
 
     m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
@@ -347,8 +350,6 @@ void Renderer::RenderImGui()
     ImGui::DragFloat3("##rotate", (float*)&(m_pGameObjects[0]->m_rotate), 0.1f, -360.f, 360.f);
     ImGui::Text("camera");
     ImGui::DragFloat3("##camera", (float*)&(m_camera.pos), 1.f, -10000.f, 10000.f);
-    ImGui::Text("key frame fps");
-    ImGui::DragInt("##fps", (int*)&Animation::fps, 1, 1, 60);
     ImGui::End();
 
     ImGui::Render();

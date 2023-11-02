@@ -21,6 +21,8 @@ Model* FbxLoader::LoadGameObject(ID3D11Device* device, const string& _filePath)
 		| aiProcess_LimitBoneWeights
 		| aiProcess_ConvertToLeftHanded;
 
+	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);
+
 	vector<Mesh*> pMeshes;
 	vector<Material*> pMaterials;
 	vector<Animation*> pAnimations;
@@ -70,9 +72,35 @@ Mesh* FbxLoader::CreateMesh(ID3D11Device* _device, aiMesh* _mesh, Model* _obj)
 
 	vector<Bone*> bones = {};
 	for (int i = 0; i < _mesh->mNumBones; i++)
-		bones.push_back(CreateBone(_mesh->mBones[i], mesh, verticies,i));
+	{
+		//bones.push_back(CreateBone(_mesh->mBones[i], mesh, verticies, i));
+		Bone* bone = new Bone;
+		aiBone* aiBone = _mesh->mBones[i];
+		bone->m_name = aiBone->mName.C_Str();
+		bone->m_offsetMatrix = Matrix(aiBone->mOffsetMatrix[0]).Transpose();
+		bone->m_pOwner = mesh;
+		//bone->m_nodeName = aiBone->mNode->mName.C_Str();
+
+		for (int j = 0; j < aiBone->mNumWeights; j++)
+		{
+			int vertexId = aiBone->mWeights[j].mVertexId;
+			float weight = aiBone->mWeights[j].mWeight;
+			assert(verticies[vertexId].AddBoneData(i, weight));
+
+		}
+		bones.push_back(bone);
+	}
 	mesh->m_pBones = bones;
 
+	for (const auto& v : verticies)
+	{
+		float sum = 0.f;
+		sum += v.boneWeights[0];
+		sum += v.boneWeights[1];
+		sum += v.boneWeights[2];
+		sum += v.boneWeights[3];
+		assert(sum > 0.9f && sum < 1.1f);
+	}
 	mesh->CreateVertexBuffer(verticies);
 
 
@@ -91,6 +119,27 @@ Mesh* FbxLoader::CreateMesh(ID3D11Device* _device, aiMesh* _mesh, Model* _obj)
 
 
 	return mesh;
+}
+
+Bone* FbxLoader::CreateBone(aiBone* aiBone, Mesh* ownerMesh, vector<Vertex>& vertices, int boneIndex)
+{
+	Bone* bone = new Bone;
+	bone->m_name = aiBone->mName.C_Str();
+	bone->m_offsetMatrix = Matrix(aiBone->mOffsetMatrix[0]).Transpose();
+	bone->m_pOwner = ownerMesh;
+
+	if (aiBone->mNode)
+		bone->m_nodeName = aiBone->mNode->mName.C_Str();
+
+	for (int i = 0; i < aiBone->mNumWeights; i++)
+	{
+		auto a = aiBone->mWeights[i].mVertexId;
+		auto b = aiBone->mWeights[i].mWeight;
+		assert(vertices[a].AddBoneData(boneIndex, b));
+
+	}
+
+	return bone;
 }
 
 Material* FbxLoader::CreateMaterial(ID3D11Device* device, aiMaterial* _pMaterial, Model* _obj)
@@ -204,18 +253,4 @@ Node* FbxLoader::CreateNode(aiNode* aiNodeInfo, Node* parent, Model* obj)
 	return node;
 }
 
-Bone* FbxLoader::CreateBone(aiBone* aiBone, Mesh* ownerMesh, vector<Vertex>& vertices, int boneIndex)
-{
-	Bone* bone = new Bone;
-	bone->m_name = aiBone->mName.C_Str();
-	bone->m_offsetMatrix = Matrix(&aiBone->mOffsetMatrix.a1).Transpose();
-	bone->m_pOwner = ownerMesh;
 
-	if(aiBone->mNode)
-		bone->m_nodeName = aiBone->mNode->mName.C_Str();
-
-	for (int i = 0; i < aiBone->mNumWeights; i++)
-		assert(vertices[aiBone->mWeights[i].mVertexId].AddBoneData(boneIndex, aiBone->mWeights[i].mWeight));
-
-	return bone;
-}

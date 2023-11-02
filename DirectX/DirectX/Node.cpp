@@ -17,30 +17,17 @@ void Node::Update()
     m_worldMatrix = m_relativeMatrix * mBasis;
 
 
-    for (auto node : m_children)
-        node->Update();
-
     for (auto mesh : m_pMeshes)
         mesh->Update();
+
+    for (auto node : m_children)
+        node->Update();
 
 }
 
 void Node::Render()
 {
-    ID3D11DeviceContext* dc = pRenderer->m_pDeviceContext;
     
-    pRenderer->m_transform.mWorld = XMMatrixTranspose(m_worldMatrix);
-    dc->UpdateSubresource(
-        pRenderer->m_pTransformBuffer,
-        0,
-        nullptr,
-        &(pRenderer->m_transform),
-        0,
-        0);
-
-    dc->VSSetConstantBuffers(0, 1, &(pRenderer->m_pTransformBuffer));
-    dc->PSSetConstantBuffers(0, 1, &(pRenderer->m_pTransformBuffer));
-
     for (auto mesh : m_pMeshes)
         mesh->Render();
 

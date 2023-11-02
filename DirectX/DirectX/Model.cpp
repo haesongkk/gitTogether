@@ -19,10 +19,11 @@ void Model::Update()
     m_matrix = mScale * mRot * mTrans * mBasis;
 
 
+    m_pRootNode->Update();
+
     for (auto anim : m_pAnimations)
         anim->Update();
 
-    m_pRootNode->Update();
 }
 
 void Model::Render()
