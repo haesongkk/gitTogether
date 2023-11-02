@@ -21,8 +21,10 @@ MeshObject::~MeshObject()
 	ReleaseCOM(mVB);
 }
 
-void MeshObject::Initialize()
+void MeshObject::Initialize(ASEParser::Mesh* meshData)
 {
+	mMeshData = meshData;
+
 	mDirLights[0].Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
 	mDirLights[0].Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	mDirLights[0].Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
