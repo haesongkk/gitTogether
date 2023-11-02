@@ -29,8 +29,7 @@ class Mesh
 public:
 	Mesh(Model* _pOwner);
 	~Mesh();
-	void Render();
-	void Update();
+
 	void CreateVertexBuffer(vector<Vertex>& _vertices);
 	void CreateIndexBuffer(vector<WORD>& _indices);
 

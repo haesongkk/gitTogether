@@ -22,6 +22,7 @@ void Material::Render()
     ID3D11DeviceContext* dc = pRenderer->m_pDeviceContext;
 
     pRenderer->m_material.Diffuse = m_baseColor;
+
     for (int i = 0; i < TextureIndex::End; i++)
     {
         dc->PSSetShaderResources(i, 1, &m_pTextures[i]);
@@ -45,6 +46,8 @@ void Material::Render()
     dc->PSSetConstantBuffers(3, 1, &(pRenderer->m_pUsingBuffer));
     dc->VSSetConstantBuffers(2, 1, &(pRenderer->m_pMaterialBuffer));
     dc->VSSetConstantBuffers(3, 1, &(pRenderer->m_pUsingBuffer));
+
+    dc->PSSetSamplers(0, 1, &(pRenderer->m_pSamplerLinear));
 }
 
 void Material::CreateTextureFromFile(const wstring& _filePath, TextureIndex _txId)

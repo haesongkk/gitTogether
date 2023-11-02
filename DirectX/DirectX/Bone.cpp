@@ -3,6 +3,7 @@
 #include "Node.h"
 #include "Mesh.h"
 #include "Model.h"
+#include "Renderer.h"
 
 void Bone::SetConnectNode(string name)
 {
@@ -14,7 +15,7 @@ void Bone::SetConnectNode(string name)
 void Bone::Update()
 {
 	SetConnectNode(m_name);
-	//m_pConnectNode = m_pOwner->m_pParentNode;
-	if(m_pConnectNode)
-		m_matrix = m_pConnectNode->m_worldMatrix;
+	assert(m_pConnectNode);
+	m_matrix = m_offsetMatrix * m_pConnectNode->m_worldMatrix;
+	m_pOwner->pRenderer->m_bones.bonePallete[m_index] = m_matrix.Transpose();
 }
