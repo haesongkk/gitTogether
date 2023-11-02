@@ -29,11 +29,12 @@ public:
 	};
 
 public:
-	void Initialize();
+	void Initialize(ASEParser::Mesh* meshData);
 	void LoadGeomerty(ASEParser::Mesh* meshData);
 	void Update(DRCamera* pCamera);
 	void Render();
 
+	ASEParser::Mesh* GetMesh() { return mMeshData; }
 
 public:
 	void BuildGeometryBuffers2();		// 기하구조로부터 버텍스/인덱스버퍼를 만든다.
@@ -50,7 +51,7 @@ private:
 	XMFLOAT4X4 mWorld;	// Define transformations from local spaces to world space.
 	XMFLOAT4X4 mView;
 	XMFLOAT4X4 mProj;
-
+	XMFLOAT4X4 mLocalTM;	// NodeTM * inverse Parent's NodeTM 
 	// 렌더스테이트도 바깥에서 받아온다.
 	ID3D11RasterizerState* m_pRenderstate;
 
@@ -62,6 +63,7 @@ private:
 	XMFLOAT3 mEyePosW;
 	UINT mLightCount;
 
+	ASEParser::Mesh* mMeshData;
 
 	///----------------------------------------------------------------------------------------------------
 	/// 텍스쳐에서 추가된 부분

@@ -17,7 +17,7 @@
 #include "Skull.h"
 #include "Box.h"
 #include "Crate.h"
-#include "MeshObject.h"
+#include "Model.h"
 
 #ifdef _DEBUG
 #pragma comment( lib, "../Lib/Effects11d.lib" )
@@ -57,19 +57,19 @@ DRDX11Renderer::DRDX11Renderer()
 	//m_pCamera->SetPosition(8.0f, 8.0f, -8.0f);
 	m_pCamera->LookAt(XMFLOAT3(8.0f, 8.0f, -8.0f), XMFLOAT3(0, 0, 0), XMFLOAT3(0, 1.0f, 0));
 
-	m_pASEParser = new CASEParser();
-	m_pASEParser->Init();
+	//m_pASEParser = new CASEParser();
+	//m_pASEParser->Init();
 	//m_pASEParser->Load((LPSTR)"../ASEFile/genji_max.ASE");
-	m_pASEParser->Load((LPSTR)"../ASEFile/03IK-Joe_onlymesh.ASE");
+	//m_pASEParser->Load((LPSTR)"../ASEFile/03IK-Joe_onlymesh.ASE");
 	//m_pASEParser->Load((LPSTR)"../ASEFile/P38.ASE");
 	//m_pASEParser->Load((LPSTR)"../ASEFile/teapot.ASE");
 
 
 	///m_pASEParser->Translate_Optimize(m_pASEParser->GetMesh(0));
-	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
-	{
-		m_pASEParser->ConvertAll(m_pASEParser->GetMesh(i));
-	}
+	//for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
+	//{
+	//	m_pASEParser->ConvertAll(m_pASEParser->GetMesh(i));
+	//}
 
 }
 
@@ -258,21 +258,26 @@ bool DRDX11Renderer::Initialize(int hinst, int hWnd, int screenWidth, int screen
 	m_TestCrate = new Crate(md3dDevice, md3dImmediateContext, mSolidRS);
 	m_TestCrate->Initialize();
 
-	// ASE Parser / Mesh 예시
-	//m_Genji = new MeshObject(md3dDevice, md3dImmediateContext, mSolidRS);
-	//m_Genji->Initialize();
-	//m_Genji->BuildGeometryBuffers2();
+	// 파싱 파일에 따른 모델(여러개의 메시를 갖는) 생성
+	m_Genji = new Model(md3dDevice, md3dImmediateContext, mSolidRS);
+	m_Genji->Initialize();
 
 	/// 위의 빌드 기하버퍼 대신에 이것을 써서 ASE 파일 로드
 	//m_Genji->LoadGeomerty(m_pASEParser->GetMesh(1));
-	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
-	{
-		MeshObject* mesh = new MeshObject(md3dDevice, md3dImmediateContext, mSolidRS);
-		mesh->Initialize();
-		mesh->LoadGeomerty(m_pASEParser->GetMesh(i));
+	//for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
+	//{
+	//	MeshObject* mesh = new MeshObject(md3dDevice, md3dImmediateContext, mSolidRS);
+	//	mesh->Initialize();
+	//	mesh->LoadGeomerty(m_pASEParser->GetMesh(i));
 
-		m_MeshList.push_back(mesh);
-	}
+	//	m_MeshList.push_back(mesh);
+	//}
+
+	/// 요기
+	//for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
+	//{
+	//	if (m_MeshList[i])
+	//}
 
 	// 어댑터 정보를 얻는다.
 	GetAdapterInfo();
@@ -286,22 +291,22 @@ void DRDX11Renderer::Update(float deltaTime)
 
 	// 카메라
 	if (GetAsyncKeyState('W') & 0x8000)
-		m_pCamera->Walk(10.0f * deltaTime);
+		m_pCamera->Walk(20.0f * deltaTime);
 
 	if (GetAsyncKeyState('S') & 0x8000)
-		m_pCamera->Walk(-10.0f * deltaTime);
+		m_pCamera->Walk(-20.0f * deltaTime);
 
 	if (GetAsyncKeyState('A') & 0x8000)
-		m_pCamera->Strafe(-10.0f * deltaTime);
+		m_pCamera->Strafe(-20.0f * deltaTime);
 
 	if (GetAsyncKeyState('D') & 0x8000)
-		m_pCamera->Strafe(10.0f * deltaTime);
+		m_pCamera->Strafe(20.0f * deltaTime);
 
 	if (GetAsyncKeyState('Q') & 0x8000)
-		m_pCamera->WorldUpDown(-10.0f * deltaTime);
+		m_pCamera->WorldUpDown(-20.0f * deltaTime);
 
 	if (GetAsyncKeyState('E') & 0x8000)
-		m_pCamera->WorldUpDown(10.0f * deltaTime);
+		m_pCamera->WorldUpDown(20.0f * deltaTime);
 
 	// view TM을 만든다.
 	m_pCamera->UpdateViewMatrix();
@@ -319,12 +324,12 @@ void DRDX11Renderer::Update(float deltaTime)
 	// Crate 예시
 	m_TestCrate->Update(m_pCamera);
 
-	//m_Genji->Update(m_pCamera);
+	m_Genji->Update(m_pCamera);
 
-	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
-	{
-		m_MeshList[i]->Update(m_pCamera);
-	}
+	//for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
+	//{
+	//	m_MeshList[i]->Update(m_pCamera);
+	//}
 }
 
 void DRDX11Renderer::OnMouseDown(int x, int y)
@@ -386,12 +391,12 @@ void DRDX11Renderer::Draw_Test()
 	///m_TestCrate->Render();	// 텍스쳐 예시
 
 	// ASE Parser 예시
-	//m_Genji->Render();
+	m_Genji->Render();
 
-	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
-	{
-		m_MeshList[i]->Render();
-	}
+	//for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
+	//{
+	//	m_MeshList[i]->Render();
+	//}
 
 	///----------------------------------------------------------------------------------------------------
 	/// 폰트 등 UI를 그린다. 위의 DrawPrimitive보다 뒤에 해야 한다.

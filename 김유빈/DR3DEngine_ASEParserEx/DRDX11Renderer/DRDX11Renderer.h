@@ -17,7 +17,7 @@ class Grid;
 class Skull;
 class Box;
 class Crate;
-class MeshObject;
+class Model;
 
 /// <summary>
 /// DirectX 11버전으로 만든 아카데미 교육용 다롱랜더러
@@ -162,7 +162,6 @@ private:
 
 
 	CASEParser* m_pASEParser;
-	MeshObject* m_Genji;			/// ASE Parser에서 데이터 입력 예시. (13강부터)
-	std::vector<MeshObject*> m_MeshList;
+	Model* m_Genji;			/// ASE Parser에서 데이터 입력 예시. (13강부터)
 };
 

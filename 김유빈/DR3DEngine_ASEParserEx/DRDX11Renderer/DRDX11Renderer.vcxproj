@@ -178,6 +178,7 @@
     <ClInclude Include="IDRCamera.h" />
     <ClInclude Include="MathHelper.h" />
     <ClInclude Include="MeshObject.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Skull.h" />
     <ClInclude Include="struct_and_const.h" />
   </ItemGroup>
@@ -195,6 +196,7 @@
     <ClCompile Include="HelperObjects.cpp" />
     <ClCompile Include="MathHelper.cpp" />
     <ClCompile Include="MeshObject.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Skull.cpp" />
     <ClCompile Include="struct_and_const.cpp" />
   </ItemGroup>
