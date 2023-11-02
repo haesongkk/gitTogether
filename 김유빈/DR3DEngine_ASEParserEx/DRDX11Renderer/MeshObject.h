@@ -30,7 +30,7 @@ public:
 
 public:
 	void Initialize(ASEParser::Mesh* meshData);
-	void LoadGeomerty(ASEParser::Mesh* meshData);
+	void LoadGeomerty();
 	void Update(DRCamera* pCamera);
 	void Render();
 
