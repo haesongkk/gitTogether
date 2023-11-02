@@ -71,8 +71,13 @@ void MeshObject::Initialize(ASEParser::Mesh* meshData)
 }
 
 // ASE 파서에서 버텍스 정보, 인덱스 정보를 얻어온다.
-void MeshObject::LoadGeomerty(ASEParser::Mesh* meshData)
+void MeshObject::LoadGeomerty()
 {
+	ASEParser::Mesh* meshData = nullptr;
+	meshData = mMeshData;
+
+	if (meshData->m_IsHelper) return;
+
 	UINT vcount = 0;
 	UINT tcount = 0;
 
@@ -215,6 +220,7 @@ void MeshObject::Render()
 	XMMATRIX view = XMLoadFloat4x4(&mView);
 	XMMATRIX proj = XMLoadFloat4x4(&mProj);
 	XMMATRIX world = XMLoadFloat4x4(&mWorld);
+	XMMATRIX local = XMLoadFloat4x4(&(mMeshData->m_LocalTM));
 	XMMATRIX worldViewProj = world * view * proj;
 
 	// 월드의 역행렬

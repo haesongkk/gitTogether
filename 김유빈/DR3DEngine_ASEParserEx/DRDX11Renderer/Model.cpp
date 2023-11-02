@@ -39,7 +39,7 @@ void Model::Initialize()
 	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
 	{
 		// 메시 관련 정점, 인덱스 버퍼 설정
-		mMeshList[i]->LoadGeomerty(mMeshList[i]->GetMesh());
+		mMeshList[i]->LoadGeomerty();
 	}
 }
 
@@ -61,70 +61,68 @@ void Model::Render()
 
 void Model::SetHierarchy()
 {
-	std::vector<XMFLOAT4X4*> myNodeTM;
-
 	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
 	{
-		XMFLOAT4X4* node = new XMFLOAT4X4;
+		Matrix parent = XMMatrixIdentity();
 
-		node->_11 = mMeshList[i]->GetMesh()->m_tm_row0.x;
-		node->_12 = mMeshList[i]->GetMesh()->m_tm_row0.y;
-		node->_13 = mMeshList[i]->GetMesh()->m_tm_row0.z;
-		node->_21 = mMeshList[i]->GetMesh()->m_tm_row1.x;
-		node->_22 = mMeshList[i]->GetMesh()->m_tm_row1.y;
-		node->_23 = mMeshList[i]->GetMesh()->m_tm_row1.z;
-		node->_31 = mMeshList[i]->GetMesh()->m_tm_row2.x;
-		node->_32 = mMeshList[i]->GetMesh()->m_tm_row2.y;
-		node->_33 = mMeshList[i]->GetMesh()->m_tm_row2.z;
-		node->_41 = mMeshList[i]->GetMesh()->m_tm_row3.x;
-		node->_42 = mMeshList[i]->GetMesh()->m_tm_row3.y;
-		node->_43 = mMeshList[i]->GetMesh()->m_tm_row3.z;
-
-		myNodeTM.push_back(node);
-	}
-
-	XMFLOAT4X4 parentNodeTM;
-	XMMATRIX parent;
-
-	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
-	{
 		for (auto v : mMeshList)
 		{
-			if (!mMeshList[i]->GetMesh()->m_nodeparent.empty()
+			if (mMeshList[i]->GetMesh()->m_nodeparent.empty() != TRUE
 				&& mMeshList[i]->GetMesh()->m_nodeparent == v->GetMesh()->m_nodename)
 			{
-				XMFLOAT4X4 vNodeTM;
-
-				vNodeTM._11 = v->GetMesh()->m_tm_row0.x;
-				vNodeTM._12 = v->GetMesh()->m_tm_row0.y;
-				vNodeTM._13 = v->GetMesh()->m_tm_row0.z;
-				vNodeTM._21 = v->GetMesh()->m_tm_row1.x;
-				vNodeTM._22 = v->GetMesh()->m_tm_row1.y;
-				vNodeTM._23 = v->GetMesh()->m_tm_row1.z;
-				vNodeTM._31 = v->GetMesh()->m_tm_row2.x;
-				vNodeTM._32 = v->GetMesh()->m_tm_row2.y;
-				vNodeTM._33 = v->GetMesh()->m_tm_row2.z;
-				vNodeTM._41 = v->GetMesh()->m_tm_row3.x;
-				vNodeTM._42 = v->GetMesh()->m_tm_row3.y;
-				vNodeTM._43 = v->GetMesh()->m_tm_row3.z;
-
-				parentNodeTM = vNodeTM;
-				parent = XMLoadFloat4x4(&parentNodeTM);
-			}
-			else
-			{
-				//parent = MathHelper::InverseTranspose(XMMatrixIdentity());
+				parent = v->GetMesh()->m_WorldTM;
+				mMeshList[i]->GetMesh()->m_ParentWorldTM = parent;
+				break;
 			}
 		}
+		 
+		Matrix myLocal = mMeshList[i]->GetMesh()->m_WorldTM * parent.Invert();
+		mMeshList[i]->GetMesh()->m_LocalTM = myLocal;
+		
+		for (int j = 0; j < mMeshList[i]->GetMesh()->m_opt_vertex.size(); j++)
+		{
+			Vector3 tmpPos = mMeshList[i]->GetMesh()->m_opt_vertex[j]->m_pos;
 
-		XMMATRIX myLocal = XMLoadFloat4x4(myNodeTM[i]) * MathHelper::InverseTranspose(parent);
+			mMeshList[i]->GetMesh()->m_opt_vertex[j]->m_pos = XMVector3Transform(tmpPos, mMeshList[i]->GetMesh()->m_WorldTM.Invert());
 
-		XMStoreFloat4x4(myNodeTM[i], myLocal);
+			tmpPos = mMeshList[i]->GetMesh()->m_opt_vertex[j]->m_pos;
+
+			//mMeshList[i]->GetMesh()->m_opt_vertex[j]->m_pos = XMVector3Transform(tmpPos, parent);
+		}
+	}
+
+	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
+	{
+
+		for (auto v : mMeshList)
+		{
+			if (mMeshList[i]->GetMesh()->m_nodeparent.empty() != TRUE
+				&& mMeshList[i]->GetMesh()->m_nodeparent == v->GetMesh()->m_nodename)
+				mMeshList[i]->GetMesh()->m_ParentLocalTM = v->GetMesh()->m_LocalTM;
+
+
+		}
 
 		for (int j = 0; j < mMeshList[i]->GetMesh()->m_opt_vertex.size(); j++)
 		{
-			Vector3 tmp = mMeshList[i]->GetMesh()->m_opt_vertex[j]->m_pos;
-			mMeshList[i]->GetMesh()->m_opt_vertex[j]->m_pos = XMVector3TransformNormal(XMLoadFloat3(&tmp), myLocal);
+			Vector3 tmpPos = mMeshList[i]->GetMesh()->m_opt_vertex[j]->m_pos;
+
+			mMeshList[i]->GetMesh()->m_opt_vertex[j]->m_pos = XMVector3Transform(tmpPos, parent);
+		}
+
+
+	}
+
+
+}
+
+void Model::FindChild()
+{
+	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
+	{
+		if (mMeshList[i]->GetMesh()->m_nodeparent.empty() == FALSE)
+		{
+
 		}
 	}
 }

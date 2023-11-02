@@ -336,6 +336,13 @@ namespace ASEParser
 		Vector3	m_tm_scaleaxis;
 		float m_tm_scaleaxisang;
 
+		Matrix m_LocalTM;
+		Matrix m_WorldTM;
+		Matrix m_FinalNodeTM;
+		Matrix m_ParentLocalTM;
+		Matrix m_ParentWorldTM;
+
+		bool m_IsHelper = false;
 		///----------------------------------
 		/// *MESH
 		///----------------------------------
