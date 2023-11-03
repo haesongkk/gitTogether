@@ -57,6 +57,5 @@ void Model::UpdateNodeTM()
 {
     for (auto anim : m_pAnimations)
         anim->Update();
-    for (auto node : m_pNodes)
-        node->Render();
+    m_pRootNode->Render();
 }

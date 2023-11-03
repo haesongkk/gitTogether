@@ -15,4 +15,7 @@ void Node::Render()
     else mBasis = m_pOwner->GetMatrix();
 
     m_worldMatrix = m_relativeMatrix * mBasis;
+
+    for (auto node : m_children)
+        node->Render();
 }

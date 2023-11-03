@@ -61,8 +61,34 @@ Mesh* FbxLoader::CreateMesh(ID3D11Device* _device, aiMesh* _mesh, Model* _obj)
 	vector<Vertex> verticies(_mesh->mNumVertices);
 	vector<WORD> indices(_mesh->mNumFaces * 3);
 
+	map<string, int> BoneMapping;
+	int boneIndexCounter = 0;
 	for (int i = 0; i < _mesh->mNumBones; i++)
-		bones[i] = CreateBone(_mesh->mBones[i], mesh, verticies, i);
+	{
+		aiBone* aiBone = _mesh->mBones[i];
+		string boneName = aiBone->mName.C_Str();
+		int boneIndex = 0;
+		if (BoneMapping.find(boneName) == BoneMapping.end())
+		{
+			boneIndex = boneIndexCounter++;
+			bones[boneIndex] = new Bone;
+			bones[boneIndex]->m_nodeName = boneName;
+			bones[boneIndex]->m_pOwner = mesh;
+			bones[boneIndex]->m_offsetMatrix = Matrix(&aiBone->mOffsetMatrix.a1).Transpose();
+			bones[boneIndex]->m_index = boneIndex;
+
+			BoneMapping[boneName] = boneIndex;
+		}
+		else
+			boneIndex = BoneMapping[boneName];
+
+		for (int j = 0; j < aiBone->mNumWeights; j++)
+		{
+			int vertexId = aiBone->mWeights[j].mVertexId;
+			float weight = aiBone->mWeights[j].mWeight;
+			assert(verticies[vertexId].AddBoneData(boneIndex, weight));
+		}
+	}
 
 	for (UINT i = 0; i < _mesh->mNumVertices; ++i)
 	{
@@ -89,11 +115,12 @@ Mesh* FbxLoader::CreateMesh(ID3D11Device* _device, aiMesh* _mesh, Model* _obj)
 Bone* FbxLoader::CreateBone(aiBone* aiBone, Mesh* ownerMesh, vector<Vertex>& vertices, int boneIndex)
 {
 	Bone* bone = new Bone;
-	bone->m_name = aiBone->mName.C_Str();
-	bone->m_offsetMatrix = Matrix(aiBone->mOffsetMatrix[0]).Transpose();
+	bone->m_nodeName = aiBone->mName.C_Str();
+	//bone->m_offsetMatrix = Matrix(aiBone->mOffsetMatrix[0]).Transpose(); 
+	bone->m_offsetMatrix = Matrix(&aiBone->mOffsetMatrix.a1).Transpose();
+
 	bone->m_pOwner = ownerMesh;
 	bone->m_index = boneIndex;
-	//bone->m_nodeName = aiBone->mNode->mName.C_Str();
 
 	for (int j = 0; j < aiBone->mNumWeights; j++)
 	{
@@ -188,7 +215,6 @@ Animation* FbxLoader::CreateAnimation(aiNodeAnim* nodeAnimation, Model* obj)
 		animation->m_keys.push_back(key);
 	}
 
-	auto a = nodeAnimation->mNodeName.C_Str();
 	for (auto node : obj->m_pNodes)
 		if (node->m_name == nodeAnimation->mNodeName.C_Str())
 			animation->m_pConnectNode = node;
