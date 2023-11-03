@@ -14,8 +14,8 @@ void Bone::SetConnectNode(string name)
 
 void Bone::Update()
 {
-	SetConnectNode(m_name);
+	SetConnectNode(m_nodeName);
 	assert(m_pConnectNode);
-	m_matrix = m_offsetMatrix * m_pConnectNode->m_worldMatrix;
-	m_pOwner->pRenderer->m_bones.bonePallete[m_index] = m_matrix.Transpose();
+	Matrix matrix = m_offsetMatrix * m_pConnectNode->m_worldMatrix;
+	m_pOwner->pRenderer->m_bones.bonePallete[m_index] = matrix.Transpose();
 }
