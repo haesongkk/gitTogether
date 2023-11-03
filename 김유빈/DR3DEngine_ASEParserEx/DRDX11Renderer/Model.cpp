@@ -57,72 +57,53 @@ void Model::Render()
 	{
 		mMeshList[i]->Render();
 	}
+
+	XMMATRIX mRot, mLocal;
+
+	int index = 57;
+	static float angle = 0;
+	
+	angle += 0.00001;
+	mLocal = XMMatrixRotationX(angle) * XMLoadFloat4x4(&(mMeshList[index]->GetMesh()->m_LocalTM));
+	XMStoreFloat4x4(&(mMeshList[index]->GetMesh()->m_LocalTM), mLocal);
+
+	// index의 로컬이 변하면 걔의 자식들도 월드tm 이 변해야하니까
+	// 전체적으로 다시 월드 tm 구해주기
+	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
+	{
+		mMeshList[i]->GetMesh()->m_WorldTM = WorldTM(mMeshList[i]);
+		mMeshList[i]->mWorld = mMeshList[i]->GetMesh()->m_WorldTM;
+	}
 }
 
 void Model::SetHierarchy()
 {
 	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
 	{
-		Matrix parent = XMMatrixIdentity();
-
-		for (auto v : mMeshList)
+		for (auto& v : mMeshList)
 		{
-			if (mMeshList[i]->GetMesh()->m_nodeparent.empty() != TRUE
-				&& mMeshList[i]->GetMesh()->m_nodeparent == v->GetMesh()->m_nodename)
+			if (mMeshList[i]->GetMesh()->m_nodeparent == v->GetMesh()->m_nodename)
 			{
-				parent = v->GetMesh()->m_WorldTM;
-				mMeshList[i]->GetMesh()->m_ParentWorldTM = parent;
-				break;
+				mMeshList[i]->GetMesh()->m_LocalTM = mMeshList[i]->GetMesh()->m_WorldTM * v->GetMesh()->m_WorldTM.Invert();
 			}
 		}
-		 
-		Matrix myLocal = mMeshList[i]->GetMesh()->m_WorldTM * parent.Invert();
-		mMeshList[i]->GetMesh()->m_LocalTM = myLocal;
-		
-		for (int j = 0; j < mMeshList[i]->GetMesh()->m_opt_vertex.size(); j++)
-		{
-			Vector3 tmpPos = mMeshList[i]->GetMesh()->m_opt_vertex[j]->m_pos;
-
-			mMeshList[i]->GetMesh()->m_opt_vertex[j]->m_pos = XMVector3Transform(tmpPos, mMeshList[i]->GetMesh()->m_WorldTM.Invert());
-
-			tmpPos = mMeshList[i]->GetMesh()->m_opt_vertex[j]->m_pos;
-
-			//mMeshList[i]->GetMesh()->m_opt_vertex[j]->m_pos = XMVector3Transform(tmpPos, parent);
-		}
 	}
 
 	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
 	{
-
-		for (auto v : mMeshList)
-		{
-			if (mMeshList[i]->GetMesh()->m_nodeparent.empty() != TRUE
-				&& mMeshList[i]->GetMesh()->m_nodeparent == v->GetMesh()->m_nodename)
-				mMeshList[i]->GetMesh()->m_ParentLocalTM = v->GetMesh()->m_LocalTM;
-
-
-		}
-
-		for (int j = 0; j < mMeshList[i]->GetMesh()->m_opt_vertex.size(); j++)
-		{
-			Vector3 tmpPos = mMeshList[i]->GetMesh()->m_opt_vertex[j]->m_pos;
-
-			mMeshList[i]->GetMesh()->m_opt_vertex[j]->m_pos = XMVector3Transform(tmpPos, parent);
-		}
-
-
+		mMeshList[i]->GetMesh()->m_WorldTM = WorldTM(mMeshList[i]);
+		mMeshList[i]->mWorld = mMeshList[i]->GetMesh()->m_WorldTM;
 	}
-
-
 }
 
-void Model::FindChild()
+Matrix Model::WorldTM(MeshObject* mesh)
 {
-	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
+	for (auto& v : mMeshList)
 	{
-		if (mMeshList[i]->GetMesh()->m_nodeparent.empty() == FALSE)
-		{
-
-		}
+		if (mesh->GetMesh()->m_nodeparent == v->GetMesh()->m_nodename)
+			return mesh->GetMesh()->m_LocalTM * WorldTM(v);
 	}
+
+	return mesh->GetMesh()->m_WorldTM;
 }
+

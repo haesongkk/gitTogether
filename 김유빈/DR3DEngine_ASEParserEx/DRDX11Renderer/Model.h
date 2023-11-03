@@ -23,7 +23,7 @@ public:
 
 private:
 	void SetHierarchy();
-	void FindChild();
+	Matrix WorldTM(MeshObject* mesh);
 
 	ID3D11Device* md3dDevice;						// D3D11 디바이스
 	ID3D11DeviceContext* md3dImmediateContext;		// 디바이스 컨텍스트

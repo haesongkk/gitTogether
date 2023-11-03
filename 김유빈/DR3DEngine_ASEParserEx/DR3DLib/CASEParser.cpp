@@ -364,34 +364,20 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 			break;
 		case TOKENR_TM_ROW3:
 		{
-			//if (m_parsingmode == eGeomobject || m_parsingmode == eHelperObject)
+			m_OneMesh->m_tm_row3.x = Parsing_NumberFloat();
+			m_OneMesh->m_tm_row3.z = Parsing_NumberFloat();
+			m_OneMesh->m_tm_row3.y = Parsing_NumberFloat();
+
+			Matrix worldTM
 			{
-				{
-					m_OneMesh->m_tm_row3.x = Parsing_NumberFloat();
-					m_OneMesh->m_tm_row3.z = Parsing_NumberFloat();
-					m_OneMesh->m_tm_row3.y = Parsing_NumberFloat();
-				}
+				m_OneMesh->m_tm_row0.x,m_OneMesh->m_tm_row0.y,m_OneMesh->m_tm_row0.z, 0,
+				m_OneMesh->m_tm_row2.x,m_OneMesh->m_tm_row2.y,m_OneMesh->m_tm_row2.z, 0,
+				m_OneMesh->m_tm_row1.x,m_OneMesh->m_tm_row1.y,m_OneMesh->m_tm_row1.z, 0,
+				m_OneMesh->m_tm_row3.x,m_OneMesh->m_tm_row3.y,m_OneMesh->m_tm_row3.z, 1
+			};
 
-				Vector4 row3 = m_OneMesh->m_tm_row3;
-
-				row3.w = 1.0f;
-
-				Matrix meshMatrix{ Vector4(m_OneMesh->m_tm_row0), Vector4(m_OneMesh->m_tm_row2), Vector4(m_OneMesh->m_tm_row1), row3 };
-
-				Matrix worldTM
-				{
-					m_OneMesh->m_tm_row0.x,m_OneMesh->m_tm_row0.y,m_OneMesh->m_tm_row0.z, 0,
-					m_OneMesh->m_tm_row2.x,m_OneMesh->m_tm_row2.y,m_OneMesh->m_tm_row2.z, 0,
-					m_OneMesh->m_tm_row1.x,m_OneMesh->m_tm_row1.y,m_OneMesh->m_tm_row1.z, 0,
-					m_OneMesh->m_tm_row3.x,m_OneMesh->m_tm_row3.y,m_OneMesh->m_tm_row3.z, 1 
-				};
-
-				m_OneMesh->m_WorldTM = worldTM;
-			}
-
+			m_OneMesh->m_WorldTM = worldTM;
 		}
-
-
 			break;
 		case TOKENR_TM_POS:
 			//if (m_parsingmode == eGeomobject)
@@ -587,6 +573,7 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 			Vertex* vertex = new Vertex;
 			vertex->m_pos = (m_OneMesh->m_meshvertex[Parsing_NumberInt()])->m_pos;
 			vertex->m_normal = Parsing_NumberVector3();
+			vertex->m_pos = XMVector3Transform(vertex->m_pos, m_OneMesh->m_WorldTM.Invert());
 			m_OneMesh->m_opt_vertex.push_back(vertex);
 			m_OneMesh->m_mesh_numvertex++;
 

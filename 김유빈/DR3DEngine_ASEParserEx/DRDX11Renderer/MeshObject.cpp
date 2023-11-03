@@ -51,10 +51,10 @@ void MeshObject::Initialize(ASEParser::Mesh* meshData)
 	/// Texture
 	ID3D11Resource* texResource = nullptr;
 	HR(CreateDDSTextureFromFile(md3dDevice,
-	//L"../Textures/000000002405.dds", &texResource, &mDiffuseMapSRV));
+	//L"Textures/000000002405.dds", &texResource, &mDiffuseMapSRV));
 	L"../Textures/000000002405_reverse.dds", & texResource, & mDiffuseMapSRV));
 
-	//L"../Textures/WoodCrate01.dds", & texResource, & mDiffuseMapSRV));
+	//L"Textures/WoodCrate01.dds", & texResource, & mDiffuseMapSRV));
 	assert(mDiffuseMapSRV);
 
 	D3D11_SAMPLER_DESC sampDesc = {};
@@ -133,36 +133,16 @@ void MeshObject::LoadGeomerty()
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = &indices[0];
 	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mIB));
-
-	XMFLOAT4X4 myNodeTM;
-	myNodeTM._11 = meshData->m_tm_row0.x;
-	myNodeTM._12 = meshData->m_tm_row0.y;
-	myNodeTM._13 = meshData->m_tm_row0.z;
-
-	myNodeTM._21 = meshData->m_tm_row1.x;
-	myNodeTM._22 = meshData->m_tm_row1.y;
-	myNodeTM._23 = meshData->m_tm_row1.z;
-
-	myNodeTM._31 = meshData->m_tm_row2.x;
-	myNodeTM._32 = meshData->m_tm_row2.y;
-	myNodeTM._33 = meshData->m_tm_row2.z;
-
-	myNodeTM._41 = meshData->m_tm_row3.x;
-	myNodeTM._42 = meshData->m_tm_row3.y;
-	myNodeTM._43 = meshData->m_tm_row3.z;
-
-	/// 요기
-	XMFLOAT4X4 parentNodeTM;
-	//for(auto v : )
-	//parentNodeTM = meshData->m
-	//mLocalTM = myNodeTM * meshData->m_tm
 }
 
 void MeshObject::Update(DRCamera* pCamera)
 {
-	XMStoreFloat4x4(&mWorld, XMMatrixIdentity());
+	//XMStoreFloat4x4(&mWorld, XMMatrixIdentity());
 	XMStoreFloat4x4(&mView, pCamera->View());
 	XMStoreFloat4x4(&mProj, pCamera->Proj());
+	//XMMATRIX world = XMLoadFloat4x4(&mWorld);
+	//world = XMMatrixScaling(0.3f, 0.3f, 0.3f) * world;
+	//XMStoreFloat4x4(&mWorld, world);
 
 	//mWorld._11 = 10.0f;
 	//mWorld._22 = 10.0f;
@@ -220,7 +200,9 @@ void MeshObject::Render()
 	XMMATRIX view = XMLoadFloat4x4(&mView);
 	XMMATRIX proj = XMLoadFloat4x4(&mProj);
 	XMMATRIX world = XMLoadFloat4x4(&mWorld);
-	XMMATRIX local = XMLoadFloat4x4(&(mMeshData->m_LocalTM));
+
+	//world = XMMatrixScaling(0.3f, 0.3f, 0.3f) * world;
+
 	XMMATRIX worldViewProj = world * view * proj;
 
 	// 월드의 역행렬

@@ -126,7 +126,7 @@ void Grid::BuildGeometryBuffers()
 
 void Grid::BuildFX()
 {
-	std::ifstream fin("../fx/color.fxo", std::ios::binary);
+	std::ifstream fin("../FX/color.fxo", std::ios::binary);
 
 	fin.seekg(0, std::ios_base::end);
 	int size = (int)fin.tellg();

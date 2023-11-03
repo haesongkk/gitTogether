@@ -38,6 +38,7 @@ public:
 
 public:
 	void BuildGeometryBuffers2();		// 기하구조로부터 버텍스/인덱스버퍼를 만든다.
+	XMFLOAT4X4 mWorld;	// Define transformations from local spaces to world space.
 
 
 private:
@@ -48,7 +49,6 @@ private:
 	ID3D11Buffer* mIB;
 
 	// Transform Matrix
-	XMFLOAT4X4 mWorld;	// Define transformations from local spaces to world space.
 	XMFLOAT4X4 mView;
 	XMFLOAT4X4 mProj;
 	XMFLOAT4X4 mLocalTM;	// NodeTM * inverse Parent's NodeTM 
