@@ -3,6 +3,7 @@ class Mesh;
 class Material;
 class Animation;
 class Node;
+class Renderer;
 class Model
 {
 	Matrix m_matrix = {};
@@ -19,13 +20,16 @@ public:
 	vector<Animation*> m_pAnimations = {};
 
 	Node* m_pRootNode = nullptr;
+	static Renderer* pRenderer;
 
 public:
-	void Update();
 	void Render();
 
 public:
 	Matrix GetMatrix() { return m_matrix; }
 
+private:
+	void UpdateModelTM();
+	void UpdateNodeTM();
 };
 

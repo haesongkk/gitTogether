@@ -6,6 +6,7 @@
 #include "Model.h"
 #include "Material.h"
 #include "Bone.h"
+#include "Node.h"
 
 Renderer* Mesh::pRenderer = nullptr;
 
@@ -20,33 +21,6 @@ Mesh::~Mesh()
     Helper::SafeRelease(pVB);
 }
 
-void Mesh::Render()
-{
-    m_pConnectMaterial->Render();
-
-    ID3D11DeviceContext* dc = pRenderer->m_pDeviceContext;
-
-    dc->IASetVertexBuffers(0, 1, &pVB, &VertextBufferStride, &VertextBufferOffset);
-    dc->IASetIndexBuffer(pIB, DXGI_FORMAT_R16_UINT, 0);
-
-    dc->PSSetSamplers(0, 1, &(pRenderer->m_pSamplerLinear));
-    
-    dc->UpdateSubresource(pRenderer->m_pBonesBuffer, 0, nullptr, &(pRenderer->m_bones), 0, 0);
-    dc->VSSetConstantBuffers(4, 1, &(pRenderer->m_pBonesBuffer));
-    dc->PSSetConstantBuffers(4, 1, &(pRenderer->m_pBonesBuffer));
-
-    dc->DrawIndexed(indexCount, 0, 0);
-}
-
-void Mesh::Update()
-{
-    assert(m_pBones.size() < 128);
-    for (int i = 0; i < m_pBones.size(); i++)
-    {
-        m_pBones[i]->Update();
-        pRenderer->m_bones.bonePallete[i] = XMMatrixTranspose(m_pBones[i]->m_offsetMatrix * m_pBones[i]->m_matrix);
-    }
-}
 
 void Mesh::CreateVertexBuffer(vector<Vertex>& _vertices)
 {

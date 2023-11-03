@@ -36,10 +36,12 @@ void Renderer::Init(HINSTANCE hInstance)
     Mesh::pRenderer = this;
     Material::pRenderer = this;
     Node::pRenderer = this;
+    Model::pRenderer = this;
 
     FbxLoader loader;
 
     m_pGameObjects.push_back(loader.LoadGameObject(m_pDevice,"./Resource/SkinningTest.fbx"));
+    //m_pGameObjects.push_back(loader.LoadGameObject(m_pDevice,"./Resource/BoxHuman.fbx"));
 }
 
 void Renderer::Run()
@@ -56,24 +58,17 @@ void Renderer::Run()
         }
         else
         {
-            Update();
             Render();
         }
     }
 }
 
-void Renderer::Update()
-{
-    Timer::GetInst()->Update();
-    UpdateScene();
-    for (auto obj : m_pGameObjects) obj->Update();
-}
-
 void Renderer::Render()
 {
+    Timer::GetInst()->Update();
+    RenderImGui();
     RenderScene();
     for (auto obj : m_pGameObjects) obj->Render();
-    RenderImGui();
 }
 
 void Renderer::Final()
@@ -205,8 +200,8 @@ void Renderer::InitScene()
         { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
         { "TANGENT" , 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "BLENDINDICES" , 0, DXGI_FORMAT_R32G32B32_UINT, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "BLENDWEIGHTS" , 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "BLENDINDICES" , 0, DXGI_FORMAT_R32G32B32A32_UINT, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "BLENDWEIGHTS" , 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0,D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
     };
 
     DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
@@ -277,6 +272,9 @@ void Renderer::InitScene()
     sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
     m_pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear);
     assert(m_pSamplerLinear);
+
+    m_camera.viewMatrix = DirectX::XMMatrixLookToLH(m_camera.pos, m_camera.dir, m_camera.headDir);
+    m_camera.projMatrix = DirectX::XMMatrixPerspectiveFovLH(m_camera.fovY, m_width / (FLOAT)m_height, m_camera.nearZ, m_camera.farZ);
 }
 
 void Renderer::InitImGui()
@@ -295,18 +293,6 @@ void Renderer::InitImGui()
     ImGui_ImplDX11_Init(this->m_pDevice, this->m_pDeviceContext);
 }
 
-void Renderer::UpdateScene()
-{
-    if (m_camera.nearZ <= 0.0001f) { m_camera.nearZ = 0.0001f; }
-    if (m_camera.nearZ >= 9.9f) { m_camera.nearZ = 9.9f; }
-    if (m_camera.fovY <= 0.f) { m_camera.fovY = 0.01; }
-
-    m_camera.viewMatrix = DirectX::XMMatrixLookToLH(m_camera.pos, m_camera.dir, m_camera.headDir);
-    m_camera.projMatrix = DirectX::XMMatrixPerspectiveFovLH(m_camera.fovY, m_width / (FLOAT)m_height, m_camera.nearZ, m_camera.farZ);
-
-    m_light.EyePosition = m_camera.pos;
-}
-
 void Renderer::RenderScene()
 {
     m_pSwapChain->Present(0, 0);
@@ -320,10 +306,11 @@ void Renderer::RenderScene()
     m_transform.mView = XMMatrixTranspose(m_camera.viewMatrix);
     m_transform.mProjection = XMMatrixTranspose(m_camera.projMatrix);
 
+    m_light.EyePosition = m_camera.pos;
+
     m_pDeviceContext->UpdateSubresource(m_pLightBuffer, 0, nullptr, &m_light, 0, 0);
     m_pDeviceContext->UpdateSubresource(m_pTransformBuffer, 0, nullptr, &m_transform, 0, 0);
    
-
     m_pDeviceContext->VSSetShader(m_pVertexShader, nullptr, 0);
     m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pLightBuffer);
     m_pDeviceContext->VSSetConstantBuffers(0, 1, &m_pTransformBuffer);

@@ -5,7 +5,6 @@ class Renderer
 public:
 	virtual void Init(HINSTANCE hInstance);
 	virtual void Run();
-	virtual void Update();
 	virtual void Render();
 	virtual void Final();
 
@@ -13,8 +12,6 @@ public:
 	void InitDX();
 	void InitScene();
 	void InitImGui();
-
-	void UpdateScene();
 
 	void RenderScene();
 	void RenderImGui();
@@ -103,7 +100,7 @@ private:
 
 	struct Camera
 	{
-		Vector3 pos = { 0,200,-350 };
+		Vector3 pos = { 0,100,-250 };
 		Vector3 dir = { 0,0,1 };
 		Vector3 headDir = { 0,1,0 };
 		Matrix viewMatrix;
@@ -117,5 +114,7 @@ private:
 	friend class Mesh;
 	friend class Material;
 	friend class Node;
+	friend class Bone;
+	friend class Model;
 };
 

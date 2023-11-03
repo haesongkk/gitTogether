@@ -23,30 +23,28 @@ Model* FbxLoader::LoadGameObject(ID3D11Device* device, const string& _filePath)
 
 	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);
 
-	vector<Mesh*> pMeshes;
-	vector<Material*> pMaterials;
-	vector<Animation*> pAnimations;
 
 	const aiScene* scene = importer.ReadFile(_filePath.c_str(), importFlags);
 	assert(scene);
 
+
+	vector<Material*> pMaterials(scene->mNumMaterials);
 	for (int i = 0; i < scene->mNumMaterials; ++i)
-		pMaterials.push_back(CreateMaterial(device, scene->mMaterials[i], pGameObject));
+		pMaterials[i] = CreateMaterial(device, scene->mMaterials[i], pGameObject);
 	pGameObject->m_pMaterials = pMaterials;
 
+	vector<Mesh*> pMeshes(scene->mNumMeshes);
 	for (int i = 0; i < scene->mNumMeshes; ++i)
-		pMeshes.push_back(CreateMesh(device, scene->mMeshes[i], pGameObject));
+		pMeshes[i] = CreateMesh(device, scene->mMeshes[i], pGameObject);
 	pGameObject->m_pMeshes = pMeshes;
 	
 	pGameObject->m_pRootNode = CreateNode(scene->mRootNode, nullptr, pGameObject);
 
-
+	vector<Animation*> pAnimations;
 	for (int i = 0; i < scene->mNumAnimations; i++)
 		for (int j = 0; j < scene->mAnimations[i]->mNumChannels; j++)
 			pAnimations.push_back(CreateAnimation(scene->mAnimations[i]->mChannels[j], pGameObject));
 	pGameObject->m_pAnimations = pAnimations;
-
-
 
 	importer.FreeScene();
 
@@ -59,64 +57,57 @@ Mesh* FbxLoader::CreateMesh(ID3D11Device* _device, aiMesh* _mesh, Model* _obj)
 
 	mesh->SetMaterialIndex(_mesh->mMaterialIndex);
 
-	vector<Vertex> verticies;
-	for (UINT i = 0; i < _mesh->mNumVertices; ++i)
-	{
-		Vertex vertex;
-		memcpy_s(&vertex.position, sizeof(vertex.position), &_mesh->mVertices[i], sizeof(_mesh->mVertices[i]));
-		memcpy_s(&vertex.norm, sizeof(vertex.norm), &_mesh->mNormals[i], sizeof(_mesh->mNormals[i]));
-		memcpy_s(&vertex.tex, sizeof(Vector2), &_mesh->mTextureCoords[0][i], sizeof(Vector2));
-		memcpy_s(&vertex.tangent, sizeof(vertex.tangent), &_mesh->mTangents[i], sizeof(_mesh->mTangents[i]));
-		verticies.push_back(vertex);
-	}
+	vector<Bone*> bones(_mesh->mNumBones);
+	vector<Vertex> verticies(_mesh->mNumVertices);
+	vector<WORD> indices(_mesh->mNumFaces * 3);
 
-	vector<Bone*> bones = {};
+	map<string, int> BoneMapping;
+	int boneIndexCounter = 0;
 	for (int i = 0; i < _mesh->mNumBones; i++)
 	{
-		//bones.push_back(CreateBone(_mesh->mBones[i], mesh, verticies, i));
-		Bone* bone = new Bone;
 		aiBone* aiBone = _mesh->mBones[i];
-		bone->m_name = aiBone->mName.C_Str();
-		bone->m_offsetMatrix = Matrix(aiBone->mOffsetMatrix[0]).Transpose();
-		bone->m_pOwner = mesh;
-		//bone->m_nodeName = aiBone->mNode->mName.C_Str();
+		string boneName = aiBone->mName.C_Str();
+		int boneIndex = 0;
+		if (BoneMapping.find(boneName) == BoneMapping.end())
+		{
+			boneIndex = boneIndexCounter++;
+			bones[boneIndex] = new Bone;
+			bones[boneIndex]->m_nodeName = boneName;
+			bones[boneIndex]->m_pOwner = mesh;
+			bones[boneIndex]->m_offsetMatrix = Matrix(&aiBone->mOffsetMatrix.a1).Transpose();
+			bones[boneIndex]->m_index = boneIndex;
+
+			BoneMapping[boneName] = boneIndex;
+		}
+		else
+			boneIndex = BoneMapping[boneName];
 
 		for (int j = 0; j < aiBone->mNumWeights; j++)
 		{
 			int vertexId = aiBone->mWeights[j].mVertexId;
 			float weight = aiBone->mWeights[j].mWeight;
-			assert(verticies[vertexId].AddBoneData(i, weight));
-
+			assert(verticies[vertexId].AddBoneData(boneIndex, weight));
 		}
-		bones.push_back(bone);
 	}
-	mesh->m_pBones = bones;
 
-	for (const auto& v : verticies)
+	for (UINT i = 0; i < _mesh->mNumVertices; ++i)
 	{
-		float sum = 0.f;
-		sum += v.boneWeights[0];
-		sum += v.boneWeights[1];
-		sum += v.boneWeights[2];
-		sum += v.boneWeights[3];
-		assert(sum > 0.9f && sum < 1.1f);
+		memcpy_s(&verticies[i].position, sizeof(verticies[i].position), &_mesh->mVertices[i], sizeof(_mesh->mVertices[i]));
+		memcpy_s(&verticies[i].norm, sizeof(verticies[i].norm), &_mesh->mNormals[i], sizeof(_mesh->mNormals[i]));
+		memcpy_s(&verticies[i].tex, sizeof(Vector2), &_mesh->mTextureCoords[0][i], sizeof(Vector2));
+		memcpy_s(&verticies[i].tangent, sizeof(verticies[i].tangent), &_mesh->mTangents[i], sizeof(_mesh->mTangents[i]));
 	}
-	mesh->CreateVertexBuffer(verticies);
 
-
-	vector<WORD> indices;
 	for (UINT i = 0; i < _mesh->mNumFaces; ++i)
 	{
-		indices.push_back(_mesh->mFaces[i].mIndices[0]);
-		indices.push_back(_mesh->mFaces[i].mIndices[1]);
-		indices.push_back(_mesh->mFaces[i].mIndices[2]);
-
-		/*indices.push_back(_mesh->mFaces[i].mIndices[0]);
-		indices.push_back(_mesh->mFaces[i].mIndices[2]);
-		indices.push_back(_mesh->mFaces[i].mIndices[1]);*/
+		indices[i * 3 + 0] = _mesh->mFaces[i].mIndices[0];
+		indices[i * 3 + 1] = _mesh->mFaces[i].mIndices[1];
+		indices[i * 3 + 2] = _mesh->mFaces[i].mIndices[2];
 	}
-	mesh->CreateIndexBuffer(indices);
 
+	mesh->m_pBones = bones;
+	mesh->CreateVertexBuffer(verticies);
+	mesh->CreateIndexBuffer(indices);
 
 	return mesh;
 }
@@ -124,19 +115,18 @@ Mesh* FbxLoader::CreateMesh(ID3D11Device* _device, aiMesh* _mesh, Model* _obj)
 Bone* FbxLoader::CreateBone(aiBone* aiBone, Mesh* ownerMesh, vector<Vertex>& vertices, int boneIndex)
 {
 	Bone* bone = new Bone;
-	bone->m_name = aiBone->mName.C_Str();
-	bone->m_offsetMatrix = Matrix(aiBone->mOffsetMatrix[0]).Transpose();
+	bone->m_nodeName = aiBone->mName.C_Str();
+	//bone->m_offsetMatrix = Matrix(aiBone->mOffsetMatrix[0]).Transpose(); 
+	bone->m_offsetMatrix = Matrix(&aiBone->mOffsetMatrix.a1).Transpose();
+
 	bone->m_pOwner = ownerMesh;
+	bone->m_index = boneIndex;
 
-	if (aiBone->mNode)
-		bone->m_nodeName = aiBone->mNode->mName.C_Str();
-
-	for (int i = 0; i < aiBone->mNumWeights; i++)
+	for (int j = 0; j < aiBone->mNumWeights; j++)
 	{
-		auto a = aiBone->mWeights[i].mVertexId;
-		auto b = aiBone->mWeights[i].mWeight;
-		assert(vertices[a].AddBoneData(boneIndex, b));
-
+		int vertexId = aiBone->mWeights[j].mVertexId;
+		float weight = aiBone->mWeights[j].mWeight;
+		assert(vertices[vertexId].AddBoneData(boneIndex, weight));
 	}
 
 	return bone;

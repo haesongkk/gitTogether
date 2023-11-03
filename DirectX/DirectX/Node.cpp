@@ -7,7 +7,7 @@
 
 Renderer* Node::pRenderer = nullptr;
 
-void Node::Update()
+void Node::Render()
 {
     Matrix mBasis = DirectX::XMMatrixIdentity();
 
@@ -15,21 +15,6 @@ void Node::Update()
     else mBasis = m_pOwner->GetMatrix();
 
     m_worldMatrix = m_relativeMatrix * mBasis;
-
-
-    for (auto mesh : m_pMeshes)
-        mesh->Update();
-
-    for (auto node : m_children)
-        node->Update();
-
-}
-
-void Node::Render()
-{
-    
-    for (auto mesh : m_pMeshes)
-        mesh->Render();
 
     for (auto node : m_children)
         node->Render();
