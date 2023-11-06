@@ -25,6 +25,7 @@
 #include <string>
 //#include <DirectXMath.h>
 #include <SimpleMath.h>
+#include <map>
 
 using namespace std;
 using namespace DirectX;
@@ -343,6 +344,8 @@ namespace ASEParser
 		Matrix m_ParentWorldTM;
 
 		bool m_IsHelper = false;
+
+
 		///----------------------------------
 		/// *MESH
 		///----------------------------------
