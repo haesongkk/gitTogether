@@ -53,8 +53,15 @@ private:
 	CASEParser* m_pASEParser;
 	std::list<Animation*> m_Animations;
 	std::vector<MeshObject*> mMeshList;
+	std::map<string, MeshObject*> m_NodeMesh;
+
+	vector<Matrix> vTest = {};
+	vector<Matrix> vTest2 = {};
 
 	float m_AnimationTime[3];
+	int frameCountPos = 0;
+	int frameCountRot = 0;
+	int frameCountScale = 0;
 	int m_currentFrame[3];		// animkey
 };
 

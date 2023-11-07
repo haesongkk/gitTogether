@@ -606,10 +606,8 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 		{
 			CAnimation_scl* animscl = new CAnimation_scl;
 			animscl->m_time = Parsing_NumberLong();
-			animscl->m_scalerotQT_accumulation.x = Parsing_NumberFloat();
-			animscl->m_scalerotQT_accumulation.y = Parsing_NumberFloat();
-			animscl->m_scalerotQT_accumulation.z = Parsing_NumberFloat();
-			animscl->m_scalerotQT_accumulation.w = Parsing_NumberFloat();
+			animscl->m_scale = Parsing_NumberVector3();
+			animscl->m_scaleaxisang = Parsing_NumberFloat();
 
 			m_animation->m_scale.push_back(animscl);
 		}
@@ -619,10 +617,8 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 		{
 			CAnimation_rot* animrot = new CAnimation_rot;
 			animrot->m_time = Parsing_NumberLong();
-			animrot->m_rotQT_accumulation.x = Parsing_NumberFloat();
-			animrot->m_rotQT_accumulation.y = Parsing_NumberFloat();
-			animrot->m_rotQT_accumulation.z = Parsing_NumberFloat();
-			animrot->m_rotQT_accumulation.w = Parsing_NumberFloat();
+			animrot->m_rot = Parsing_NumberVector3();
+			animrot->m_angle = Parsing_NumberFloat();
 
 			m_animation->m_rotation.push_back(animrot);
 		}

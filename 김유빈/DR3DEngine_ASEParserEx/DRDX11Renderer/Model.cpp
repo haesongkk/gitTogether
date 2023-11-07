@@ -32,6 +32,7 @@ void Model::Initialize()
 		// 메시 관련 초기화 
 		MeshObject* mesh = new MeshObject(md3dDevice, md3dImmediateContext, m_pRenderstate);
 		mesh->Initialize(m_pASEParser->GetMesh(i));
+		m_NodeMesh.insert(pair<string, MeshObject*>(mesh->GetMesh()->m_nodename, mesh));
 		mMeshList.push_back(mesh);
 	}
 
@@ -42,104 +43,105 @@ void Model::Initialize()
 	{
 		// 메시 관련 정점, 인덱스 버퍼 설정
 		mMeshList[i]->LoadGeomerty();
+		Vector3 pos, scale;
+		Quaternion rot;
+
+		mMeshList[i]->GetMesh()->m_LocalTM.Decompose(scale, rot, pos);
+		mMeshList[i]->GetMesh()->m_RotationTM = Matrix::CreateFromQuaternion(rot);
+		mMeshList[i]->GetMesh()->m_TranslateTM = Matrix::CreateTranslation(pos);
+		mMeshList[i]->GetMesh()->m_ScaleTM = Matrix::CreateScale(scale);
 	}
 }
 
 void Model::Update(DRCamera* pCamera, float _deltaTime)
 {
 	/// animation
-	m_AnimationTime[0] += _deltaTime;
-	m_AnimationTime[1] += _deltaTime;
-	m_AnimationTime[2] += _deltaTime;
+	m_AnimationTime[0] += _deltaTime * 1000;
+	m_AnimationTime[1] += _deltaTime * 1000;
+	//m_AnimationTime[2] += _deltaTime;
+	
+
+
+	//static int frameCountPos = 0;
+	//static int frameCountRot = 0;
+	//static int frameCountScale = 0;
 
 	for (auto anim : m_Animations)
 	{
-		int nextKey[3] = { -1, -1, -1 };
-		Matrix scale = Matrix::CreateScale(1.f,1.f,1.f);
-		Matrix pos = Matrix::CreateTranslation(0.f,0.f,0.f);
-		Matrix rot = Matrix::CreateRotationX(0.f) 
-			* Matrix::CreateRotationY(0.f) 
-			* Matrix::CreateRotationZ(0.f);
-		const float fps = 1.f;
+		if (!m_NodeMesh[anim->m_nodename]) continue;
+		Mesh* mesh = m_NodeMesh[anim->m_nodename]->GetMesh();
+
+		Matrix scale = XMMatrixIdentity();
+		Matrix pos = XMMatrixIdentity();
+		Matrix rot = XMMatrixIdentity();
 
 		//if (anim->m_position.size() != 0)
 		//{
-		//	nextKey[0] = (m_currentFrame[0] + 1) % anim->m_position.size();
-		//	pos = Matrix::CreateTranslation(anim->m_position[m_currentFrame[0]]->m_pos);
-		//	if (m_AnimationTime[0] > (anim->m_position[nextKey[0]])->m_time / fps)
+		//	if (anim->m_position[frameCountPos]->m_time <= m_AnimationTime[0])
 		//	{
-		//		++m_currentFrame[0] %= anim->m_position.size();
-		//		++nextKey[0] %= anim->m_position.size();
-
-		//		if (nextKey[0] == 0)
-		//			m_AnimationTime[0] -= anim->m_position.back()->m_time / fps;
+		//		++frameCountPos %= anim->m_position.size();
 		//	}
+
+		//	pos = Matrix::CreateTranslation(anim->m_position[frameCountPos]->m_pos);
+		//	mesh->m_WorldTM = scale * rot * pos;
 		//}
+		//if (anim->m_position.size() != 0)
+			//pos = Matrix::CreateTranslation(anim->m_position[frameCountPos]->m_pos);
 
 		if (anim->m_rotation.size() != 0)
 		{
-			nextKey[1] = (m_currentFrame[1] + 1) % anim->m_rotation.size();
-			rot = Matrix::CreateFromQuaternion(anim->m_rotation[m_currentFrame[1]]->m_rotQT_accumulation);
-
-			if (m_AnimationTime[1] > (anim->m_rotation[nextKey[1]])->m_time / fps)
+			if (anim->m_rotation[frameCountRot]->m_time <= m_AnimationTime[1])
 			{
-				++m_currentFrame[1] %= anim->m_rotation.size();
-				++nextKey[1] %= anim->m_rotation.size();
-
-				if (nextKey[1] == 0)
-					m_AnimationTime[1] -= anim->m_rotation.back()->m_time / fps;
+				++frameCountRot %= anim->m_rotation.size();
+				//mesh->m_RotationTM = Matrix::CreateFromQuaternion(anim->m_rotation[frameCountRot]->m_rotQT_accumulation) * mesh->m_RotationTM;
 			}
+
+
+			rot = Matrix::CreateFromQuaternion(anim->m_rotation[frameCountRot]->m_rotQT_accumulation);
+
+			Quaternion beforeQuaternion;
+
+			if (frameCountRot == 0)
+			{
+				Vector3 pos, scale;
+				Quaternion rot;
+
+				mesh->m_LocalTM.Decompose(scale, rot, pos);
+				mesh->m_RotationTM = Matrix::CreateFromQuaternion(rot);
+				mesh->m_TranslateTM = Matrix::CreateTranslation(pos);
+				mesh->m_ScaleTM = Matrix::CreateScale(scale);
+
+				beforeQuaternion = rot;
+			}
+			else
+			{
+				beforeQuaternion = beforeQuaternion.CreateFromAxisAngle(anim->m_rotation[frameCountRot - 1]->m_rot, anim->m_rotation[frameCountRot - 1]->m_angle);
+			}
+
+			Quaternion currentQuaternion = currentQuaternion.CreateFromAxisAngle(anim->m_rotation[frameCountRot]->m_rot, anim->m_rotation[frameCountRot]->m_angle);
+
+			// 값 누산해서 가지고 있기.
+			anim->m_rotation[frameCountRot]->m_rotQT_accumulation = XMQuaternionMultiply(beforeQuaternion, currentQuaternion);
+
+			mesh->m_RotationTM = Matrix::CreateFromQuaternion(anim->m_rotation[frameCountRot]->m_rotQT_accumulation);
 		}
 
-		//if (anim->m_scale.size() != 0)
-		//{
-		//	nextKey[2] = (m_currentFrame[2] + 1) % anim->m_scale.size();
-		//	scale = Matrix::CreateScale(anim->m_scale[m_currentFrame[2]]->m_scale);
-
-		//	if (m_AnimationTime[2] > (anim->m_scale[nextKey[2]])->m_time / fps)
-		//	{
-		//		++m_currentFrame[2] %= anim->m_scale.size();
-		//		++nextKey[2] %= anim->m_scale.size();
-
-		//		if (nextKey[2] == 0)
-		//			m_AnimationTime[2] -= anim->m_scale.back()->m_time / fps;
-		//	}
-		//}
-
-		for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
-		{
-			//if (anim->m_position.size() == 0)
-				pos = Matrix::CreateTranslation(mMeshList[i]->GetMesh()->m_LocalTM.Translation());
-
-			if (anim->m_nodename == mMeshList[i]->GetMesh()->m_nodename)
-			{
-				Matrix convert = XMMatrixIdentity();
-
-
-				//if (anim->m_scale.size() != 0)
-				//if (anim->m_rotation.size() != 0)
-				//if (anim->m_position.size() != 0)
-					convert *= scale;
-					convert *= rot;
-					convert *= pos;
-
-				mMeshList[i]->GetMesh()->m_LocalTM = convert;
-			}
-		}
+		mesh->m_LocalTM = mesh->m_ScaleTM * mesh->m_RotationTM * mesh->m_TranslateTM;
 	}
-
-	// index의 로컬이 변하면 걔의 자식들도 월드tm 이 변해야하니까
-	// 전체적으로 다시 월드 tm 구해주기
+	
 	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
 	{
 		mMeshList[i]->GetMesh()->m_WorldTM = WorldTM(mMeshList[i]);
-		mMeshList[i]->mWorld = mMeshList[i]->GetMesh()->m_WorldTM;
+		//mMeshList[i]->mWorld = mMeshList[i]->GetMesh()->m_WorldTM;
 	}
+
 
 	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
 	{
 		mMeshList[i]->Update(pCamera);
 	}
+
+
 }
 
 void Model::Render()
@@ -173,11 +175,12 @@ void Model::SetHierarchy()
 			}
 		}
 	}
-
+	// index의 로컬이 변하면 걔의 자식들도 월드tm 이 변해야하니까
+	// 전체적으로 다시 월드 tm 구해주기
 	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
 	{
 		mMeshList[i]->GetMesh()->m_WorldTM = WorldTM(mMeshList[i]);
-		mMeshList[i]->mWorld = mMeshList[i]->GetMesh()->m_WorldTM;
+		//mMeshList[i]->mWorld = mMeshList[i]->GetMesh()->m_WorldTM;
 	}
 }
 

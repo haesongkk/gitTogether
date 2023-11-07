@@ -182,6 +182,7 @@ void MeshObject::Update(DRCamera* pCamera)
 
 void MeshObject::Render()
 {
+	mWorld = mMeshData->m_WorldTM;
 	// 입력 배치 객체 셋팅
 	md3dImmediateContext->IASetInputLayout(InputLayouts::Basic32);
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
