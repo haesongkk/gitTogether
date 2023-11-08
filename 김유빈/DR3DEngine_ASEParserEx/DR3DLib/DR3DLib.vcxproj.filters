@@ -49,9 +49,4 @@
       <Filter>ASEParser\Lexer</Filter>
     </ClInclude>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\IK_JOE\ASEFile\03IK-Joe.ASE">
-      <Filter>ASEParser</Filter>
-    </None>
-  </ItemGroup>
 </Project>

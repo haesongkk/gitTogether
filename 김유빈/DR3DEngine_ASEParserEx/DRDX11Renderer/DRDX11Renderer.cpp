@@ -324,7 +324,7 @@ void DRDX11Renderer::Update(float deltaTime)
 	// Crate 예시
 	m_TestCrate->Update(m_pCamera);
 
-	m_Genji->Update(m_pCamera);
+	m_Genji->Update(m_pCamera, deltaTime);
 
 	//for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
 	//{

@@ -33,9 +33,6 @@
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="Lexer.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\IK_JOE\ASEFile\03IK-Joe.ASE" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>

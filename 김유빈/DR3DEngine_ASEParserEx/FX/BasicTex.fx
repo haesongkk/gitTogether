@@ -26,8 +26,18 @@ cbuffer cbPerObject
 }; 
 
 // Nonnumeric values cannot be added to a cbuffer.
-Texture2D gDiffuseMap : register(t0);
-SamplerState samLinear : register(s0);
+Texture2D gDiffuseMap;
+
+SamplerState samAnisotropic
+{
+	//Filter = ANISOTROPIC;
+	Filter = MIN_MAG_MIP_LINEAR;
+
+	MaxAnisotropy = 4;
+
+	AddressU = CLAMP;
+	AddressV = CLAMP;
+};
 
 struct VertexIn
 {
@@ -63,8 +73,6 @@ VertexOut VS(VertexIn vin)
  
 float4 PS(VertexOut pin, uniform int gLightCount, uniform bool gUseTexure) : SV_Target
 {
-	gUseTexure = true;
-
 	// Interpolating normal can unnormalize it, so normalize it.
     pin.NormalW = normalize(pin.NormalW);
 
@@ -82,9 +90,9 @@ float4 PS(VertexOut pin, uniform int gLightCount, uniform bool gUseTexure) : SV_
     if(gUseTexure)
 	{
 		// Sample texture.
-		
+		texColor = gDiffuseMap.Sample( samAnisotropic, pin.Tex );
 	}
-	texColor = gDiffuseMap.Sample(samLinear, pin.Tex);
+	 
 	//
 	// Lighting.
 	//

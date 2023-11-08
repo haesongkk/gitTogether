@@ -103,6 +103,7 @@ public:
 	// Export
 	//--------------------------------------------------
 	Mesh* GetMesh(int index);
+	list<Animation*>& GetAnimation();
 	int GetMeshNum();
 
 

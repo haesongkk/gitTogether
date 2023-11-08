@@ -104,6 +104,10 @@ int CASEParser::GetMeshNum()
 	return m_MeshList.size();
 }
 
+list<Animation*>& CASEParser::GetAnimation()
+{
+	return m_list_animation;
+}
 
 //----------------------------------------------------------------
 // 재귀 호출됨을 전제로 하는 분기 함수이다.
@@ -174,40 +178,40 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 			// SCENE
 			//--------------------
 
-		//case TOKENR_SCENE:
-		//	//
-		//	break;
-		//case TOKENR_SCENE_FILENAME:
-		//	m_scenedata.m_filename = Parsing_String();		// 일관성 있는 함수의 사용을 위해 String과 Int도 만들어줬다.
-		//	break;
-		//case TOKENR_SCENE_FIRSTFRAME:
-		//	m_scenedata.m_firstframe = Parsing_NumberLong();
-		//	break;
-		//case TOKENR_SCENE_LASTFRAME:
-		//	m_scenedata.m_lastframe = Parsing_NumberLong();
-		//	break;
-		//case TOKENR_SCENE_FRAMESPEED:
-		//	m_scenedata.m_framespeed = Parsing_NumberLong();
-		//	break;
-		//case TOKENR_SCENE_TICKSPERFRAME:
-		//	m_scenedata.m_ticksperframe = Parsing_NumberLong();
-		//	break;
-		//case TOKENR_SCENE_MESHFRAMESTEP:
-		//	m_scenedata.m_meshframestep = Parsing_NumberLong();
-		//	break;
-		//case TOKENR_SCENE_KEYFRAMESTEP:
-		//	m_scenedata.m_keyframestep = Parsing_NumberLong();
-		//	break;
-		//case TOKENR_SCENE_BACKGROUND_STATIC:
-		//	m_scenedata.m_scene_background_static.x = Parsing_NumberFloat();
-		//	m_scenedata.m_scene_background_static.y = Parsing_NumberFloat();
-		//	m_scenedata.m_scene_background_static.z = Parsing_NumberFloat();
-		//	break;
-		//case TOKENR_SCENE_AMBIENT_STATIC:
-		//	m_scenedata.m_scene_ambient_static.x = Parsing_NumberFloat();
-		//	m_scenedata.m_scene_ambient_static.y = Parsing_NumberFloat();
-		//	m_scenedata.m_scene_ambient_static.z = Parsing_NumberFloat();
-		//	break;
+		case TOKENR_SCENE:
+			//
+			break;
+		case TOKENR_SCENE_FILENAME:
+			m_scenedata.m_filename = Parsing_String();		// 일관성 있는 함수의 사용을 위해 String과 Int도 만들어줬다.
+			break;
+		case TOKENR_SCENE_FIRSTFRAME:
+			m_scenedata.m_firstframe = Parsing_NumberLong();
+			break;
+		case TOKENR_SCENE_LASTFRAME:
+			m_scenedata.m_lastframe = Parsing_NumberLong();
+			break;
+		case TOKENR_SCENE_FRAMESPEED:
+			m_scenedata.m_framespeed = Parsing_NumberLong();
+			break;
+		case TOKENR_SCENE_TICKSPERFRAME:
+			m_scenedata.m_ticksperframe = Parsing_NumberLong();
+			break;
+		case TOKENR_SCENE_MESHFRAMESTEP:
+			m_scenedata.m_meshframestep = Parsing_NumberLong();
+			break;
+		case TOKENR_SCENE_KEYFRAMESTEP:
+			m_scenedata.m_keyframestep = Parsing_NumberLong();
+			break;
+		case TOKENR_SCENE_BACKGROUND_STATIC:
+			m_scenedata.m_scene_background_static.x = Parsing_NumberFloat();
+			m_scenedata.m_scene_background_static.y = Parsing_NumberFloat();
+			m_scenedata.m_scene_background_static.z = Parsing_NumberFloat();
+			break;
+		case TOKENR_SCENE_AMBIENT_STATIC:
+			m_scenedata.m_scene_ambient_static.x = Parsing_NumberFloat();
+			m_scenedata.m_scene_ambient_static.y = Parsing_NumberFloat();
+			m_scenedata.m_scene_ambient_static.z = Parsing_NumberFloat();
+			break;
 
 		case TOKENR_SCENE_ENVMAP:
 		{
@@ -254,6 +258,9 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 				m_OneMesh->m_nodename = Parsing_String();
 			if (m_parsingmode == eGeomobject)
 				m_OneMesh->m_nodename = Parsing_String();
+			if (m_parsingmode == eAnimation)
+				m_animation->m_nodename = Parsing_String();
+
 		}
 			break;
 
@@ -588,6 +595,44 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 		}
 		break;
 
+		case TOKENR_TM_ANIMATION:
+		{
+			Create_animationdata_to_list();
+			m_parsingmode = eAnimation;
+		}
+		break;
+		
+		case TOKENR_CONTROL_SCALE_SAMPLE:
+		{
+			CAnimation_scl* animscl = new CAnimation_scl;
+			animscl->m_time = Parsing_NumberLong();
+			animscl->m_scale = Parsing_NumberVector3();
+			animscl->m_scaleaxisang = Parsing_NumberFloat();
+
+			m_animation->m_scale.push_back(animscl);
+		}
+		break;
+
+		case TOKENR_CONTROL_ROT_SAMPLE:
+		{
+			CAnimation_rot* animrot = new CAnimation_rot;
+			animrot->m_time = Parsing_NumberLong();
+			animrot->m_rot = Parsing_NumberVector3();
+			animrot->m_angle = Parsing_NumberFloat();
+
+			m_animation->m_rotation.push_back(animrot);
+		}
+		break;
+
+		case TOKENR_CONTROL_POS_SAMPLE:
+		{
+			CAnimation_pos* animpos = new CAnimation_pos;
+			animpos->m_time = Parsing_NumberLong();
+			animpos->m_pos = Parsing_NumberVector3();
+			m_animation->m_position.push_back(animpos);
+		}
+		break;
+
 		case TOKEND_END:
 			// 아마도 이건 파일의 끝이 나타났을때인것 같은데. while을 탈출해야 하는데?
 
@@ -596,6 +641,7 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 			return;
 
 			break;
+
 
 			/// 위의 아무것도 해당하지 않을때
 		default:
