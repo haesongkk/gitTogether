@@ -7,6 +7,7 @@
 #include "Material.h"
 #include "Bone.h"
 #include "Node.h"
+#include "Vertex.h"
 
 Renderer* Mesh::pRenderer = nullptr;
 
@@ -20,7 +21,6 @@ Mesh::~Mesh()
     Helper::SafeRelease(pIB);
     Helper::SafeRelease(pVB);
 }
-
 
 void Mesh::CreateVertexBuffer(vector<Vertex>& _vertices)
 {
@@ -62,17 +62,26 @@ void Mesh::SetMaterialIndex(UINT _index)
     m_pConnectMaterial = m_pOwner->m_pMaterials[_index];
 }
 
-bool Vertex::AddBoneData(int _index, float _weight)
+void Mesh::Render()
 {
-    for (int i = 0; i < 4; i++)
-    {
-        if (boneWeights[i] == 0.f)
-        {
-            boneIndices[i] = _index;
-            boneWeights[i] = _weight;
-            return true;
-        }
-    }
-    return false; // 정보 저장 실패
-}
+    ID3D11DeviceContext* dc = pRenderer->m_pDeviceContext;
 
+    dc->IASetVertexBuffers(0, 1, &pVB, &VertextBufferStride, &VertextBufferOffset);
+    dc->IASetIndexBuffer(pIB, DXGI_FORMAT_R16_UINT, 0);
+
+    m_pConnectMaterial->Render();
+
+    assert(m_pBones.size() < 128);
+    for (auto bone : m_pBones) bone->Update();
+
+    dc->UpdateSubresource(pRenderer->m_pBonesBuffer, 0, nullptr, &(pRenderer->m_bones), 0, 0);
+    dc->VSSetConstantBuffers(4, 1, &(pRenderer->m_pBonesBuffer));
+    dc->PSSetConstantBuffers(4, 1, &(pRenderer->m_pBonesBuffer));
+
+    pRenderer->m_transform.mWorld = m_pOwner->GetMatrix();
+    dc->UpdateSubresource(pRenderer->m_pTransformBuffer, 0, nullptr, &(pRenderer->m_transform), 0, 0);
+    dc->VSSetConstantBuffers(0, 1, &(pRenderer->m_pTransformBuffer));
+    dc->PSSetConstantBuffers(0, 1, &(pRenderer->m_pTransformBuffer));
+
+    dc->DrawIndexed(indexCount, 0, 0);
+}

@@ -8,6 +8,7 @@
 #include "Node.h"
 #include "Helper.h"
 #include "Bone.h"
+#include "Vertex.h"
 
 Model* FbxLoader::LoadGameObject(ID3D11Device* device, const string& _filePath)
 {
@@ -23,10 +24,8 @@ Model* FbxLoader::LoadGameObject(ID3D11Device* device, const string& _filePath)
 
 	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);
 
-
 	const aiScene* scene = importer.ReadFile(_filePath.c_str(), importFlags);
 	assert(scene);
-
 
 	vector<Material*> pMaterials(scene->mNumMaterials);
 	for (int i = 0; i < scene->mNumMaterials; ++i)
@@ -46,6 +45,7 @@ Model* FbxLoader::LoadGameObject(ID3D11Device* device, const string& _filePath)
 			pAnimations.push_back(CreateAnimation(scene->mAnimations[i]->mChannels[j], pGameObject));
 	pGameObject->m_pAnimations = pAnimations;
 
+
 	importer.FreeScene();
 
 	return pGameObject;
@@ -61,34 +61,8 @@ Mesh* FbxLoader::CreateMesh(ID3D11Device* _device, aiMesh* _mesh, Model* _obj)
 	vector<Vertex> verticies(_mesh->mNumVertices);
 	vector<WORD> indices(_mesh->mNumFaces * 3);
 
-	map<string, int> BoneMapping;
-	int boneIndexCounter = 0;
 	for (int i = 0; i < _mesh->mNumBones; i++)
-	{
-		aiBone* aiBone = _mesh->mBones[i];
-		string boneName = aiBone->mName.C_Str();
-		int boneIndex = 0;
-		if (BoneMapping.find(boneName) == BoneMapping.end())
-		{
-			boneIndex = boneIndexCounter++;
-			bones[boneIndex] = new Bone;
-			bones[boneIndex]->m_nodeName = boneName;
-			bones[boneIndex]->m_pOwner = mesh;
-			bones[boneIndex]->m_offsetMatrix = Matrix(&aiBone->mOffsetMatrix.a1).Transpose();
-			bones[boneIndex]->m_index = boneIndex;
-
-			BoneMapping[boneName] = boneIndex;
-		}
-		else
-			boneIndex = BoneMapping[boneName];
-
-		for (int j = 0; j < aiBone->mNumWeights; j++)
-		{
-			int vertexId = aiBone->mWeights[j].mVertexId;
-			float weight = aiBone->mWeights[j].mWeight;
-			assert(verticies[vertexId].AddBoneData(boneIndex, weight));
-		}
-	}
+		bones[i]= (CreateBone(_mesh->mBones[i], mesh, verticies, i));
 
 	for (UINT i = 0; i < _mesh->mNumVertices; ++i)
 	{

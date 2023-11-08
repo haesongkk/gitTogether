@@ -146,6 +146,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
@@ -159,6 +160,7 @@
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="Vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectX.rc" />

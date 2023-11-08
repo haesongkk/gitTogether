@@ -20,7 +20,6 @@ public:
 	vector<Animation*> m_pAnimations = {};
 
 	Node* m_pRootNode = nullptr;
-	static Renderer* pRenderer;
 
 public:
 	void Render();
@@ -30,6 +29,5 @@ public:
 
 private:
 	void UpdateModelTM();
-	void UpdateNodeTM();
 };
 

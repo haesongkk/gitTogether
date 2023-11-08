@@ -4,8 +4,8 @@ class Mesh;
 class Material;
 class Animation;
 class Node;
-struct Vertex;
 class Bone;
+class Vertex;
 class FbxLoader
 {
 public:

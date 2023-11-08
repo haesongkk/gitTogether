@@ -36,12 +36,10 @@ void Renderer::Init(HINSTANCE hInstance)
     Mesh::pRenderer = this;
     Material::pRenderer = this;
     Node::pRenderer = this;
-    Model::pRenderer = this;
 
     FbxLoader loader;
 
     m_pGameObjects.push_back(loader.LoadGameObject(m_pDevice,"./Resource/SkinningTest.fbx"));
-    //m_pGameObjects.push_back(loader.LoadGameObject(m_pDevice,"./Resource/BoxHuman.fbx"));
 }
 
 void Renderer::Run()
@@ -208,11 +206,15 @@ void Renderer::InitScene()
     ID3DBlob* vertexShaderBuffer = nullptr;
     ID3DBlob* pixelShaderBuffer = nullptr;
 
-    D3DCompileFromFile(L"./Shader/BasicVertexShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0",
+    D3DReadFileToBlob(L"./BasicVertexShader.cso", &vertexShaderBuffer);
+    if(!vertexShaderBuffer)
+        D3DCompileFromFile(L"./Shader/BasicVertexShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "vs_5_0",
         dwShaderFlags, 0, &vertexShaderBuffer, nullptr);
     assert(vertexShaderBuffer);
 
-    D3DCompileFromFile(L"./Shader/BasicPixelShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0",
+    D3DReadFileToBlob(L"./BasicPixelShader.cso", &pixelShaderBuffer);
+    if (!pixelShaderBuffer)
+        D3DCompileFromFile(L"./Shader/BasicPixelShader.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", "ps_5_0",
         dwShaderFlags, 0, &pixelShaderBuffer, nullptr);
     assert(pixelShaderBuffer);
 
@@ -273,8 +275,7 @@ void Renderer::InitScene()
     m_pDevice->CreateSamplerState(&sampDesc, &m_pSamplerLinear);
     assert(m_pSamplerLinear);
 
-    m_camera.viewMatrix = DirectX::XMMatrixLookToLH(m_camera.pos, m_camera.dir, m_camera.headDir);
-    m_camera.projMatrix = DirectX::XMMatrixPerspectiveFovLH(m_camera.fovY, m_width / (FLOAT)m_height, m_camera.nearZ, m_camera.farZ);
+    
 }
 
 void Renderer::InitImGui()
@@ -303,6 +304,8 @@ void Renderer::RenderScene()
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     m_pDeviceContext->IASetInputLayout(m_pInputLayout);
 
+    m_camera.viewMatrix = DirectX::XMMatrixLookToLH(m_camera.pos, m_camera.dir, m_camera.headDir);
+    m_camera.projMatrix = DirectX::XMMatrixPerspectiveFovLH(m_camera.fovY, m_width / (FLOAT)m_height, m_camera.nearZ, m_camera.farZ);
     m_transform.mView = XMMatrixTranspose(m_camera.viewMatrix);
     m_transform.mProjection = XMMatrixTranspose(m_camera.projMatrix);
 
@@ -319,10 +322,7 @@ void Renderer::RenderScene()
     m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pLightBuffer);
     m_pDeviceContext->PSSetConstantBuffers(0, 1, &m_pTransformBuffer);
 
-
-
     m_pDeviceContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
-
 }
 
 void Renderer::RenderImGui()
@@ -334,7 +334,7 @@ void Renderer::RenderImGui()
 
     ImGui::Begin("settings");
     ImGui::Text("rotate (radian)");
-    ImGui::DragFloat3("##rotate", (float*)&(m_pGameObjects[0]->m_rotate), 0.1f, -360.f, 360.f);
+    ImGui::DragFloat3("##rotate", (float*)&(m_pGameObjects[0]->m_rotate), 0.1f, -4.f, 4.f);
     ImGui::Text("camera");
     ImGui::DragFloat3("##camera", (float*)&(m_camera.pos), 1.f, -10000.f, 10000.f);
     ImGui::End();
