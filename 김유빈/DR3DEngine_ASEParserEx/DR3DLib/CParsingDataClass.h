@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "Animation.h"
 #include <vector>
 #include <string>
 //#include <DirectXMath.h>
@@ -379,6 +380,8 @@ namespace ASEParser
 
 		vector<Vertex*> m_opt_vertex;	/// 최적화 후의 버텍스들
 		IndexList* m_opt_index;			/// 최적화 후의 인덱스들
+
+		Animation m_Animation;
 
 		///----------------------------------
 		/// Shape Object

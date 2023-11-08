@@ -91,6 +91,20 @@ bool CASEParser::ConvertAll(Mesh* pMesh)
 		}
 	}
 
+	for (auto& a : m_list_animation)
+	{
+		if (a->m_nodename == pMesh->m_nodename)
+			pMesh->m_Animation = *a;
+	}
+
+	for (auto& m : m_MeshList)
+	{
+		if (pMesh->m_nodeparent == m->m_nodename)
+		{
+			pMesh->m_LocalTM = pMesh->m_WorldTM * m->m_WorldTM.Invert();
+		}
+	}
+
 	return FALSE;
 }
 

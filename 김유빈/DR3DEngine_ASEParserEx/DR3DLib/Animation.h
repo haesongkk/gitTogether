@@ -1,4 +1,13 @@
 #pragma once
+#include <vector>
+#include <string>
+//#include <DirectXMath.h>
+#include <SimpleMath.h>
+#include <map>
+
+using namespace std;
+using namespace DirectX;
+using namespace SimpleMath;
 
 ///--------------------------------------------------
 /// Animation Data를 저장하기 위한 클래스

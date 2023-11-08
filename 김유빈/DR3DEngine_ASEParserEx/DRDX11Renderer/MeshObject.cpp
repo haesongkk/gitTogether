@@ -133,9 +133,17 @@ void MeshObject::LoadGeomerty()
 	D3D11_SUBRESOURCE_DATA iinitData;
 	iinitData.pSysMem = &indices[0];
 	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mIB));
+
+	Vector3 pos, scale;
+	Quaternion rot;
+
+	mMeshData->m_LocalTM.Decompose(scale, rot, pos);
+	mMeshData->m_RotationTM = Matrix::CreateFromQuaternion(rot);
+	mMeshData->m_TranslateTM = Matrix::CreateTranslation(pos);
+	mMeshData->m_ScaleTM = Matrix::CreateScale(scale);
 }
 
-void MeshObject::Update(DRCamera* pCamera)
+void MeshObject::Update(DRCamera* pCamera, float _deltaTime)
 {
 	//XMStoreFloat4x4(&mWorld, XMMatrixIdentity());
 	XMStoreFloat4x4(&mView, pCamera->View());
@@ -180,9 +188,50 @@ void MeshObject::Update(DRCamera* pCamera)
 	mEyePosW = XMFLOAT3(pCamera->GetPosition().x, pCamera->GetPosition().y, pCamera->GetPosition().z);
 }
 
+void MeshObject::UpdateAnimation(float _deltaTime)
+{
+	/// animation
+// 총 누적 시간 계산
+	m_AnimationTime[0] += _deltaTime * 1000;
+	m_AnimationTime[1] += _deltaTime * 1000;
+
+	Animation anim = mMeshData->m_Animation;
+
+	Quaternion preRotationQ;
+	Quaternion curRotationQ;
+
+	if (anim.m_rotation.size() != 0)
+	{
+		// anim index count ++
+		if (anim.m_rotation[frameCountRot]->m_time <= m_AnimationTime[1])
+			++frameCountRot %= anim.m_rotation.size();
+
+		// index 가 0 이면 이전값이 읍기 때문에 누적에 지금값을 걍 밖는다 + 다음 프레임을 위한 pre회전값에 저장
+		if (frameCountRot == 0)
+		{
+			preRotationQ = preRotationQ.CreateFromAxisAngle(anim.m_rotation[frameCountRot]->m_rot, anim.m_rotation[frameCountRot]->m_angle);
+			anim.m_rotation[frameCountRot]->m_rotQT_accumulation = preRotationQ;
+		}
+		else
+		{
+			// pre index rotation data
+			preRotationQ = preRotationQ.CreateFromAxisAngle(anim.m_rotation[frameCountRot - 1]->m_rot, anim.m_rotation[frameCountRot - 1]->m_angle);
+			// current index rotation data
+			curRotationQ = curRotationQ.CreateFromAxisAngle(anim.m_rotation[frameCountRot]->m_rot, anim.m_rotation[frameCountRot]->m_angle);
+
+			// calculate accumulation preQ * curQ
+			anim.m_rotation[frameCountRot]->m_rotQT_accumulation = XMQuaternionMultiply(preRotationQ, curRotationQ);
+		}
+
+		mMeshData->m_RotationTM = Matrix::CreateFromQuaternion(anim.m_rotation[frameCountRot]->m_rotQT_accumulation);
+		mMeshData->m_LocalTM = mMeshData->m_ScaleTM * mMeshData->m_RotationTM * mMeshData->m_TranslateTM;
+	}
+}
+
 void MeshObject::Render()
 {
 	mWorld = mMeshData->m_WorldTM;
+
 	// 입력 배치 객체 셋팅
 	md3dImmediateContext->IASetInputLayout(InputLayouts::Basic32);
 	md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
