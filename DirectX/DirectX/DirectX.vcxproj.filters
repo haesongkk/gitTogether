@@ -50,6 +50,9 @@
     <Filter Include="Manager\Timer">
       <UniqueIdentifier>{60317997-6144-48d2-83bc-3079927e310e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Component">
+      <UniqueIdentifier>{e7d98b5c-db25-4eb5-b70d-400325e346af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -94,6 +97,8 @@
     <ClInclude Include="Vertex.h">
       <Filter>Model\Mesh\Vertex</Filter>
     </ClInclude>
+    <ClInclude Include="Component.h" />
+    <ClInclude Include="Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectX.rc">
@@ -145,6 +150,8 @@
     <ClCompile Include="Vertex.cpp">
       <Filter>Model\Mesh\Vertex</Filter>
     </ClCompile>
+    <ClCompile Include="Component.cpp" />
+    <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Output\Shader\BasicPixelShader.hlsl">
