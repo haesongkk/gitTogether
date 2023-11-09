@@ -22,6 +22,7 @@ public:
 	Node* m_pRootNode = nullptr;
 
 public:
+	Model(const Model& copy) = default;
 	void Render();
 
 public:
