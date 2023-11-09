@@ -55,7 +55,7 @@ DRDX11Renderer::DRDX11Renderer()
 	m_pFont = new DXTKFont();
 	m_pCamera = new DRCamera();
 	//m_pCamera->SetPosition(8.0f, 8.0f, -8.0f);
-	m_pCamera->LookAt(XMFLOAT3(8.0f, 8.0f, -8.0f), XMFLOAT3(0, 0, 0), XMFLOAT3(0, 1.0f, 0));
+	m_pCamera->LookAt(XMFLOAT3(50.0f, 100.0f, -300.0f), XMFLOAT3(0, 100, 0), XMFLOAT3(0, 1.0f, 0));
 
 	//m_pASEParser = new CASEParser();
 	//m_pASEParser->Init();

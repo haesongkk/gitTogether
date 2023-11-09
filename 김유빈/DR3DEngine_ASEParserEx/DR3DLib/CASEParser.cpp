@@ -97,11 +97,19 @@ bool CASEParser::ConvertAll(Mesh* pMesh)
 			pMesh->m_Animation = *a;
 	}
 
-	for (auto& m : m_MeshList)
+
+
+	if (pMesh->m_nodeparent.empty())
+		pMesh->m_LocalTM = pMesh->m_WorldTM;
+
+	else
 	{
-		if (pMesh->m_nodeparent == m->m_nodename)
+		for (auto& m : m_MeshList)
 		{
-			pMesh->m_LocalTM = pMesh->m_WorldTM * m->m_WorldTM.Invert();
+			if (pMesh->m_nodeparent == m->m_nodename)
+			{
+				pMesh->m_LocalTM = pMesh->m_WorldTM * m->m_WorldTM.Invert();
+			}
 		}
 	}
 
@@ -273,7 +281,15 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 			if (m_parsingmode == eGeomobject)
 				m_OneMesh->m_nodename = Parsing_String();
 			if (m_parsingmode == eAnimation)
+			{
 				m_animation->m_nodename = Parsing_String();
+
+				for (auto m : m_MeshList)
+				{
+					if (m->m_nodename == m_animation->m_nodename)
+						m->m_isAnimated = true;
+				}
+			}
 
 		}
 			break;

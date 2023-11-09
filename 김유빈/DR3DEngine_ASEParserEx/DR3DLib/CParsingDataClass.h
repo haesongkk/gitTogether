@@ -343,9 +343,9 @@ namespace ASEParser
 		Matrix m_ParentLocalTM;
 		Matrix m_ParentWorldTM;
 
-		Matrix m_RotationTM;	// 원래 지 로컬 행렬 중 회전만
-		Matrix m_TranslateTM;	
-		Matrix m_ScaleTM;	
+		Quaternion m_RotationTM;	// 원래 지 로컬 행렬 중 회전만
+		Vector3 m_TranslateTM;	
+		Vector3 m_ScaleTM;
 
 		bool m_IsHelper = false;
 

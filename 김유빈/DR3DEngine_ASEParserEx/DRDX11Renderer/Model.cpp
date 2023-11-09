@@ -31,7 +31,6 @@ void Model::Initialize()
 		// 메시 관련 초기화 
 		MeshObject* mesh = new MeshObject(md3dDevice, md3dImmediateContext, m_pRenderstate);
 		mesh->Initialize(m_pASEParser->GetMesh(i));
-		m_NodeMesh.insert(pair<string, MeshObject*>(mesh->GetMesh()->m_nodename, mesh));
 		mMeshList.push_back(mesh);
 	}
 
@@ -51,12 +50,30 @@ void Model::Update(DRCamera* pCamera, float _deltaTime)
 		mMeshList[i]->Update(pCamera, _deltaTime);
 	}
 
-	/// 바뀐 로컬을 기준으로 월드 재계산
+	//XMMATRIX mRot, mLocal;
+
+	//int index = 57;
+
+	//for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
+	//{
+	//	if (mMeshList[i]->GetMesh()->m_nodename == "Bone01")
+	//	{
+	//		Mesh* m = mMeshList[i]->GetMesh();
+	//		static float angle = 0;
+
+	//		angle += 0.00001;
+	//		mLocal = XMMatrixRotationX(angle) * XMLoadFloat4x4(&(m->m_LocalTM));
+	//		XMStoreFloat4x4(&(m->m_LocalTM), mLocal);
+	//	}
+	//}
+
+
 	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
 	{
 		mMeshList[i]->UpdateAnimation(_deltaTime);
-		mMeshList[i]->GetMesh()->m_WorldTM = WorldTM(mMeshList[i]);
 	}
+
+	SetHierarchy();
 }
 
 void Model::Render()
@@ -69,24 +86,11 @@ void Model::Render()
 
 void Model::SetHierarchy()
 {
-	/// parser 에서 받을때 로컬 구해줌
-	//for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
-	//{
-	//	for (auto& v : mMeshList)
-	//	{
-	//		if (mMeshList[i]->GetMesh()->m_nodeparent == v->GetMesh()->m_nodename)
-	//		{
-	//			mMeshList[i]->GetMesh()->m_LocalTM = mMeshList[i]->GetMesh()->m_WorldTM * v->GetMesh()->m_WorldTM.Invert();
-	//		}
-	//	}
-	//}
-
 	// index의 로컬이 변하면 걔의 자식들도 월드tm 이 변해야하니까
 	// 전체적으로 다시 월드 tm 구해주기
 	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
 	{
 		mMeshList[i]->GetMesh()->m_WorldTM = WorldTM(mMeshList[i]);
-		//mMeshList[i]->mWorld = mMeshList[i]->GetMesh()->m_WorldTM;
 	}
 }
 
@@ -97,10 +101,15 @@ void Model::SetHierarchy()
 /// <returns></returns>
 Matrix Model::WorldTM(MeshObject* mesh)
 {
-	for (auto& v : mMeshList)
+	//if (mesh->GetMesh()->m_nodeparent.empty())
+	//	mesh->GetMesh()->m_WorldTM = mesh->GetMesh()->m_LocalTM;
+	//else
 	{
-		if (mesh->GetMesh()->m_nodeparent == v->GetMesh()->m_nodename)
-			return mesh->GetMesh()->m_LocalTM * WorldTM(v);
+		for (auto& v : mMeshList)
+		{
+			if (mesh->GetMesh()->m_nodeparent == v->GetMesh()->m_nodename)
+				return mesh->GetMesh()->m_LocalTM * WorldTM(v);
+		}
 	}
 
 	return mesh->GetMesh()->m_WorldTM;
