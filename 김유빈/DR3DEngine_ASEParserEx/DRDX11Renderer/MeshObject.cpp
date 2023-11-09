@@ -142,6 +142,8 @@ void MeshObject::LoadGeomerty()
 	mMeshData->m_RotationTM = (rot);
 	mMeshData->m_TranslateTM = (pos);
 	mMeshData->m_ScaleTM = (scale);
+
+	m_Animations = mMeshData->m_Animation;
 }
 
 void MeshObject::Update(DRCamera* pCamera, float _deltaTime)
@@ -197,8 +199,8 @@ void MeshObject::UpdateAnimation(float _deltaTime)
 	/// animation
 	// 총 누적 시간 계산
 	m_AnimationTime[0] += _deltaTime * 1000;
-
-	Animation anim = mMeshData->m_Animation;
+	m_AnimationTime[1] += _deltaTime * 1000;
+	m_AnimationTime[2] += _deltaTime * 1000;
 
 	Quaternion rot;
 	Vector3 pos;
@@ -206,56 +208,69 @@ void MeshObject::UpdateAnimation(float _deltaTime)
 
 	Quaternion preRotationQ;
 	Quaternion curRotationQ;
+	Quaternion nextRotationQ;
 
 	/// Rotation
-	if (anim.m_rotation.size() != 0)
+	if (m_Animations.m_rotation.size() != 0)
 	{
-		// anim index count ++
-		if (anim.m_rotation[frameCountRot]->m_time <= m_AnimationTime[0])
-		{
-			++frameCountRot;
-		}
+		auto nextKey = (frameCountRot + 1) % m_Animations.m_rotation.size();
 
 		// index 가 0 이면 이전값이 읍기 때문에 누적에 지금값을 걍 밖는다 + 다음 프레임을 위한 pre회전값에 저장
 		if (frameCountRot == 0)
 		{
-			preRotationQ = preRotationQ.CreateFromAxisAngle(anim.m_rotation[frameCountRot]->m_rot, anim.m_rotation[frameCountRot]->m_angle);
-			anim.m_rotation[frameCountRot]->m_rotQT_accumulation = preRotationQ;
+			preRotationQ = preRotationQ.CreateFromAxisAngle(m_Animations.m_rotation[frameCountRot]->m_rot, m_Animations.m_rotation[frameCountRot]->m_angle);
+			m_Animations.m_rotation[frameCountRot]->m_rotQT_accumulation = preRotationQ;
+
+			// for slerp next data
+			nextRotationQ = nextRotationQ.CreateFromAxisAngle(m_Animations.m_rotation[nextKey]->m_rot, m_Animations.m_rotation[nextKey]->m_angle);
+
+			m_Animations.m_rotation[nextKey]->m_rotQT_accumulation = XMQuaternionMultiply(preRotationQ, nextRotationQ);
 		}
-		else
+		
+		if (frameCountRot != 0)
 		{
 			// pre index rotation data
-			preRotationQ = preRotationQ.CreateFromAxisAngle(anim.m_rotation[frameCountRot - 1]->m_rot, anim.m_rotation[frameCountRot - 1]->m_angle);
+			preRotationQ = m_Animations.m_rotation[frameCountRot - 1]->m_rotQT_accumulation;
 			// current index rotation data
-			curRotationQ = curRotationQ.CreateFromAxisAngle(anim.m_rotation[frameCountRot]->m_rot, anim.m_rotation[frameCountRot]->m_angle);
-
+			curRotationQ = curRotationQ.CreateFromAxisAngle(m_Animations.m_rotation[frameCountRot]->m_rot, m_Animations.m_rotation[frameCountRot]->m_angle);
 			// calculate accumulation preQ * curQ
-			anim.m_rotation[frameCountRot]->m_rotQT_accumulation = XMQuaternionMultiply(preRotationQ, curRotationQ);
+			m_Animations.m_rotation[frameCountRot]->m_rotQT_accumulation = XMQuaternionMultiply(preRotationQ, curRotationQ);
+
+			/// (for slerp) calc next data
+			nextRotationQ = nextRotationQ.CreateFromAxisAngle(m_Animations.m_rotation[nextKey]->m_rot, m_Animations.m_rotation[nextKey]->m_angle);
+
+			m_Animations.m_rotation[nextKey]->m_rotQT_accumulation = XMQuaternionMultiply(m_Animations.m_rotation[frameCountRot]->m_rotQT_accumulation, nextRotationQ);
 		}
 
-		rot = (anim.m_rotation[frameCountRot]->m_rotQT_accumulation);
+		rot = (m_Animations.m_rotation[frameCountRot]->m_rotQT_accumulation);
 
 		float interval;
 		float ratio;
 
-		// 현재 애니메이션 데이터의 프레임 값 - 이전 애니 프레임 값
-		if (frameCountRot != 0)
+		//if (frameCountRot < anim.m_rotation.size() - 1)
 		{
-			interval = anim.m_rotation[frameCountRot]->m_time - anim.m_rotation[frameCountRot - 1]->m_time;
+			interval = m_Animations.m_rotation[nextKey]->m_time - m_Animations.m_rotation[frameCountRot]->m_time;
 
-			ratio = (m_AnimationTime[0] - anim.m_rotation[frameCountRot]->m_time) / interval;
+			ratio = (m_AnimationTime[0] - m_Animations.m_rotation[frameCountRot]->m_time) / interval;
 
-			rot = Quaternion::Slerp(anim.m_rotation[frameCountRot - 1]->m_rotQT_accumulation, anim.m_rotation[frameCountRot]->m_rotQT_accumulation, interval);
-		}
-		else
-		{
-			rot = (anim.m_rotation[frameCountRot]->m_rotQT_accumulation);
+			rot = Quaternion::Slerp(m_Animations.m_rotation[frameCountRot]->m_rotQT_accumulation, m_Animations.m_rotation[nextKey]->m_rotQT_accumulation, ratio);
 		}
 
-		if (frameCountRot > anim.m_rotation.size() - 1)
+		
+
+		if (m_AnimationTime[0] > m_Animations.m_rotation[nextKey]->m_time)
 		{
-			frameCountRot = anim.m_rotation.size() - 1;
-			rot = (anim.m_rotation[anim.m_rotation.size() - 1]->m_rotQT_accumulation);
+			++frameCountRot %= m_Animations.m_rotation.size();
+			++nextKey %= m_Animations.m_rotation.size();
+
+			if (mMeshData->m_nodename == "Bone01")
+			{
+				static vector<Quaternion> r;
+				r.push_back(rot);
+			}
+
+			if (nextKey == 0)
+				m_AnimationTime[0] -= m_Animations.m_rotation.back()->m_time;
 		}
 	}
 	else
@@ -264,36 +279,37 @@ void MeshObject::UpdateAnimation(float _deltaTime)
 	}
 
 	/// Translation
-	if (anim.m_position.size() != 0)
+	if (m_Animations.m_position.size() != 0)
 	{
-		if (anim.m_position[frameCountPos]->m_time <= m_AnimationTime[0])
-		{
-			++frameCountPos;
-		}
-
 		float interval;
 		float ratio;
+		auto nextKey = (frameCountPos + 1) % m_Animations.m_position.size();
 
-		if (frameCountPos != 0)
+		// nextkey 는 현재 프레임이 마지막 인덱스를 가리키면 0이 된다
+		//if (frameCountPos < anim.m_position.size() - 1)
 		{
 			// 현재 애니메이션 데이터의 프레임 값 - 이전 애니 프레임 값
-			interval = anim.m_position[frameCountPos]->m_time - anim.m_position[frameCountPos - 1]->m_time;
-			ratio = (m_AnimationTime[0] - anim.m_position[frameCountPos]->m_time) / interval;
+			interval = m_Animations.m_position[nextKey]->m_time - m_Animations.m_position[frameCountPos]->m_time;
+			ratio = (m_AnimationTime[1] - m_Animations.m_position[frameCountPos]->m_time) / interval;
 
-			pos = Vector3::Lerp(anim.m_position[frameCountPos - 1]->m_pos, anim.m_position[frameCountPos]->m_pos, interval);
+			//pos = m_Animations.m_position[frameCountPos]->m_pos;
+			pos = Vector3::Lerp(m_Animations.m_position[frameCountPos]->m_pos, m_Animations.m_position[nextKey]->m_pos, interval);
+
+			if (mMeshData->m_nodename == "Bone01")
+			{
+				static vector<Vector3> t;
+				t.push_back(pos);
+			}
 		}
-		else
+
+		if (m_AnimationTime[1] > m_Animations.m_position[nextKey]->m_time)
 		{
-			pos = anim.m_position[frameCountPos]->m_pos;
+			++frameCountPos %= m_Animations.m_position.size();
+			++nextKey %= m_Animations.m_position.size();
+
+			if (nextKey == 0)
+				m_AnimationTime[1] -= m_Animations.m_position.back()->m_time;
 		}
-
-
-		if (frameCountPos > anim.m_position.size() - 1)
-		{
-			frameCountPos = anim.m_position.size() - 1;
-			pos = anim.m_position[frameCountPos]->m_pos;
-		}
-
 	}
 	else
 	{
@@ -301,33 +317,26 @@ void MeshObject::UpdateAnimation(float _deltaTime)
 	}
 
 	/// Scale
-	if (anim.m_scale.size() != 0)
+	if (m_Animations.m_scale.size() != 0)
 	{
-		if (anim.m_scale[frameCountScale]->m_time <= m_AnimationTime[0])
-		{
-			++frameCountScale;
-		}
+		auto nextKey = (frameCountScale + 1) % m_Animations.m_scale.size();
 
-		if (frameCountScale == anim.m_scale.size())
-			frameCountScale = anim.m_scale.size() - 1;
-
-		if (frameCountScale != 0)
+		//if (frameCountScale != 0)
 		{
 			// 현재 애니메이션 데이터의 프레임 값 - 이전 애니 프레임 값
-			float interval = anim.m_scale[frameCountScale]->m_time - anim.m_scale[frameCountScale - 1]->m_time;
-			float ratio = (m_AnimationTime[0] - anim.m_scale[frameCountScale]->m_time) / interval;
+			float interval = m_Animations.m_scale[nextKey]->m_time - m_Animations.m_scale[frameCountScale]->m_time;
+			float ratio = (m_AnimationTime[2] - m_Animations.m_scale[frameCountScale]->m_time) / interval;
 
-			scl = Vector3::Lerp(anim.m_scale[frameCountScale - 1]->m_scale, anim.m_scale[frameCountScale]->m_scale, interval);
-		}
-		else
-		{
-			scl = anim.m_scale[frameCountScale]->m_scale;
+			scl = Vector3::Lerp(m_Animations.m_scale[frameCountScale]->m_scale, m_Animations.m_scale[nextKey]->m_scale, ratio);
 		}
 
-		if (frameCountScale > anim.m_scale.size() - 1)
+		if (m_AnimationTime[2] > m_Animations.m_scale[nextKey]->m_time)
 		{
-			frameCountScale = anim.m_scale.size() - 1;
-			pos = anim.m_scale[frameCountScale]->m_scale;
+			++frameCountScale %= m_Animations.m_scale.size();
+			++nextKey %= m_Animations.m_scale.size();
+
+			if (nextKey == 0)
+				m_AnimationTime[2] -= m_Animations.m_scale.back()->m_time;
 		}
 	}
 	else
@@ -335,15 +344,20 @@ void MeshObject::UpdateAnimation(float _deltaTime)
 		scl = mMeshData->m_ScaleTM;
 	}
 
-	if (mMeshData->m_isAnimated == false)
+	mMeshData->m_LocalTM = Matrix::CreateScale(scl)
+		* Matrix::CreateFromQuaternion(rot)
+		* Matrix::CreateTranslation(pos);
+
+	if (mMeshData->m_nodename == "Biped-R_foot")
 	{
-		scl = mMeshData->m_ScaleTM;
-		rot = mMeshData->m_RotationTM;
-		pos = mMeshData->m_TranslateTM;
+		static vector<Vector3> tr;
+		tr.push_back(scl);
 	}
-
-
-	mMeshData->m_LocalTM = Matrix::CreateScale(scl) * Matrix::CreateFromQuaternion(rot) * Matrix::CreateTranslation(pos);
+	if (mMeshData->m_nodename == "Biped-L_foot")
+	{
+		static vector<Vector3> tl;
+		tl.push_back(scl);
+	}
 
 	Vector3 posLocal, scaleLocal;
 	Quaternion rotLocal;

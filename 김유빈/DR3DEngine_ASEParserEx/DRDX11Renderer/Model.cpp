@@ -50,9 +50,9 @@ void Model::Update(DRCamera* pCamera, float _deltaTime)
 		mMeshList[i]->Update(pCamera, _deltaTime);
 	}
 
-	//XMMATRIX mRot, mLocal;
+	Matrix mRot, mLocal;
 
-	//int index = 57;
+	int index = 57;
 
 	//for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
 	//{
@@ -62,8 +62,7 @@ void Model::Update(DRCamera* pCamera, float _deltaTime)
 	//		static float angle = 0;
 
 	//		angle += 0.00001;
-	//		mLocal = XMMatrixRotationX(angle) * XMLoadFloat4x4(&(m->m_LocalTM));
-	//		XMStoreFloat4x4(&(m->m_LocalTM), mLocal);
+	//		m->m_LocalTM = Matrix::CreateRotationX(angle) * m->m_LocalTM;
 	//	}
 	//}
 
@@ -101,9 +100,11 @@ void Model::SetHierarchy()
 /// <returns></returns>
 Matrix Model::WorldTM(MeshObject* mesh)
 {
-	//if (mesh->GetMesh()->m_nodeparent.empty())
-	//	mesh->GetMesh()->m_WorldTM = mesh->GetMesh()->m_LocalTM;
-	//else
+	if (mesh->GetMesh()->m_nodeparent.empty())
+	{
+		mesh->GetMesh()->m_WorldTM = mesh->GetMesh()->m_LocalTM;
+	}
+	else
 	{
 		for (auto& v : mMeshList)
 		{

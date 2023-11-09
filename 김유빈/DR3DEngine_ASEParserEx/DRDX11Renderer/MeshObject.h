@@ -48,7 +48,7 @@ private:
 	int frameCountPos = 0;
 	int frameCountRot = 0;
 	int frameCountScale = 0;
-	Animation* m_Animations;
+	Animation m_Animations;
 
 	ID3D11Device* md3dDevice;						// D3D11 디바이스
 	ID3D11DeviceContext* md3dImmediateContext;		// 디바이스 컨텍스트
