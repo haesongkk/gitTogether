@@ -7,10 +7,6 @@
 #include "Animation.h"
 #include "Bone.h"
 
-Model::Model(Model* _Model)
-{
-}
-
 void Model::Render()
 {
     UpdateModelTM();

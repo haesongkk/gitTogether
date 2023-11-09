@@ -1,5 +1,4 @@
 #pragma once
-
 class Model;
 class Mesh;
 class Material;
@@ -7,13 +6,6 @@ class Animation;
 class Node;
 class Bone;
 class Vertex;
-
-struct aiMesh;
-struct aiMaterial;
-struct aiNodeAnim;
-struct aiNode;
-struct aiBone;
-
 class FbxLoader
 {
 public:
