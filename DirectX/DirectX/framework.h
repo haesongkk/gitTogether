@@ -22,9 +22,7 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+
 
 #pragma comment (lib, "d3d11.lib")
 #pragma comment(lib,"d3dcompiler.lib")
