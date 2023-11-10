@@ -30,3 +30,7 @@
 using namespace std;
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
+
+
+template<class T>
+using wpVector = vector<weak_ptr<T>>;

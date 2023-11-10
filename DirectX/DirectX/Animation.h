@@ -12,7 +12,7 @@ public:
 		Vector3 scale = { 1,1,1 };
 	};
 	vector<Key> m_keys;
-	Node* m_pConnectNode = nullptr;
+	weak_ptr<Node> m_wpConnectNode;
 
 	Animation(Model* _pOwner)
 		:m_pOwner(_pOwner) { }

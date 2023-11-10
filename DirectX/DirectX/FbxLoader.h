@@ -17,11 +17,10 @@ struct aiBone;
 class FbxLoader
 {
 public:
-	Model* LoadGameObject(ID3D11Device* device, const string& _filePath);
-	Mesh* CreateMesh(ID3D11Device* device, aiMesh* mesh, Model* obj);
-	Material* CreateMaterial(ID3D11Device* device, aiMaterial* matt, Model* obj);
+	Model* LoadGameObject(const string& _filePath);
+	shared_ptr<Mesh> CreateMesh(aiMesh* _mesh, shared_ptr<Model> _spModel);
+	shared_ptr<Material> CreateMaterial(aiMaterial* matt, Model* obj);
 	Animation* CreateAnimation(aiNodeAnim* nodeAnimation, Model* obj);
 	Node* CreateNode(aiNode* aiNodeInfo, Node* parent, Model* obj);
-	Bone* CreateBone(aiBone* aiBone, Mesh* ownerMesh, vector<Vertex>& verticies, int boneIndex);
 };
 

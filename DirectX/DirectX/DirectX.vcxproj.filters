@@ -99,6 +99,7 @@
     </ClInclude>
     <ClInclude Include="Component.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="GameObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectX.rc">
@@ -152,6 +153,7 @@
     </ClCompile>
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="GameObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Output\Shader\BasicPixelShader.hlsl">
