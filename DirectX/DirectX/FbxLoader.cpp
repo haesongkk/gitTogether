@@ -14,10 +14,8 @@
 #include "Bone.h"
 #include "Vertex.h"
 
-Model* FbxLoader::LoadGameObject(ID3D11Device* device, const string& _filePath)
+Model* FbxLoader::LoadGameObject(const string& _filePath)
 {
-	Model* pGameObject = new Model;
-
 	Assimp::Importer importer;
 	unsigned int importFlags = aiProcess_Triangulate
 		| aiProcess_GenNormals
@@ -31,42 +29,60 @@ Model* FbxLoader::LoadGameObject(ID3D11Device* device, const string& _filePath)
 	const aiScene* scene = importer.ReadFile(_filePath.c_str(), importFlags);
 	assert(scene);
 
-	vector<Material*> pMaterials(scene->mNumMaterials);
-	for (int i = 0; i < scene->mNumMaterials; ++i)
-		pMaterials[i] = CreateMaterial(device, scene->mMaterials[i], pGameObject);
-	pGameObject->m_pMaterials = pMaterials;
+	shared_ptr<Model> spModel = make_shared<Model>();
 
-	vector<Mesh*> pMeshes(scene->mNumMeshes);
+
+	vector<shared_ptr<Material>> spMaterials(scene->mNumMaterials);
+	for (int i = 0; i < scene->mNumMaterials; ++i)
+		spMaterials[i] = CreateMaterial(scene->mMaterials[i], spModel);
+	spModel->m_wpMaterials = spMaterials;
+
+	vector<shared_ptr<Mesh>> spMeshes(scene->mNumMeshes);
 	for (int i = 0; i < scene->mNumMeshes; ++i)
-		pMeshes[i] = CreateMesh(device, scene->mMeshes[i], pGameObject);
-	pGameObject->m_pMeshes = pMeshes;
+		spMeshes[i] = CreateMesh(scene->mMeshes[i], spModel);
+	spModel->m_pMeshes = spMeshes;
 	
-	pGameObject->m_pRootNode = CreateNode(scene->mRootNode, nullptr, pGameObject);
+	spModel->m_pRootNode = CreateNode(scene->mRootNode, nullptr, spModel);
 
 	vector<Animation*> pAnimations;
 	for (int i = 0; i < scene->mNumAnimations; i++)
 		for (int j = 0; j < scene->mAnimations[i]->mNumChannels; j++)
-			pAnimations.push_back(CreateAnimation(scene->mAnimations[i]->mChannels[j], pGameObject));
-	pGameObject->m_pAnimations = pAnimations;
+			pAnimations.push_back(CreateAnimation(scene->mAnimations[i]->mChannels[j], spModel));
+	spModel->m_pAnimations = pAnimations;
 
 
 	importer.FreeScene();
 
-	return pGameObject;
+	return spModel;
 }
 
-Mesh* FbxLoader::CreateMesh(ID3D11Device* _device, aiMesh* _mesh, Model* _obj)
+shared_ptr<Mesh> FbxLoader::CreateMesh(aiMesh* _mesh, shared_ptr<Model> _spModel)
 {
-	Mesh* mesh = new Mesh(_obj);
+	shared_ptr<Mesh> spMesh = make_shared<Mesh>();
 
-	mesh->SetMaterialIndex(_mesh->mMaterialIndex);
-
-	vector<Bone*> bones(_mesh->mNumBones);
+	shared_ptr<Model> ownerModel = _spModel;
+	int materialIndex = _mesh->mMaterialIndex;
+	vector<Bone> bones(_mesh->mNumBones);
 	vector<Vertex> verticies(_mesh->mNumVertices);
 	vector<WORD> indices(_mesh->mNumFaces * 3);
 
+
 	for (int i = 0; i < _mesh->mNumBones; i++)
-		bones[i]= (CreateBone(_mesh->mBones[i], mesh, verticies, i));
+	{
+		int boneIndex = i;
+		aiBone* pAiBone = _mesh->mBones[i];
+		string nodeName = pAiBone->mName.C_Str();
+		Matrix offsetMatrix = Matrix(&pAiBone->mOffsetMatrix.a1).Transpose();
+
+		bones[i] = Bone(boneIndex, spMesh, nodeName, offsetMatrix);
+
+		for (int j = 0; j < pAiBone->mNumWeights; j++)
+		{
+			int vertexId = pAiBone->mWeights[j].mVertexId;
+			float weight = pAiBone->mWeights[j].mWeight;
+			assert(verticies[vertexId].AddBoneData(boneIndex, weight));
+		}
+	}
 
 	for (UINT i = 0; i < _mesh->mNumVertices; ++i)
 	{
@@ -83,34 +99,17 @@ Mesh* FbxLoader::CreateMesh(ID3D11Device* _device, aiMesh* _mesh, Model* _obj)
 		indices[i * 3 + 2] = _mesh->mFaces[i].mIndices[2];
 	}
 
-	mesh->m_pBones = bones;
-	mesh->CreateVertexBuffer(verticies);
-	mesh->CreateIndexBuffer(indices);
+	spMesh->SetMeshInfo(
+		ownerModel,
+		materialIndex,
+		bones,
+		verticies,
+		indices);
 
-	return mesh;
+	return spMesh;
 }
 
-Bone* FbxLoader::CreateBone(aiBone* aiBone, Mesh* ownerMesh, vector<Vertex>& vertices, int boneIndex)
-{
-	Bone* bone = new Bone;
-	bone->m_nodeName = aiBone->mName.C_Str();
-	//bone->m_offsetMatrix = Matrix(aiBone->mOffsetMatrix[0]).Transpose(); 
-	bone->m_offsetMatrix = Matrix(&aiBone->mOffsetMatrix.a1).Transpose();
-
-	bone->m_pOwner = ownerMesh;
-	bone->m_index = boneIndex;
-
-	for (int j = 0; j < aiBone->mNumWeights; j++)
-	{
-		int vertexId = aiBone->mWeights[j].mVertexId;
-		float weight = aiBone->mWeights[j].mWeight;
-		assert(vertices[vertexId].AddBoneData(boneIndex, weight));
-	}
-
-	return bone;
-}
-
-Material* FbxLoader::CreateMaterial(ID3D11Device* device, aiMaterial* _pMaterial, Model* _obj)
+Material* FbxLoader::CreateMaterial(aiMaterial* _pMaterial, Model* _obj)
 {
 	Material* material = new Material(_obj);
 

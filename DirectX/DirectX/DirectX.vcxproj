@@ -137,6 +137,7 @@
     <ClInclude Include="Bone.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="FbxLoader.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="framework.h" />
@@ -156,6 +157,7 @@
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="DirectX.cpp" />
     <ClCompile Include="FbxLoader.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="Material.cpp" />

@@ -4,31 +4,40 @@ class Material;
 class Animation;
 class Node;
 class Renderer;
-class Model
+class Transform;
+#include "Component.h"
+class Model : public Component
 {
-	Matrix m_matrix = {};
-	Model* m_pParentObject = nullptr;
+	weak_ptr<Transform> m_wpOwnerTransform;
+
+	wpVector<Material> m_wpMaterials;
+	wpVector<Mesh> m_wpMeshes;
+	wpVector<Node> m_wpNodes;
+
+	map<string, wpVector<Animation>> m_wpAnimations;
+	string m_curAnim;
+
+	weak_ptr<Node> m_wpRootNode;
 
 public:
-	Vector3 m_position = { 0,0,0 };
-	Vector3 m_scale = { 1,1,1 };
-	Vector3 m_rotate = { 0,0,0 };
-
-	vector<Material*> m_pMaterials = {};
-	vector<Mesh*> m_pMeshes = {};
-	vector<Node*> m_pNodes = {};
-	vector<Animation*> m_pAnimations = {};
-
-	Node* m_pRootNode = nullptr;
+	Model();
 
 public:
-	Model(const Model& copy) = default;
-	void Render();
+	virtual ~Model();
 
 public:
-	Matrix GetMatrix() { return m_matrix; }
+	virtual void Run();
 
-private:
-	void UpdateModelTM();
+public:
+	shared_ptr<Material> GetMaterial(int index) { return m_wpMaterials[index].lock(); }
+	shared_ptr<Mesh> GetMesh(int index) { return m_wpMeshes[index].lock(); }
+	shared_ptr<Node> GetNode(string name);
+	
+
+	shared_ptr<Transform> GetTransform() { return m_wpOwnerTransform.lock(); }
+
+	static weak_ptr<Renderer> m_wpRenderer;
+	friend class FbxLoader;
+
 };
 

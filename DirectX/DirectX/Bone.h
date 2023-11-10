@@ -3,13 +3,18 @@ class Node;
 class Mesh;
 class Bone
 {
-public:
-	Mesh* m_pOwner;
-	Node* m_pConnectNode;
+	int m_boneIndex;
+	weak_ptr<Mesh> m_wpOwnerMesh;
+	string m_connectedNodeName;
 	Matrix m_offsetMatrix;
-	string m_nodeName;
-	int m_index;
 
-	void SetConnectNode(string name);
-	void Update();
+public:
+	Bone(int boneIndex, shared_ptr<Mesh> wpOwnerMesh, string connectedNodeName, Matrix offsetMatrix);
+
+public:
+	~Bone() { }
+
+public:
+	void Run();
+
 };

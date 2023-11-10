@@ -9,10 +9,8 @@
 #include "Node.h"
 #include "Vertex.h"
 
-Renderer* Mesh::pRenderer = nullptr;
-
-Mesh::Mesh(Model* _pOwner)
-    :m_pOwner(_pOwner)
+Mesh::Mesh(shared_ptr<Model> _spOwnerModel)
+    :m_wpOwnerModel(_spOwnerModel)
 {
 }
 
@@ -57,31 +55,21 @@ void Mesh::CreateIndexBuffer(vector<WORD>& _indices)
     assert(pIB);
 }
 
-void Mesh::SetMaterialIndex(UINT _index)
+void Mesh::Run()
 {
-    m_pConnectMaterial = m_pOwner->m_pMaterials[_index];
-}
+    m_wpOwnerModel.lock()->GetMaterial(m_connectedMaterialIndex)->Run();
 
-void Mesh::Render()
-{
-    ID3D11DeviceContext* dc = pRenderer->m_pDeviceContext;
+    assert(m_wpBones.size() < 128);
+    for (auto bone : m_wpBones) bone.lock()->Run();
 
-    dc->IASetVertexBuffers(0, 1, &pVB, &VertextBufferStride, &VertextBufferOffset);
-    dc->IASetIndexBuffer(pIB, DXGI_FORMAT_R16_UINT, 0);
+    ID3D11DeviceContext* dc = m_wpOwnerModel.lock()->m_wpRenderer.lock()->m_pDeviceContext;
 
-    m_pConnectMaterial->Render();
+    dc->IASetVertexBuffers(0, 1, &m_pVertexBuffer, &VertextBufferStride, &VertextBufferOffset);
+    dc->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
-    assert(m_pBones.size() < 128);
-    for (auto bone : m_pBones) bone->Update();
-
-    dc->UpdateSubresource(pRenderer->m_pBonesBuffer, 0, nullptr, &(pRenderer->m_bones), 0, 0);
-    dc->VSSetConstantBuffers(4, 1, &(pRenderer->m_pBonesBuffer));
-    dc->PSSetConstantBuffers(4, 1, &(pRenderer->m_pBonesBuffer));
-
-    pRenderer->m_transform.mWorld = m_pOwner->GetMatrix();
-    dc->UpdateSubresource(pRenderer->m_pTransformBuffer, 0, nullptr, &(pRenderer->m_transform), 0, 0);
-    dc->VSSetConstantBuffers(0, 1, &(pRenderer->m_pTransformBuffer));
-    dc->PSSetConstantBuffers(0, 1, &(pRenderer->m_pTransformBuffer));
+    dc->UpdateSubresource(m_pBonesBuffer, 0, nullptr, &m_bonePallete, 0, 0);
+    dc->VSSetConstantBuffers(4, 1, &m_pBonesBuffer);
+    dc->PSSetConstantBuffers(4, 1, &m_pBonesBuffer);
 
     dc->DrawIndexed(indexCount, 0, 0);
 }

@@ -6,37 +6,39 @@
 #include "Node.h"
 #include "Animation.h"
 #include "Bone.h"
+#include "GameObject.h"
 
-Model::Model(Model* _Model)
+Model::Model()
+    :Component(make_shared<GameObject>(nullptr))
+    , m_wpOwnerTransform{}
+    , m_wpMaterials{}
+    , m_wpMeshes{}
+    , m_wpNodes{}
+    , m_wpAnimations{}
+    , m_curAnim{}
+    , m_wpRootNode{}
 {
-}
-
-void Model::Render()
-{
-    UpdateModelTM();
-
-    for (auto anim : m_pAnimations)
-        anim->Update();
-
-    m_pRootNode->Render();
-
-    for (auto mesh : m_pMeshes)
-        mesh->Render();
 
 }
 
-void Model::UpdateModelTM()
+Model::~Model()
 {
-    Matrix mScale = Matrix::CreateScale(m_scale);
-    Matrix mRot = Matrix::CreateRotationX(m_rotate.x)
-        * Matrix::CreateRotationY(m_rotate.y)
-        * Matrix::CreateRotationZ(m_rotate.z);
-
-    Matrix mTrans = Matrix::CreateTranslation(m_position);
-
-    Matrix mBasis = DirectX::XMMatrixIdentity();
-    if (m_pParentObject) mBasis = m_pParentObject->GetMatrix();
-
-    m_matrix = mScale * mRot * mTrans * mBasis;
 }
+
+void Model::Run()
+{
+    for (auto anim : m_wpAnimations[m_curAnim])
+        if (auto a = anim.lock()) a->Update();
+
+    if(auto root = m_wpRootNode.lock()) root->Run();
+}
+
+shared_ptr<Node> Model::GetNode(string name)
+{
+    for (auto node : m_wpNodes)
+        if (node.lock()->GetName() == name)
+            return node.lock();
+    return nullptr;
+}
+
 

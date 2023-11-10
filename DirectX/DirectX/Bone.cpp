@@ -5,17 +5,19 @@
 #include "Model.h"
 #include "Renderer.h"
 
-void Bone::SetConnectNode(string name)
+Bone::Bone(int boneIndex, shared_ptr<Mesh> wpOwnerMesh, string connectedNodeName, Matrix offsetMatrix)
+	:m_boneIndex{boneIndex}
+	, m_wpOwnerMesh{wpOwnerMesh}
+	, m_connectedNodeName{connectedNodeName}
+	, m_offsetMatrix{offsetMatrix}
 {
-	for (auto node : m_pOwner->m_pOwner->m_pNodes)
-		if (node->m_name == name)
-			m_pConnectNode = node;
 }
 
-void Bone::Update()
+void Bone::Run()
 {
-	SetConnectNode(m_nodeName);
-	assert(m_pConnectNode);
-	Matrix matrix = m_offsetMatrix * m_pConnectNode->m_worldMatrix;
-	m_pOwner->pRenderer->m_bones.bonePallete[m_index] = matrix.Transpose();
+	auto connectedNode = m_wpOwnerMesh.lock()->GetOwnerModel()->GetNode(m_connectedNodeName);
+
+	assert(connectedNode);
+	Matrix matrix = m_offsetMatrix * connectedNode->GetMatrix();
+	m_wpOwnerMesh.lock()->BonePallete(m_boneIndex, matrix.Transpose());
 }

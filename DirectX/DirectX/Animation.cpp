@@ -40,8 +40,8 @@ void Animation::Update()
 		m_keys[nextKey].rotation,
 		ratio);
 		
-	m_pConnectNode->m_relativeMatrix =
-		Matrix::CreateScale(scale)
+	if (auto node = m_wpConnectNode.lock())
+		node->m_relativeMatrix = Matrix::CreateScale(scale)
 		* Matrix::CreateFromQuaternion(rot)
 		* Matrix::CreateTranslation(pos);
 }
