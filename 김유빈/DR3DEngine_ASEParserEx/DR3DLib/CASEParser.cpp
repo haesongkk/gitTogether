@@ -100,8 +100,9 @@ bool CASEParser::ConvertAll(Mesh* pMesh)
 
 
 	if (pMesh->m_nodeparent.empty())
+	{
 		pMesh->m_LocalTM = pMesh->m_WorldTM;
-
+	}
 	else
 	{
 		for (auto& m : m_MeshList)
@@ -116,32 +117,6 @@ bool CASEParser::ConvertAll(Mesh* pMesh)
 	return FALSE;
 }
 
-ASEParser::Mesh* CASEParser::GetMesh(int index)
-{
-	return m_MeshList[index];
-}
-
-int CASEParser::GetMeshNum()
-{
-	return m_MeshList.size();
-}
-
-list<Animation*>& CASEParser::GetAnimation()
-{
-	return m_list_animation;
-}
-
-//----------------------------------------------------------------
-// 재귀 호출됨을 전제로 하는 분기 함수이다.
-//
-// 일단 읽고, 토큰에 따라 동작한다.
-//
-// 재귀를 들어가는 조건은 { 을 만날 경우이다.
-// 리턴하는 조건은 '}'를 만나거나 TOKEND_END를 만났을 때이다.
-//
-// 더불어, 재귀를 들어가기 전 토큰을 읽어, 지금 이 함수가 어떤 모드인지를 결정한다.
-//
-//----------------------------------------------------------------
 void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 {
 	//----------------------------------------------------------------------
@@ -271,15 +246,21 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 
 			break;
 
+		case TOKENR_SHAPEOBJECT:
+			/// new Mesh
+			m_parsingmode = eShape;
+			Create_onemesh_to_list();
+			m_OneMesh->m_type = eObjectType::eObjectType_Shape;
+
+			break;
+
 		case TOKENR_NODE_NAME:
 			// 어쩄든 지금은 오브젝트들을 구별 할 수 있는 유일한 값이다.
 			// 모드에 따라 넣어야 할 곳이 다르다.
 			//m_OneMesh->m_nodename = Parsing_String();
 		{
-			if(m_parsingmode == eHelperObject)
-				m_OneMesh->m_nodename = Parsing_String();
-			if (m_parsingmode == eGeomobject)
-				m_OneMesh->m_nodename = Parsing_String();
+
+
 			if (m_parsingmode == eAnimation)
 			{
 				m_animation->m_nodename = Parsing_String();
@@ -290,23 +271,22 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 						m->m_isAnimated = true;
 				}
 			}
-
+			else
+			{
+				m_OneMesh->m_nodename = Parsing_String();
+			}
 		}
-			break;
+		break;
 
 		case TOKENR_NODE_PARENT:
 			// 현 노드의 부모 노드의 정보.
 			// 일단 입력을 하고, 나중에 정리하자.
 		{
-			if (m_parsingmode == eHelperObject)
-				m_OneMesh->m_nodeparent = Parsing_String();
-			if (m_parsingmode == eGeomobject)
-				m_OneMesh->m_nodeparent = Parsing_String();
-
+			m_OneMesh->m_nodeparent = Parsing_String();
 		}
-			break;
+		break;
 
-			/// NODE_TM
+		/// NODE_TM
 
 		case TOKENR_NODE_TM:
 			//m_parsingmode	=	eGeomobject;
@@ -325,78 +305,44 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 
 		case TOKENR_INHERIT_POS:
 		{
-			if (m_parsingmode == eHelperObject)
-				m_OneMesh->m_inherit_pos = Parsing_NumberVector3();
-			if (m_parsingmode == eGeomobject)
-				m_OneMesh->m_inherit_pos = Parsing_NumberVector3();
+			m_OneMesh->m_inherit_pos = Parsing_NumberVector3();
+
 			// 카메라는 NodeTM이 두번 나온다. 두번째라면 넣지 않는다.
 		}
-			break;
+		break;
 		case TOKENR_INHERIT_ROT:
 		{
-			if (m_parsingmode == eGeomobject)
-				m_OneMesh->m_inherit_rot = Parsing_NumberVector3();
-			if (m_parsingmode == eHelperObject)
-				m_OneMesh->m_inherit_rot = Parsing_NumberVector3();
+			m_OneMesh->m_inherit_rot = Parsing_NumberVector3();
 		}
-			break;
+		break;
 		case TOKENR_INHERIT_SCL:
 		{
-			if (m_parsingmode == eGeomobject)
-				m_OneMesh->m_inherit_scl = Parsing_NumberVector3();
-			if (m_parsingmode == eHelperObject)
-				m_OneMesh->m_inherit_scl = Parsing_NumberVector3();
+			m_OneMesh->m_inherit_scl = Parsing_NumberVector3();
 		}
-			break;
+		break;
 		case TOKENR_TM_ROW0:
 		{
-			if (m_parsingmode == eHelperObject)
-			{
-				m_OneMesh->m_tm_row0.x = Parsing_NumberFloat();
-				m_OneMesh->m_tm_row0.z = Parsing_NumberFloat();
-				m_OneMesh->m_tm_row0.y = Parsing_NumberFloat();
-			}
-			if (m_parsingmode == eGeomobject)
-			{
-				m_OneMesh->m_tm_row0.x = Parsing_NumberFloat();
-				m_OneMesh->m_tm_row0.z = Parsing_NumberFloat();
-				m_OneMesh->m_tm_row0.y = Parsing_NumberFloat();
-			}
+			m_OneMesh->m_tm_row0.x = Parsing_NumberFloat();
+			m_OneMesh->m_tm_row0.z = Parsing_NumberFloat();
+			m_OneMesh->m_tm_row0.y = Parsing_NumberFloat();
 		}
-			break;
+		break;
 		case TOKENR_TM_ROW1:
 		{
-			if (m_parsingmode == eGeomobject)
-			{
-				m_OneMesh->m_tm_row1.x = Parsing_NumberFloat();
-				m_OneMesh->m_tm_row1.z = Parsing_NumberFloat();
-				m_OneMesh->m_tm_row1.y = Parsing_NumberFloat();
-			}
-			if (m_parsingmode == eHelperObject)
-			{
-				m_OneMesh->m_tm_row1.x = Parsing_NumberFloat();
-				m_OneMesh->m_tm_row1.z = Parsing_NumberFloat();
-				m_OneMesh->m_tm_row1.y = Parsing_NumberFloat();
-			}
+			m_OneMesh->m_tm_row1.x = Parsing_NumberFloat();
+			m_OneMesh->m_tm_row1.z = Parsing_NumberFloat();
+			m_OneMesh->m_tm_row1.y = Parsing_NumberFloat();
 		}
 
-			break;
+		break;
 		case TOKENR_TM_ROW2:
 			/// row 2 와 row 3 의 값이 서로 바껴야한다 (좌표계) 
-		{
-			if (m_parsingmode == eGeomobject)
+		
 			{
 				m_OneMesh->m_tm_row2.x = Parsing_NumberFloat();
 				m_OneMesh->m_tm_row2.z = Parsing_NumberFloat();
 				m_OneMesh->m_tm_row2.y = Parsing_NumberFloat();
 			}
-			if (m_parsingmode == eHelperObject)
-			{
-				m_OneMesh->m_tm_row2.x = Parsing_NumberFloat();
-				m_OneMesh->m_tm_row2.z = Parsing_NumberFloat();
-				m_OneMesh->m_tm_row2.y = Parsing_NumberFloat();
-			}
-		}
 
 			break;
 		case TOKENR_TM_ROW3:
@@ -415,39 +361,82 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 
 			m_OneMesh->m_WorldTM = worldTM;
 		}
-			break;
+		break;
 		case TOKENR_TM_POS:
 			//if (m_parsingmode == eGeomobject)
-				m_OneMesh->m_tm_pos = Parsing_NumberVector3();
+			m_OneMesh->m_tm_pos = Parsing_NumberVector3();
 
 			break;
 		case TOKENR_TM_ROTAXIS:
 			//if (m_parsingmode == eGeomobject)
-				m_OneMesh->m_tm_rotaxis = Parsing_NumberVector3();
+			m_OneMesh->m_tm_rotaxis = Parsing_NumberVector3();
 
 			break;
 		case TOKENR_TM_ROTANGLE:
 			//if (m_parsingmode == eGeomobject)
-				m_OneMesh->m_tm_rotangle = Parsing_NumberFloat();
+			m_OneMesh->m_tm_rotangle = Parsing_NumberFloat();
 
 			break;
 		case TOKENR_TM_SCALE:
 			//if (m_parsingmode == eGeomobject)
-				m_OneMesh->m_tm_scale = Parsing_NumberVector3();
+			m_OneMesh->m_tm_scale = Parsing_NumberVector3();
 
 			break;
 		case TOKENR_TM_SCALEAXIS:
 			//if (m_parsingmode == eGeomobject)
-				m_OneMesh->m_tm_scaleaxis = Parsing_NumberVector3();
+			m_OneMesh->m_tm_scaleaxis = Parsing_NumberVector3();
 
 			break;
 		case TOKENR_TM_SCALEAXISANG:
 			//if (m_parsingmode == eGeomobject)
-				m_OneMesh->m_tm_scaleaxisang = Parsing_NumberFloat();
+			m_OneMesh->m_tm_scaleaxisang = Parsing_NumberFloat();
 
 			// 현재 카메라 상태였다면 이미 노드를 읽은 것으로 표시해준다.
 			break;
 
+		case TOKENR_SHAPE_LINECOUNT:
+			m_OneMesh->m_shape_linecount = Parsing_NumberInt();
+			break;
+
+		case TOKENR_SHAPE_LINE:
+		{
+			ShapeLine* line = new ShapeLine;
+			line->m_line_number = Parsing_NumberInt();
+			m_OneMesh->m_vector_shape_line.push_back(line);
+
+		}
+		break;
+
+		/// shape obj
+		case TOKENR_SHAPE_CLOSED:
+			m_OneMesh->m_vector_shape_line.back()->m_shape_closed = true;
+			break;
+
+		case TOKENR_SHAPE_VERTEXCOUNT:
+			m_OneMesh->m_vector_shape_line.back()->m_shape_vertexcount = Parsing_NumberInt();
+			break;
+
+		case TOKENR_SHAPE_VERTEX_KNOT:
+		{
+			ShapeVertex* shapever = new ShapeVertex;
+			shapever->m_indexnum = Parsing_NumberInt();
+			shapever->m_isknot = true;
+			shapever->m_pos = Parsing_NumberVector3();
+			m_OneMesh->m_vector_shape_line.back()->m_shapevertex.push_back(shapever);
+			break;
+		}
+
+
+		case TOKENR_SHAPE_VERTEX_INTERP:
+		{
+			ShapeVertex* vI = new ShapeVertex;
+			vI->m_indexnum = Parsing_NumberInt();
+			vI->m_isknot = false;
+			vI->m_pos = Parsing_NumberVector3();
+
+			m_OneMesh->m_vector_shape_line.back()->m_shapevertex.push_back(vI);
+			break;
+		}
 
 			/// MESH
 
@@ -502,7 +491,7 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 			ver->m_pos.y = Parsing_NumberFloat();
 
 			//ver->m_pos = Parsing_NumberVector3();
-			
+
 			m_OneMesh->m_meshvertex.push_back(ver);
 		}
 		break;
@@ -631,7 +620,7 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 			m_parsingmode = eAnimation;
 		}
 		break;
-		
+
 		case TOKENR_CONTROL_SCALE_SAMPLE:
 		{
 			CAnimation_scl* animscl = new CAnimation_scl;
@@ -693,14 +682,42 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 		/// 안전 코드.
 		///-----------------------------------------------
 
-	}		// while()
+	}	// while()
 
-	// 여기까지 왔다면 while()을 벗어났다는 것이고 그 말은
-	// 괄호를 닫았다는 것이므로
-	// 리턴하자 (재귀함수)
-	auto a = m_MeshList;
-	return;
+			// 여기까지 왔다면 while()을 벗어났다는 것이고 그 말은
+			// 괄호를 닫았다는 것이므로
+			// 리턴하자 (재귀함수)
+		auto a = m_MeshList;
+		return;
 }
+
+ASEParser::Mesh* CASEParser::GetMesh(int index)
+{
+	return m_MeshList[index];
+}
+
+int CASEParser::GetMeshNum()
+{
+	return m_MeshList.size();
+}
+
+list<Animation*>& CASEParser::GetAnimation()
+{
+	return m_list_animation;
+}
+
+//----------------------------------------------------------------
+// 재귀 호출됨을 전제로 하는 분기 함수이다.
+//
+// 일단 읽고, 토큰에 따라 동작한다.
+//
+// 재귀를 들어가는 조건은 { 을 만날 경우이다.
+// 리턴하는 조건은 '}'를 만나거나 TOKEND_END를 만났을 때이다.
+//
+// 더불어, 재귀를 들어가기 전 토큰을 읽어, 지금 이 함수가 어떤 모드인지를 결정한다.
+//
+//----------------------------------------------------------------
+
 
 
 ///----------------------------------------------------------------------

@@ -64,6 +64,7 @@ private:
 	ID3D11RasterizerState* m_pRenderstate;
 
 	UINT IndexCount;
+	UINT VertexCount;
 	Material m_Material;
 
 	/// 빛은 외부에서 받아오도록 하자

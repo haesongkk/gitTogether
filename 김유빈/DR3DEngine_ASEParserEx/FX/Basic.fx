@@ -107,8 +107,10 @@ float4 PS(VertexOut pin, uniform int gLightCount) : SV_Target
 
 	// Common to take alpha from diffuse material.
 	litColor.a = gMaterial.Diffuse.a;
+	return litColor;
 
-    return litColor;
+	float4 color = { 1.f, 1.f, 1.f, 1.f };
+	//return color;
 
 	//return float4(pin.NormalW, 1.0f);
 }
