@@ -26,6 +26,9 @@ public:
 
 private:
 	void SetHierarchy();
+	void SetChild();
+	void AddChildrenRecursive(MeshObject* mesh, std::vector<MeshObject*> children);
+
 	Matrix WorldTM(MeshObject* mesh);
 
 	ID3D11Device* md3dDevice;						// D3D11 디바이스

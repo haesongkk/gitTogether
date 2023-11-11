@@ -121,7 +121,7 @@ float4 PS(VertexOut pin, uniform int gLightCount, uniform bool gUseTexure) : SV_
 		// Modulate with late add.
 		litColor = texColor*(ambient + diffuse) + spec;
 	}
-	float4 color = { 1.f, 0.f, 0.f, 1.f };
+	float4 color = { 0.7f, 0.1f, 0.3f, 1.f };
 
 	// Common to take alpha from diffuse material and texture.
 	litColor.a = gMaterial.Diffuse.a * texColor.a;

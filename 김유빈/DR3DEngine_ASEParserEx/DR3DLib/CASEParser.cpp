@@ -96,8 +96,47 @@ bool CASEParser::ConvertAll(Mesh* pMesh)
 		if (a->m_nodename == pMesh->m_nodename)
 			pMesh->m_Animation = *a;
 	}
+	
+	
+	//float determinant = DirectX::XMVectorGetX(DirectX::XMMatrixDeterminant(pMesh->m_WorldTM));
 
-
+	//if (determinant < 0.f)
+	//{
+	//	pMesh->m_IsNegative = true;
+	//	// 엄마가 있는데 네거티브
+	//	if (!pMesh->m_nodeparent.empty())
+	//	{
+	//		// 자기가 네거티브인데 엄마가 네거티브가 아니라면 자기가 네거티브의 시작이 된다
+	//		for (auto parent : m_MeshList)
+	//		{
+	//			if (parent->m_nodename == pMesh->m_nodeparent)
+	//			{
+	//				if (parent->m_IsNegative == false)
+	//					pMesh->m_IsNegativeRoot = true;
+	//			}
+	//		}
+	//	}
+	//	// 엄마가 없는데 네거티브 -> 걍 자기가 네거티브 루트
+	//	else
+	//	{
+	//		pMesh->m_IsNegativeRoot = true;
+	//	}
+	//}
+	//else
+	//{
+	//	// 엄마가 있는데 네거티브가 아님 -> 엄마도 자기도 네거티브라 그런것인지 확인한다
+	//	if (!pMesh->m_nodeparent.empty())
+	//	{
+	//		for (auto parent : m_MeshList)
+	//		{
+	//			if (parent->m_nodename == pMesh->m_nodeparent)
+	//			{
+	//				if (parent->m_IsNegative == true)
+	//					pMesh->m_IsNegativeNotRoot = true;
+	//			}
+	//		}
+	//	}
+	//}
 
 	if (pMesh->m_nodeparent.empty())
 	{
@@ -113,6 +152,24 @@ bool CASEParser::ConvertAll(Mesh* pMesh)
 			}
 		}
 	}
+
+	//Vector3 posW, scaleW;
+	//Quaternion rotW;
+
+	//pMesh->m_LocalTM.Decompose(scaleW, rotW, posW);
+
+	//if (pMesh->m_type == eObjectType::eObjectType_Shape
+	//	&& pMesh->m_isAnimated == false)
+	//{
+	//	if (pMesh->m_IsNegativeRoot
+	//		|| pMesh->m_IsNegativeNotRoot)
+	//	{
+	//		pMesh->m_LocalTM = Matrix::CreateScale({ 1.f, -1.f, 1.f })
+	//			* Matrix::CreateFromQuaternion(rotW)
+	//			* Matrix::CreateTranslation(posW);
+	//	}
+	//}
+		
 
 	return FALSE;
 }

@@ -348,6 +348,9 @@ namespace ASEParser
 		Vector3 m_ScaleTM;
 
 		bool m_IsHelper = false;
+		bool m_IsNegative = false;
+		bool m_IsNegativeRoot = false;
+		bool m_IsNegativeNotRoot = false;
 
 
 		///----------------------------------

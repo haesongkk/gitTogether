@@ -231,7 +231,7 @@ void MeshObject::Update(DRCamera* pCamera, float _deltaTime)
 	mEyePosW = XMFLOAT3(pCamera->GetPosition().x, pCamera->GetPosition().y, pCamera->GetPosition().z);
 }
 
-void MeshObject::UpdateAnimation(float _deltaTime)
+bool MeshObject::UpdateAnimation(float _deltaTime)
 {
 	/// animation
 	// 총 누적 시간 계산
@@ -266,8 +266,6 @@ void MeshObject::UpdateAnimation(float _deltaTime)
 		
 		if (frameCountRot != 0)
 		{
-
-
 			// pre index rotation data
 			preRotationQ = m_Animations.m_rotation[frameCountRot - 1]->m_rotQT_accumulation;
 			// current index rotation data
@@ -302,20 +300,22 @@ void MeshObject::UpdateAnimation(float _deltaTime)
 			++frameCountRot %= m_Animations.m_rotation.size();
 			++nextKey %= m_Animations.m_rotation.size();
 
-			if (mMeshData->m_nodename == "Bone01")
-			{
-				static vector<Quaternion> r;
-				r.push_back(rot);
-			}
-
 			if (nextKey == 0)
 				m_AnimationTime[0] -= m_Animations.m_rotation.back()->m_time;
 		}
+
+		/// Negative Scale
+		float determinant = DirectX::XMVectorGetX(DirectX::XMMatrixDeterminant(mMeshData->m_LocalTM));
+		if (determinant < 0.f)
+			mMeshData->m_ScaleTM = Vector3{ -1.f, -1.f, -1.f };
 	}
 	else
 	{
 		rot = mMeshData->m_RotationTM;
 	}
+
+
+
 
 	/// Translation
 	if (m_Animations.m_position.size() != 0)
@@ -323,12 +323,6 @@ void MeshObject::UpdateAnimation(float _deltaTime)
 		float interval;
 		float ratio;
 		auto nextKey = (frameCountPos + 1) % m_Animations.m_position.size();
-
-		if (mMeshData->m_type == eObjectType::eObjectType_Shape)
-		{
-			mMeshData->m_isAnimated;
-			int a = 0;
-		}
 
 		// 보간
 		interval = m_Animations.m_position[nextKey]->m_time - m_Animations.m_position[frameCountPos]->m_time;
@@ -396,6 +390,8 @@ void MeshObject::UpdateAnimation(float _deltaTime)
 	mMeshData->m_RotationTM = (rotLocal);
 	mMeshData->m_TranslateTM = (posLocal);
 	mMeshData->m_ScaleTM = (scaleLocal);
+
+	return mMeshData->m_IsNegative;
 }
 
 void MeshObject::Render()
