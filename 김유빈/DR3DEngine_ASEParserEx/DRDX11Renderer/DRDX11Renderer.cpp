@@ -291,22 +291,22 @@ void DRDX11Renderer::Update(float deltaTime)
 
 	// 카메라
 	if (GetAsyncKeyState('W') & 0x8000)
-		m_pCamera->Walk(20.0f * deltaTime);
+		m_pCamera->Walk(50.0f * deltaTime);
 
 	if (GetAsyncKeyState('S') & 0x8000)
-		m_pCamera->Walk(-20.0f * deltaTime);
+		m_pCamera->Walk(-50.0f * deltaTime);
 
 	if (GetAsyncKeyState('A') & 0x8000)
-		m_pCamera->Strafe(-20.0f * deltaTime);
+		m_pCamera->Strafe(-50.0f * deltaTime);
 
 	if (GetAsyncKeyState('D') & 0x8000)
-		m_pCamera->Strafe(20.0f * deltaTime);
+		m_pCamera->Strafe(50.0f * deltaTime);
 
 	if (GetAsyncKeyState('Q') & 0x8000)
-		m_pCamera->WorldUpDown(-20.0f * deltaTime);
+		m_pCamera->WorldUpDown(-50.0f * deltaTime);
 
 	if (GetAsyncKeyState('E') & 0x8000)
-		m_pCamera->WorldUpDown(20.0f * deltaTime);
+		m_pCamera->WorldUpDown(50.0f * deltaTime);
 
 	// view TM을 만든다.
 	m_pCamera->UpdateViewMatrix();

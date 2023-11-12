@@ -97,7 +97,18 @@ bool CASEParser::ConvertAll(Mesh* pMesh)
 			pMesh->m_Animation = *a;
 	}
 	
-	
+
+	for (auto m : m_MeshList)
+	{
+		for (auto bone : m->m_vector_bone_list)
+		{
+			if (pMesh->m_nodename == bone->m_bone_name)
+			{
+				bone->m_boneTM_NodeTM = new Matrix(pMesh->m_WorldTM);
+				bone->m_boneTM_WorldTM = new Matrix(pMesh->m_WorldTM);
+			}
+		}
+	}
 	//float determinant = DirectX::XMVectorGetX(DirectX::XMMatrixDeterminant(pMesh->m_WorldTM));
 
 	//if (determinant < 0.f)
@@ -200,12 +211,69 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 		// 일단 한 개의 토큰을 읽고, 그것이 괄호 닫기가 아니라면.
 		// 넘어온 토큰에 따라 처리해준다.
 		static int iv = 0;
+		static int verIndex = 0;
+		
 		switch (nowtoken)
 		{
 		case TOKEND_BLOCK_START:
 
 			Parsing_DivergeRecursiveALL(depth++);
 			break;
+
+			/// Skinning
+		case TOKENR_BONE_LIST:
+			//m_parsingmode = eBone_List;
+
+		case TOKENR_MESH_NUMBONE:
+		{
+			m_OneMesh->m_numbone = Parsing_NumberInt();
+		}
+		break;
+		
+		case TOKENR_BONE:
+		{
+			Bone* bone = new Bone;
+			bone->m_bone_number = Parsing_NumberInt();
+			m_OneMesh->m_bone = bone;
+			m_OneMesh->m_vector_bone_list.push_back(m_OneMesh->m_bone);
+		}
+		break;
+
+		case TOKENR_BONE_NAME:
+		{
+			m_OneMesh->m_bone->m_bone_name = Parsing_String();
+		}
+		break;
+
+		case TOKENR_MESH_WEIGHT:
+		{
+			//m_OneMesh->m_is_skinningobject = true;
+
+			VertexWeight* vWeight = new VertexWeight;
+			// 가중치를 반영시킬 정점의 인덱스
+			vWeight->m_wvertex_number = Parsing_NumberInt();
+			m_OneMesh->m_wvertex = vWeight;
+			m_OneMesh->m_vector_wvertexs.push_back(m_OneMesh->m_wvertex);
+		}
+		break;
+
+		case TOKENR_BONE_BLENGING_WEIGHT:
+		{
+			Weight* w = new Weight;
+			// 가중치를 반영할 본의 인덱스
+			w->m_bone_number = Parsing_NumberInt();
+			w->m_bone_weight = Parsing_NumberFloat();
+			m_OneMesh->m_wvertex->m_bone_blending_weight.push_back(w);
+
+			// 가중치가 여럿일때 순차적으로 넣어주기 위한 인덱스
+			int weightIndex = m_OneMesh->m_wvertex->m_bone_blending_weight.size();
+			int boneNum = w->m_bone_number;
+			float weight = w->m_bone_weight;
+
+			m_OneMesh->m_opt_vertex[m_OneMesh->m_wvertex->m_wvertex_number]->m_boneIndexNum[weightIndex - 1] = boneNum;
+			m_OneMesh->m_opt_vertex[m_OneMesh->m_wvertex->m_wvertex_number]->m_bw[weightIndex - 1] = weight;
+		}
+		break;
 
 		case TOKENR_HELPER_CLASS:
 			m_parsingmode = eHelperObject;
@@ -316,8 +384,6 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 			// 모드에 따라 넣어야 할 곳이 다르다.
 			//m_OneMesh->m_nodename = Parsing_String();
 		{
-
-
 			if (m_parsingmode == eAnimation)
 			{
 				m_animation->m_nodename = Parsing_String();
@@ -512,22 +578,18 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 		}
 		break;
 
-		case TOKENR_MESH_NUMBONE:
-			// 이게 있다면 이것은 Skinned Mesh라고 단정을 짓는다.
-			// 내용 입력
-			break;
 		case TOKENR_MESH_NUMSKINWEIGHT:
 			break;
 		case TOKENR_MESH_NUMVERTEX:
 		{
 			int num = Parsing_NumberInt();
-			m_OneMesh->m_mesh_numvertex = num;
+			//m_OneMesh->m_mesh_numvertex = num;
 		}
 		break;
 		case TOKENR_MESH_NUMFACES:
 		{
 			int num = Parsing_NumberInt();
-			m_OneMesh->m_mesh_numfaces = num;
+			//m_OneMesh->m_mesh_numfaces = num;
 		}
 		break;
 
@@ -543,12 +605,7 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 		{
 			int num = Parsing_NumberInt();
 			Vertex* ver = new Vertex();
-			ver->m_pos.x = Parsing_NumberFloat();
-			ver->m_pos.z = Parsing_NumberFloat();
-			ver->m_pos.y = Parsing_NumberFloat();
-
-			//ver->m_pos = Parsing_NumberVector3();
-
+			ver->m_pos = Parsing_NumberVector3();
 			m_OneMesh->m_meshvertex.push_back(ver);
 		}
 		break;
@@ -557,46 +614,9 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 
 		case TOKENR_SKIN_INITTM:
 			break;
-		case TOKENR_BONE_LIST:
-			break;
-		case TOKENR_BONE:
-		{
-			/// 모드 체인지 해 주고, Bone을 소유하고 있다는 것은 이것은 스키닝 오브젝트라는 것이다.
-			// 본 하나를 만들어서 임시 포인터 보관, 벡터에 넣고
-			// Bone의 넘버를 읽어 주자
-		}
-		break;
-		//이 다음에 본의 이름을 넣어야 한다. 하지만 {를 한 개 더 열었으므로 임시 포인터 변수로서 보관해야겠지.
-		case TOKENR_BONE_NAME:
-		case TOKENR_BONE_PROPERTY:
-			// 이 다음 ABSOLUTE가 나오기는 하는데, 쓸 일이 없다.
-			break;
-			// 다음에는 TM_ROW0~3이 나오는데 역시 무시됨..
-
-		case TOKENR_MESH_WVERTEXS:
-		{
-
-		}
-		break;
-
-		case TOKENR_MESH_WEIGHT:
-		{
-			// 버텍스 하나의 정보를 만들어서 리스트에 넣음
-		}
-		break;
-		case TOKENR_BONE_BLENGING_WEIGHT:
-		{
-			// 대체 몇 단계를 들어가는거야...
-			// 가중치 한개를 만들어서 리스트에 넣는다
-			/// 헥 헥....
-		}
-		break;
 
 
 		/// MESH_FACE_LIST
-		case TOKENR_MESH_FACE_LIST:
-			//
-			break;
 		case TOKENR_MESH_FACE:
 		{
 			//string str = Parsing_String();
@@ -625,49 +645,74 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 			break;
 		case TOKENR_MESH_TVERT:
 		{
-			//int num = Parsing_NumberInt();
-			//COneTVertex* ver = new COneTVertex();
+			int num = Parsing_NumberInt();
+			COneTVertex* ver = new COneTVertex();
 
-			//ver->m_u = Parsing_NumberFloat();
-			//ver->m_v = Parsing_NumberFloat();
-			//ver->m_w = Parsing_NumberFloat();
-			//
-			//m_OneMesh->m_mesh_tvertex.push_back(ver);
+			ver->m_u = Parsing_NumberFloat();
+			ver->m_v = Parsing_NumberFloat();
+
+			m_OneMesh->m_mesh_tvertex.push_back(ver);
 
 			// 버텍스의 인덱스가 나오는데 어차피 순서와 같으므로 버린다.
 			// 새로운 TVertex를 만들어서 벡터에 넣는다
 		}
 		break;
-		case TOKENR_MESH_NUMTVFACES:
-			break;
-		case TOKENR_MESH_FACENORMAL:
+		case TOKENR_MESH_TFACE:
 		{
-			//iv = Parsing_NumberInt();
-			//m_OneMesh->m_meshface[iv]->m_normal = Parsing_NumberVector3();
 			Parsing_NumberInt();
 
 			optFace = new Face;
-			optFace->m_normal = Parsing_NumberVector3();
+			optFace->m_TFace[0] = Parsing_NumberInt();
+			optFace->m_TFace[1] = Parsing_NumberInt();
+			optFace->m_TFace[2] = Parsing_NumberInt();
+
+			m_OneMesh->m_meshface.push_back(optFace);
+		}
+		break;
+
+		case TOKENR_MESH_NUMTVFACES:
+		{
+
+		}
+		break;
+		case TOKENR_MESH_FACENORMAL:
+		{
+			iv = Parsing_NumberInt();
+			//m_OneMesh->m_meshface[iv]->m_normal = Parsing_NumberVector3();
+
+			/// 여기서 최종적으로 다 때린다. ASE 파일 순서 상 한번에 면 하나 생성하기 딱 좋은 토큰 위치라고 생각 (했지만 결국 바꿨쥬?)
+			m_OneMesh->m_meshface[iv]->m_normal = Parsing_NumberVector3();
 		}
 		break;
 
 		case TOKENR_MESH_VERTEXNORMAL:
 		{
+			int num = Parsing_NumberInt();
+
+			if (verIndex == 3)											// 0,1,2 순으로 증가시키며 인덱스 값을 넣다가 3이되면 다시 0
+			{
+				verIndex = 0;
+				m_OneMesh->m_mesh_numfaces++;
+			}
+
+			// 위에서 쪼개지 않은채 받았던 포지션과 텍스쳐 좌표 값을 받고 노말도 집어넣기
+
 			Vertex* vertex = new Vertex;
-			vertex->m_pos = (m_OneMesh->m_meshvertex[Parsing_NumberInt()])->m_pos;
+
+			vertex->m_pos = (m_OneMesh->m_meshvertex[num])->m_pos;
 			vertex->m_normal = Parsing_NumberVector3();
-			vertex->m_pos = XMVector3Transform(vertex->m_pos, m_OneMesh->m_WorldTM.Invert());
+
+			// FACENORMAL 에서 받아온 면 번호로 해당 면을 m_meshface 에서 찾고, 거기 있는 텍스쳐 인덱스 값을 순차적으로 받아와 집어 넣는다 ㅋ 진짜 킹받네
+			vertex->u = (m_OneMesh->m_mesh_tvertex[(m_OneMesh->m_meshface[iv])->m_TFace[verIndex]])->m_u;
+			vertex->v = m_OneMesh->m_mesh_tvertex[(m_OneMesh->m_meshface[iv])->m_TFace[verIndex]]->m_v;
+
 			m_OneMesh->m_opt_vertex.push_back(vertex);
 			m_OneMesh->m_mesh_numvertex++;
 
-			if (iv == 3)
-			{
-				iv = 0;
-				m_OneMesh->m_meshface.push_back(optFace);
-			}
-
-			optFace->m_vertexindex[iv] = m_OneMesh->m_opt_vertex.size() - 1;
-			iv++;
+			/// 인덱스  
+			// 파일 순서가 면 -> 해당 면을 구성하는 점들 셋이기 때문에 크기 - 1이 곧 해당 점의 새로운 번호
+			(m_OneMesh->m_meshface[iv])->m_vertexindex[verIndex] = m_OneMesh->m_opt_vertex.size() - 1;
+			verIndex++;
 		}
 		break;
 

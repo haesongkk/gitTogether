@@ -5,7 +5,7 @@ namespace ASEParser
 	Vertex::Vertex()
 		: m_pos(), m_normal(), m_isnormalset(false)
 		, u(0.0f), v(0.0f), m_istextureset(false)
-		, m_bw1(0.0f), m_bw2(0.0f), m_bw3(0.0f), m_indices(0), m_indicesPointer(nullptr)
+		, m_indices(0), m_indicesPointer(nullptr)
 	{
 
 	}

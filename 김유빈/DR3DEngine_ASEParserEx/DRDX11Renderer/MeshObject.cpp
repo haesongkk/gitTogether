@@ -53,8 +53,8 @@ void MeshObject::Initialize(ASEParser::Mesh* meshData)
 	/// Texture
 	ID3D11Resource* texResource = nullptr;
 	HR(CreateDDSTextureFromFile(md3dDevice,
-	//L"Textures/000000002405.dds", &texResource, &mDiffuseMapSRV));
-	L"../Textures/000000002405_reverse.dds", & texResource, & mDiffuseMapSRV));
+	//L"../ASEFile/000000002405_reverse.dds", &texResource, &mDiffuseMapSRV));
+	L"../ASEFile/WoodCrate01.dds", & texResource, & mDiffuseMapSRV));
 
 	//L"Textures/WoodCrate01.dds", & texResource, & mDiffuseMapSRV));
 	assert(mDiffuseMapSRV);
@@ -144,9 +144,18 @@ void MeshObject::LoadGeomerty()
 
 			vertices[i].Tex.x = meshData->m_opt_vertex[i]->u;
 			vertices[i].Tex.y = meshData->m_opt_vertex[i]->v;
+
+			vertices[i].weight.x = meshData->m_opt_vertex[i]->m_bw[0];
+			vertices[i].weight.y = meshData->m_opt_vertex[i]->m_bw[1];
+			vertices[i].weight.z = meshData->m_opt_vertex[i]->m_bw[2];
+
+			vertices[i].boneIndexNum[0] = meshData->m_opt_vertex[i]->m_boneIndexNum[0];
+			vertices[i].boneIndexNum[1] = meshData->m_opt_vertex[i]->m_boneIndexNum[1];
+			vertices[i].boneIndexNum[2] = meshData->m_opt_vertex[i]->m_boneIndexNum[2];
+			vertices[i].boneIndexNum[3] = meshData->m_opt_vertex[i]->m_boneIndexNum[3];
 		}
 
-		tcount = meshData->m_mesh_numfaces;
+		tcount = meshData->m_mesh_numfaces + 1;
 
 		IndexCount = 3 * tcount;
 		std::vector<UINT> indices(IndexCount);
@@ -396,7 +405,11 @@ bool MeshObject::UpdateAnimation(float _deltaTime)
 
 void MeshObject::Render()
 {
+	if (mMeshData->m_is_skinningobject)
+		return;
+
 	mWorld = mMeshData->m_WorldTM;
+	mInputLayout = InputLayouts::Basic32;
 
 	// 입력 배치 객체 셋팅
 	md3dImmediateContext->IASetInputLayout(InputLayouts::Basic32);
@@ -429,7 +442,7 @@ void MeshObject::Render()
 	Effects::BasicTexFX->SetEyePosW(mEyePosW);
 
 	// Figure out which technique to use.
-	ID3DX11EffectTechnique* mTech = Effects::BasicTexFX->Light1Tech;
+	mTech = Effects::BasicTexFX->Light1Tech;
 	switch (mLightCount)
 	{
 	case 1:
@@ -489,6 +502,22 @@ void MeshObject::Render()
 			md3dImmediateContext->DrawIndexed(IndexCount, 0, 0);
 		}
 	}
+}
+
+void MeshObject::BuildVertexLayout()
+{
+	//// Create the vertex input layout.
+	//D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
+	//{
+	//	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	//	{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	//};
+
+	//// Create the input layout
+	//D3DX11_PASS_DESC passDesc;
+	//mTech->GetPassByIndex(0)->GetDesc(&passDesc);
+	//HR(md3dDevice->CreateInputLayout(vertexDesc, 2, passDesc.pIAInputSignature,
+	//	passDesc.IAInputSignatureSize, &mInputLayout));
 }
 
 void MeshObject::BuildGeometryBuffers2()

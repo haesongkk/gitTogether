@@ -35,6 +35,7 @@ public:
 	void Update(DRCamera* pCamera, float _deltaTime);
 	bool UpdateAnimation(float _deltaTime);
 	void Render();
+	void BuildVertexLayout();
 
 	ASEParser::Mesh* GetMesh() { return mMeshData; }
 
@@ -79,6 +80,8 @@ private:
 	/// 텍스쳐에서 추가된 부분
 	ID3D11ShaderResourceView* mDiffuseMapSRV;
 	ID3D11SamplerState* m_pSamplerLinear;
+	ID3DX11EffectTechnique* mTech;
+	ID3D11InputLayout* mInputLayout;
 
 	XMFLOAT4X4 mTexTransform;
 	XMFLOAT4X4 mBoxWorld;
