@@ -98,12 +98,14 @@ bool CASEParser::ConvertAll(Mesh* pMesh)
 	}
 	
 
-	for (auto m : m_MeshList)
+	for (int i = 0; i < m_MeshList.size(); i++)
 	{
-		for (auto bone : m->m_vector_bone_list)
+		for (auto bone : m_MeshList[i]->m_vector_bone_list)
 		{
 			if (pMesh->m_nodename == bone->m_bone_name)
 			{
+				m_MeshList[i]->m_vector_boneMesh_list.push_back(pMesh);
+
 				bone->m_boneTM_NodeTM = new Matrix(pMesh->m_WorldTM);
 				bone->m_boneTM_WorldTM = new Matrix(pMesh->m_WorldTM);
 			}
@@ -223,6 +225,7 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 			/// Skinning
 		case TOKENR_BONE_LIST:
 			//m_parsingmode = eBone_List;
+			break;
 
 		case TOKENR_MESH_NUMBONE:
 		{
@@ -357,26 +360,36 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 			break;
 
 		case TOKENR_HELPEROBJECT:
+		{
 			m_parsingmode = eHelperObject;
 			Create_onemesh_to_list();
 			m_OneMesh->m_IsHelper = true;
+			iv = 0;
+			verIndex = 0;
+
 			// 일단 생성하고
 			// 오브젝트의 타입 정해줌. 이것에 따라 서로 다른 파싱 모드 발동.
-			break;
+		}
+		break;
+
 
 		case TOKENR_GEOMOBJECT:
 			/// new Mesh
+		{
 			m_parsingmode = eGeomobject;
 			Create_onemesh_to_list();
-
-			break;
+			iv = 0;
+			verIndex = 0;
+		}
+		break;
 
 		case TOKENR_SHAPEOBJECT:
 			/// new Mesh
 			m_parsingmode = eShape;
 			Create_onemesh_to_list();
 			m_OneMesh->m_type = eObjectType::eObjectType_Shape;
-
+			iv = 0;
+			verIndex = 0;
 			break;
 
 		case TOKENR_NODE_NAME:
@@ -483,6 +496,7 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 			};
 
 			m_OneMesh->m_WorldTM = worldTM;
+			m_OneMesh->m_NodeTM = worldTM;
 		}
 		break;
 		case TOKENR_TM_POS:
@@ -589,7 +603,7 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 		case TOKENR_MESH_NUMFACES:
 		{
 			int num = Parsing_NumberInt();
-			//m_OneMesh->m_mesh_numfaces = num;
+			m_OneMesh->m_mesh_numfaces = num;
 		}
 		break;
 
@@ -638,7 +652,7 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 		case TOKENR_MESH_NUMTVERTEX:
 			break;
 
-			/// MESH_TVERTLIST
+///------------------------텍스쳐용-------------------------------------
 
 		case TOKENR_MESH_TVERTLIST:
 			//
@@ -672,47 +686,81 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 
 		case TOKENR_MESH_NUMTVFACES:
 		{
-
+			m_OneMesh->m_mesh_tvfaces = Parsing_NumberInt();
+			m_OneMesh->m_mesh_numfaces = 0;
 		}
 		break;
+
+///------------------------------------------------------------------------------
 		case TOKENR_MESH_FACENORMAL:
 		{
-			iv = Parsing_NumberInt();
-			//m_OneMesh->m_meshface[iv]->m_normal = Parsing_NumberVector3();
+			if (m_OneMesh->m_mesh_tvfaces == 0)
+			{
+				Parsing_NumberInt();
 
-			/// 여기서 최종적으로 다 때린다. ASE 파일 순서 상 한번에 면 하나 생성하기 딱 좋은 토큰 위치라고 생각 (했지만 결국 바꿨쥬?)
-			m_OneMesh->m_meshface[iv]->m_normal = Parsing_NumberVector3();
+				optFace = new Face;
+				optFace->m_normal = Parsing_NumberVector3();
+			}
+			else
+			{
+				iv = Parsing_NumberInt();
+				//m_OneMesh->m_meshface[iv]->m_normal = Parsing_NumberVector3();
+
+				/// 여기서 최종적으로 다 때린다. ASE 파일 순서 상 한번에 면 하나 생성하기 딱 좋은 토큰 위치라고 생각 (했지만 결국 바꿨쥬?)
+				m_OneMesh->m_meshface[iv]->m_normal = Parsing_NumberVector3();
+			}
 		}
 		break;
 
 		case TOKENR_MESH_VERTEXNORMAL:
 		{
-			int num = Parsing_NumberInt();
-
-			if (verIndex == 3)											// 0,1,2 순으로 증가시키며 인덱스 값을 넣다가 3이되면 다시 0
+			if (m_OneMesh->m_mesh_tvfaces == 0)
 			{
-				verIndex = 0;
-				m_OneMesh->m_mesh_numfaces++;
+				Vertex* vertex = new Vertex;
+				vertex->m_pos = (m_OneMesh->m_meshvertex[Parsing_NumberInt()])->m_pos;
+				vertex->m_normal = Parsing_NumberVector3();
+				vertex->m_pos = XMVector3Transform(vertex->m_pos, m_OneMesh->m_WorldTM.Invert());
+				m_OneMesh->m_opt_vertex.push_back(vertex);
+				m_OneMesh->m_mesh_numvertex++;
+
+				if (iv == 3)
+				{
+					iv = 0;
+					m_OneMesh->m_meshface.push_back(optFace);
+				}
+
+				optFace->m_vertexindex[iv] = m_OneMesh->m_opt_vertex.size() - 1;
+				iv++;
 			}
+			else
+			{
+				int num = Parsing_NumberInt();
 
-			// 위에서 쪼개지 않은채 받았던 포지션과 텍스쳐 좌표 값을 받고 노말도 집어넣기
+				if (verIndex == 3)											// 0,1,2 순으로 증가시키며 인덱스 값을 넣다가 3이되면 다시 0
+				{
+					verIndex = 0;
+					m_OneMesh->m_mesh_numfaces++;
+				}
 
-			Vertex* vertex = new Vertex;
+				// 위에서 쪼개지 않은채 받았던 포지션과 텍스쳐 좌표 값을 받고 노말도 집어넣기
 
-			vertex->m_pos = (m_OneMesh->m_meshvertex[num])->m_pos;
-			vertex->m_normal = Parsing_NumberVector3();
+				Vertex* vertex = new Vertex;
 
-			// FACENORMAL 에서 받아온 면 번호로 해당 면을 m_meshface 에서 찾고, 거기 있는 텍스쳐 인덱스 값을 순차적으로 받아와 집어 넣는다 ㅋ 진짜 킹받네
-			vertex->u = (m_OneMesh->m_mesh_tvertex[(m_OneMesh->m_meshface[iv])->m_TFace[verIndex]])->m_u;
-			vertex->v = m_OneMesh->m_mesh_tvertex[(m_OneMesh->m_meshface[iv])->m_TFace[verIndex]]->m_v;
+				vertex->m_pos = (m_OneMesh->m_meshvertex[num])->m_pos;
+				vertex->m_normal = Parsing_NumberVector3();
 
-			m_OneMesh->m_opt_vertex.push_back(vertex);
-			m_OneMesh->m_mesh_numvertex++;
+				// FACENORMAL 에서 받아온 면 번호로 해당 면을 m_meshface 에서 찾고, 거기 있는 텍스쳐 인덱스 값을 순차적으로 받아와 집어 넣는다 ㅋ 진짜 킹받네
+				vertex->u = (m_OneMesh->m_mesh_tvertex[(m_OneMesh->m_meshface[iv])->m_TFace[verIndex]])->m_u;
+				vertex->v = m_OneMesh->m_mesh_tvertex[(m_OneMesh->m_meshface[iv])->m_TFace[verIndex]]->m_v;
 
-			/// 인덱스  
-			// 파일 순서가 면 -> 해당 면을 구성하는 점들 셋이기 때문에 크기 - 1이 곧 해당 점의 새로운 번호
-			(m_OneMesh->m_meshface[iv])->m_vertexindex[verIndex] = m_OneMesh->m_opt_vertex.size() - 1;
-			verIndex++;
+				m_OneMesh->m_opt_vertex.push_back(vertex);
+				m_OneMesh->m_mesh_numvertex++;
+
+				/// 인덱스  
+				// 파일 순서가 면 -> 해당 면을 구성하는 점들 셋이기 때문에 크기 - 1이 곧 해당 점의 새로운 번호
+				(m_OneMesh->m_meshface[iv])->m_vertexindex[verIndex] = m_OneMesh->m_opt_vertex.size() - 1;
+				verIndex++;
+			}
 		}
 		break;
 

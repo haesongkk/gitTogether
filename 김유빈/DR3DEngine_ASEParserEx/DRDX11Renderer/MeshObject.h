@@ -43,9 +43,12 @@ public:
 	void BuildGeometryBuffers2();		// 기하구조로부터 버텍스/인덱스버퍼를 만든다.
 	XMFLOAT4X4 mWorld;	// Define transformations from local spaces to world space.
 	vector<MeshObject*> m_Children;
-
+	vector<MeshObject*> m_Bone;
 
 private:
+	/// Skinning Bone TM
+	vector<XMFLOAT4X4> m_FinalBoneTM;
+
 	float m_AnimationTime[3];
 	int frameCountPos = 0;
 	int frameCountRot = 0;

@@ -342,6 +342,7 @@ namespace ASEParser
 
 		Matrix m_LocalTM;
 		Matrix m_WorldTM;
+		Matrix m_NodeTM;
 		Matrix m_ParentLocalTM;
 		Matrix m_ParentWorldTM;
 
@@ -376,7 +377,7 @@ namespace ASEParser
 		vector<COneTVertex*> m_mesh_tvertex;		// 텍스쳐용 버텍스
 		vector<COneTVertex*> m_mesh_tprevertex;		// 텍스쳐용 버텍스
 		/// *MESH_RVERTLIST
-		int	m_mesh_tvfaces;			// 텍스쳐용 페이스 갯수 - (갯수는 위의 Face와 같고 이미 위에서 만들었으므로 내용만 넣어주면 된다)
+		int	m_mesh_tvfaces = 0;			// 텍스쳐용 페이스 갯수 - (갯수는 위의 Face와 같고 이미 위에서 만들었으므로 내용만 넣어주면 된다)
 		int	m_mesh_numcvertex;		// ※ 이건 어디에 쓰는것?
 
 		// 노말 정보들
@@ -451,6 +452,7 @@ namespace ASEParser
 
 		Bone* m_bone;		// 임시 변수					
 		VertexWeight* m_wvertex;					
+		vector<Mesh*>			m_vector_boneMesh_list;		// 내가 영향을 받는 본의 리스트
 		vector<Bone*>			m_vector_bone_list;		// 내가 영향을 받는 본의 리스트
 		vector<VertexWeight*>	m_vector_wvertexs;		
 

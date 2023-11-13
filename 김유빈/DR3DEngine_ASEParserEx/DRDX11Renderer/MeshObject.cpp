@@ -405,9 +405,6 @@ bool MeshObject::UpdateAnimation(float _deltaTime)
 
 void MeshObject::Render()
 {
-	if (mMeshData->m_is_skinningobject)
-		return;
-
 	mWorld = mMeshData->m_WorldTM;
 	mInputLayout = InputLayouts::Basic32;
 
@@ -468,6 +465,32 @@ void MeshObject::Render()
 		break;
 	}
 
+	// 매 프레임 비우고 넣어줘야함
+	m_FinalBoneTM.clear();
+
+	for (int i = 0; i < mMeshData->m_vector_bone_list.size(); i++)
+	{
+		Bone* bone = mMeshData->m_vector_bone_list[i];
+
+		Matrix boneWorldTM = mMeshData->m_vector_boneMesh_list[i]->m_WorldTM;
+		Matrix boneNodeTM = mMeshData->m_vector_boneMesh_list[i]->m_NodeTM;
+
+		Matrix skinWorldTM = mMeshData->m_WorldTM;
+		Matrix skinWorldTM_Inverse = skinWorldTM.Invert();
+
+		// 본의 계층구조 생성 전의 월드 좌표(이자 로컬?)를 스키닝 점 좌표계로 옮긴다
+		Matrix boneOffsetTM = boneNodeTM * skinWorldTM_Inverse;
+		Matrix boneOffsetTM_Inverse = boneOffsetTM.Invert();
+
+		// 이 행렬은 점을 곱할때 본과의 좌표계를 일치시키기 위한 것인가..?
+		// 본과 스킨의 좌표계 상의 offset 을 교정해주기 위한 offsetInverse 인가..?
+		Matrix finalBoneTM = boneOffsetTM_Inverse * boneWorldTM;
+
+		XMFLOAT4X4 XMfinalBoneTM;
+		XMStoreFloat4x4(&XMfinalBoneTM, finalBoneTM);
+		m_FinalBoneTM.push_back(XMfinalBoneTM);
+	}
+
 	// 테크닉은...
 	D3DX11_TECHNIQUE_DESC techDesc;
 	mTech->GetDesc(&techDesc);
@@ -485,6 +508,16 @@ void MeshObject::Render()
 		Effects::BasicTexFX->SetTexTransform(XMLoadFloat4x4(&mTexTransform));
 		Effects::BasicTexFX->SetMaterial(m_Material);
 		Effects::BasicTexFX->SetDiffuseMap(mDiffuseMapSRV);
+
+		/// Skinning
+		if (m_FinalBoneTM.empty())
+		{
+
+		}
+		else
+		{
+			Effects::BasicTexFX->SetBoneTransforms(&(m_FinalBoneTM[0]), m_FinalBoneTM.size());
+		}
 
 		mTech->GetPassByIndex(p)->Apply(0, md3dImmediateContext);
 

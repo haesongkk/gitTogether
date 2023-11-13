@@ -70,6 +70,9 @@ LightTexEffect::LightTexEffect(ID3D11Device* device, const std::wstring& filenam
 
 	TexTransform = mFX->GetVariableByName("gTexTransform")->AsMatrix();
 	DiffuseMap = mFX->GetVariableByName("gDiffuseMap")->AsShaderResource();
+
+	/// Skinning
+	BoneTransforms = mFX->GetVariableByName("gBoneTransforms")->AsMatrix();
 }
 
 LightTexEffect::~LightTexEffect()

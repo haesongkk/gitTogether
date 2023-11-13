@@ -31,7 +31,6 @@ namespace VertexStruct
 		XMFLOAT3 Pos;
 		XMFLOAT3 Normal;
 		XMFLOAT2 Tex;
-
 		XMFLOAT3 weight;
 		UINT32 boneIndexNum[4];
 	};
@@ -44,7 +43,7 @@ public:
 	static const D3D11_INPUT_ELEMENT_DESC PosNormal[2];
 
 	/// 텍스쳐 예제로 추가. 이름은 용책과의 연관성을 위해서 그냥 유지함
-	static const D3D11_INPUT_ELEMENT_DESC Basic32[3];
+	static const D3D11_INPUT_ELEMENT_DESC Basic32[5];
 
 };
 

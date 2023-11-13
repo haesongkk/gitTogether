@@ -36,6 +36,23 @@ void Model::Initialize()
 
 	SetHierarchy();
 
+	//for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
+	//{
+	//	MeshObject* mesh1 = mMeshList[i];
+
+	//	for (int j = 0; j < m_pASEParser->GetMeshNum(); j++)
+	//	{
+	//		MeshObject* mesh2 = mMeshList[j];
+
+	//		for (auto bone : mMeshList[j]->GetMesh()->m_vector_bone_list)
+	//		{
+	//			if (bone->m_bone_name == mesh1->GetMesh()->m_nodename)
+
+	//		}
+	//	}
+	//}
+
+
 	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
 	{
 		// 메시 관련 정점, 인덱스 버퍼 설정
