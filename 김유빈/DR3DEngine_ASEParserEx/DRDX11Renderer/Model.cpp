@@ -14,7 +14,7 @@ Model::Model(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11R
 {
 	m_pASEParser = new CASEParser();
 	m_pASEParser->Init();
-	m_pASEParser->Load((LPSTR)"../ASEFile/03IK-Joe.ASE");
+	m_pASEParser->Load((LPSTR)"../ASEFile/Cylinder.ASE");
 }
 
 Model::~Model()
@@ -41,6 +41,8 @@ void Model::Initialize()
 		// 메시 관련 정점, 인덱스 버퍼 설정
 		mMeshList[i]->LoadGeomerty();
 	}
+
+	SetChild();
 }
 
 void Model::Update(DRCamera* pCamera, float _deltaTime)
@@ -50,10 +52,9 @@ void Model::Update(DRCamera* pCamera, float _deltaTime)
 		mMeshList[i]->Update(pCamera, _deltaTime);
 	}
 
-	Matrix mRot, mLocal;
-
-	int index = 57;
-
+	/// node test
+	//Matrix mRot, mLocal;
+	//int index = 57;
 	//for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
 	//{
 	//	if (mMeshList[i]->GetMesh()->m_nodename == "Bone01")
@@ -66,13 +67,42 @@ void Model::Update(DRCamera* pCamera, float _deltaTime)
 	//	}
 	//}
 
-
 	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
 	{
-		mMeshList[i]->UpdateAnimation(_deltaTime);
+		bool isNegative = mMeshList[i]->UpdateAnimation(_deltaTime);
 	}
 
 	SetHierarchy();
+}
+
+void Model::SetChild()
+{
+	// 바로 밑 자식만
+	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
+	{
+		for (auto child : mMeshList)
+		{
+			if (child->GetMesh()->m_nodeparent == mMeshList[i]->GetMesh()->m_nodename)
+				mMeshList[i]->m_Children.push_back(child);
+		}
+	}
+
+	// 직계 자식을 통한 종손자들 구하기
+	for (int i = 0; i < m_pASEParser->GetMeshNum(); i++)
+	{
+		MeshObject* mesh = mMeshList[i];
+
+		AddChildrenRecursive(mesh, mesh->m_Children);
+	}
+}
+
+void Model::AddChildrenRecursive(MeshObject* mesh, std::vector<MeshObject*> children)
+{
+	for (MeshObject* grandchild : children)
+	{
+		mesh->m_Children.push_back(grandchild);
+		AddChildrenRecursive(mesh, grandchild->m_Children);
+	}
 }
 
 void Model::Render()

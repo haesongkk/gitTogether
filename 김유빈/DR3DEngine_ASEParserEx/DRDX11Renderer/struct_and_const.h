@@ -31,6 +31,9 @@ namespace VertexStruct
 		XMFLOAT3 Pos;
 		XMFLOAT3 Normal;
 		XMFLOAT2 Tex;
+
+		XMFLOAT3 weight;
+		UINT32 boneIndexNum[4];
 	};
 }
 

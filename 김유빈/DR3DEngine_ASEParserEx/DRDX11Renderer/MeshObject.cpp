@@ -3,6 +3,7 @@
 #include "DRCamera.h"
 #include "DDSTextureLoader.h"
 #include "GeometryGenerator.h"
+#include "..\DR3DLib\CASEParser.h"
 
 
 MeshObject::MeshObject(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11RasterizerState* pRS)
@@ -52,8 +53,8 @@ void MeshObject::Initialize(ASEParser::Mesh* meshData)
 	/// Texture
 	ID3D11Resource* texResource = nullptr;
 	HR(CreateDDSTextureFromFile(md3dDevice,
-	//L"Textures/000000002405.dds", &texResource, &mDiffuseMapSRV));
-	L"../Textures/000000002405_reverse.dds", & texResource, & mDiffuseMapSRV));
+	//L"../ASEFile/000000002405_reverse.dds", &texResource, &mDiffuseMapSRV));
+	L"../ASEFile/WoodCrate01.dds", & texResource, & mDiffuseMapSRV));
 
 	//L"Textures/WoodCrate01.dds", & texResource, & mDiffuseMapSRV));
 	assert(mDiffuseMapSRV);
@@ -77,64 +78,6 @@ void MeshObject::LoadGeomerty()
 	ASEParser::Mesh* meshData = nullptr;
 	meshData = mMeshData;
 
-	if (meshData->m_IsHelper) return;
-
-	UINT vcount = 0;
-	UINT tcount = 0;
-
-	vcount = meshData->m_opt_vertex.size();
-	std::vector<VertexStruct::Basic32> vertices(vcount);
-
-	//for (ASEParser::Vertex* vertex : meshData->m_meshvertex)
-	for (int i = 0; i < vcount; i++)
-	{
-		vertices[i].Pos.x = meshData->m_opt_vertex[i]->m_pos.x;
-		vertices[i].Pos.y = meshData->m_opt_vertex[i]->m_pos.y;
-		vertices[i].Pos.z = meshData->m_opt_vertex[i]->m_pos.z;
-
-		vertices[i].Normal.x = meshData->m_opt_vertex[i]->m_normal.x;
-		vertices[i].Normal.y = meshData->m_opt_vertex[i]->m_normal.y;
-		vertices[i].Normal.z = meshData->m_opt_vertex[i]->m_normal.z;
-
-		vertices[i].Tex.x = meshData->m_opt_vertex[i]->u;
-		vertices[i].Tex.y = meshData->m_opt_vertex[i]->v;
-	}
-
-	tcount = meshData->m_mesh_numfaces;
-
-	IndexCount = 3 * tcount;
-	std::vector<UINT> indices(IndexCount);
-	for (UINT i = 0; i < tcount; ++i)
-	{
-		indices[i * 3 + 0] = meshData->m_opt_index[i].index[0];
-		indices[i * 3 + 1] = meshData->m_opt_index[i].index[2];
-		indices[i * 3 + 2] = meshData->m_opt_index[i].index[1];
-	}
-
-	D3D11_BUFFER_DESC vbd;
-	vbd.Usage = D3D11_USAGE_IMMUTABLE;
-	vbd.ByteWidth = sizeof(VertexStruct::Basic32) * vcount;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = 0;
-	vbd.MiscFlags = 0;
-	D3D11_SUBRESOURCE_DATA vinitData;
-	vinitData.pSysMem = &vertices[0];
-	HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mVB));
-
-	//
-	// Pack the indices of all the meshes into one index buffer.
-	//
-
-	D3D11_BUFFER_DESC ibd;
-	ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	ibd.ByteWidth = sizeof(UINT) * IndexCount;
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.CPUAccessFlags = 0;
-	ibd.MiscFlags = 0;
-	D3D11_SUBRESOURCE_DATA iinitData;
-	iinitData.pSysMem = &indices[0];
-	HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mIB));
-
 	Vector3 pos, scale;
 	Quaternion rot;
 
@@ -144,6 +87,109 @@ void MeshObject::LoadGeomerty()
 	mMeshData->m_ScaleTM = (scale);
 
 	m_Animations = mMeshData->m_Animation;
+
+	UINT tcount = 0;
+
+	std::vector<VertexStruct::Basic32> vertices;
+	std::vector<UINT> indices;
+
+	if (meshData->m_IsHelper) 
+		return;
+	else if (meshData->m_type == eObjectType::eObjectType_Shape)
+	{
+		for (int i = 0; i < meshData->m_vector_shape_line.size(); i++)
+		{
+			for (auto ver : meshData->m_vector_shape_line[i]->m_shapevertex)
+			{
+				ASEParser::Vertex* v = new ASEParser::Vertex;
+				v->m_pos = ver->m_pos;
+				meshData->m_opt_vertex.push_back(v);
+			}
+		}
+
+		VertexCount = meshData->m_opt_vertex.size();
+		vertices.resize(VertexCount);
+
+		for (int i = 0; i < VertexCount; i++)
+		{
+			vertices[i].Pos.x = meshData->m_opt_vertex[i]->m_pos.x;
+			vertices[i].Pos.y = meshData->m_opt_vertex[i]->m_pos.y;
+			vertices[i].Pos.z = meshData->m_opt_vertex[i]->m_pos.z;
+		}
+
+		D3D11_BUFFER_DESC vbd;
+		vbd.Usage = D3D11_USAGE_IMMUTABLE;
+		vbd.ByteWidth = sizeof(VertexStruct::Basic32) * VertexCount;
+		vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		vbd.CPUAccessFlags = 0;
+		vbd.MiscFlags = 0;
+		D3D11_SUBRESOURCE_DATA vinitData;
+		vinitData.pSysMem = &vertices[0];
+		HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mVB));
+	}
+	else
+	{
+		VertexCount = meshData->m_opt_vertex.size();
+		vertices.resize(VertexCount);
+
+		for (int i = 0; i < VertexCount; i++)
+		{
+			vertices[i].Pos.x = meshData->m_opt_vertex[i]->m_pos.x;
+			vertices[i].Pos.y = meshData->m_opt_vertex[i]->m_pos.y;
+			vertices[i].Pos.z = meshData->m_opt_vertex[i]->m_pos.z;
+
+			vertices[i].Normal.x = meshData->m_opt_vertex[i]->m_normal.x;
+			vertices[i].Normal.y = meshData->m_opt_vertex[i]->m_normal.y;
+			vertices[i].Normal.z = meshData->m_opt_vertex[i]->m_normal.z;
+
+			vertices[i].Tex.x = meshData->m_opt_vertex[i]->u;
+			vertices[i].Tex.y = meshData->m_opt_vertex[i]->v;
+
+			vertices[i].weight.x = meshData->m_opt_vertex[i]->m_bw[0];
+			vertices[i].weight.y = meshData->m_opt_vertex[i]->m_bw[1];
+			vertices[i].weight.z = meshData->m_opt_vertex[i]->m_bw[2];
+
+			vertices[i].boneIndexNum[0] = meshData->m_opt_vertex[i]->m_boneIndexNum[0];
+			vertices[i].boneIndexNum[1] = meshData->m_opt_vertex[i]->m_boneIndexNum[1];
+			vertices[i].boneIndexNum[2] = meshData->m_opt_vertex[i]->m_boneIndexNum[2];
+			vertices[i].boneIndexNum[3] = meshData->m_opt_vertex[i]->m_boneIndexNum[3];
+		}
+
+		tcount = meshData->m_mesh_numfaces + 1;
+
+		IndexCount = 3 * tcount;
+		std::vector<UINT> indices(IndexCount);
+		for (UINT i = 0; i < tcount; ++i)
+		{
+			indices[i * 3 + 0] = meshData->m_opt_index[i].index[0];
+			indices[i * 3 + 1] = meshData->m_opt_index[i].index[2];
+			indices[i * 3 + 2] = meshData->m_opt_index[i].index[1];
+		}
+
+		D3D11_BUFFER_DESC vbd;
+		vbd.Usage = D3D11_USAGE_IMMUTABLE;
+		vbd.ByteWidth = sizeof(VertexStruct::Basic32) * VertexCount;
+		vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		vbd.CPUAccessFlags = 0;
+		vbd.MiscFlags = 0;
+		D3D11_SUBRESOURCE_DATA vinitData;
+		vinitData.pSysMem = &vertices[0];
+		HR(md3dDevice->CreateBuffer(&vbd, &vinitData, &mVB));
+
+		//
+		// Pack the indices of all the meshes into one index buffer.
+		//
+
+		D3D11_BUFFER_DESC ibd;
+		ibd.Usage = D3D11_USAGE_IMMUTABLE;
+		ibd.ByteWidth = sizeof(UINT) * IndexCount;
+		ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		ibd.CPUAccessFlags = 0;
+		ibd.MiscFlags = 0;
+		D3D11_SUBRESOURCE_DATA iinitData;
+		iinitData.pSysMem = &indices[0];
+		HR(md3dDevice->CreateBuffer(&ibd, &iinitData, &mIB));
+	}
 }
 
 void MeshObject::Update(DRCamera* pCamera, float _deltaTime)
@@ -194,7 +240,7 @@ void MeshObject::Update(DRCamera* pCamera, float _deltaTime)
 	mEyePosW = XMFLOAT3(pCamera->GetPosition().x, pCamera->GetPosition().y, pCamera->GetPosition().z);
 }
 
-void MeshObject::UpdateAnimation(float _deltaTime)
+bool MeshObject::UpdateAnimation(float _deltaTime)
 {
 	/// animation
 	// 총 누적 시간 계산
@@ -263,20 +309,22 @@ void MeshObject::UpdateAnimation(float _deltaTime)
 			++frameCountRot %= m_Animations.m_rotation.size();
 			++nextKey %= m_Animations.m_rotation.size();
 
-			if (mMeshData->m_nodename == "Bone01")
-			{
-				static vector<Quaternion> r;
-				r.push_back(rot);
-			}
-
 			if (nextKey == 0)
 				m_AnimationTime[0] -= m_Animations.m_rotation.back()->m_time;
 		}
+
+		/// Negative Scale
+		float determinant = DirectX::XMVectorGetX(DirectX::XMMatrixDeterminant(mMeshData->m_LocalTM));
+		if (determinant < 0.f)
+			mMeshData->m_ScaleTM = Vector3{ -1.f, -1.f, -1.f };
 	}
 	else
 	{
 		rot = mMeshData->m_RotationTM;
 	}
+
+
+
 
 	/// Translation
 	if (m_Animations.m_position.size() != 0)
@@ -285,22 +333,18 @@ void MeshObject::UpdateAnimation(float _deltaTime)
 		float ratio;
 		auto nextKey = (frameCountPos + 1) % m_Animations.m_position.size();
 
-		// nextkey 는 현재 프레임이 마지막 인덱스를 가리키면 0이 된다
-		//if (frameCountPos < anim.m_position.size() - 1)
-		{
-			// 현재 애니메이션 데이터의 프레임 값 - 이전 애니 프레임 값
-			interval = m_Animations.m_position[nextKey]->m_time - m_Animations.m_position[frameCountPos]->m_time;
-			ratio = (m_AnimationTime[1] - m_Animations.m_position[frameCountPos]->m_time) / interval;
+		// 보간
+		interval = m_Animations.m_position[nextKey]->m_time - m_Animations.m_position[frameCountPos]->m_time;
+		ratio = (m_AnimationTime[1] - m_Animations.m_position[frameCountPos]->m_time) / interval;
 
-			//pos = m_Animations.m_position[frameCountPos]->m_pos;
-			pos = Vector3::Lerp(m_Animations.m_position[frameCountPos]->m_pos, m_Animations.m_position[nextKey]->m_pos, interval);
+		//pos = m_Animations.m_position[frameCountPos]->m_pos;
+		pos = Vector3::Lerp(m_Animations.m_position[frameCountPos]->m_pos, m_Animations.m_position[nextKey]->m_pos, ratio);
 
-			if (mMeshData->m_nodename == "Bone01")
-			{
-				static vector<Vector3> t;
-				t.push_back(pos);
-			}
-		}
+		//if (mMeshData->m_nodename == "Bone01")
+		//{
+		//	static vector<Vector3> t;
+		//	t.push_back(pos);
+		//}
 
 		if (m_AnimationTime[1] > m_Animations.m_position[nextKey]->m_time)
 		{
@@ -308,7 +352,7 @@ void MeshObject::UpdateAnimation(float _deltaTime)
 			++nextKey %= m_Animations.m_position.size();
 
 			if (nextKey == 0)
-				m_AnimationTime[1] -= m_Animations.m_position.back()->m_time;
+				m_AnimationTime[1] -= m_Animations.m_position.back()->m_time;	// 근데 확인하니까 짜피 모든 애니메이션의 마지막 프레임은 57600 동일
 		}
 	}
 	else
@@ -348,17 +392,6 @@ void MeshObject::UpdateAnimation(float _deltaTime)
 		* Matrix::CreateFromQuaternion(rot)
 		* Matrix::CreateTranslation(pos);
 
-	if (mMeshData->m_nodename == "Biped-R_foot")
-	{
-		static vector<Vector3> tr;
-		tr.push_back(scl);
-	}
-	if (mMeshData->m_nodename == "Biped-L_foot")
-	{
-		static vector<Vector3> tl;
-		tl.push_back(scl);
-	}
-
 	Vector3 posLocal, scaleLocal;
 	Quaternion rotLocal;
 
@@ -366,11 +399,17 @@ void MeshObject::UpdateAnimation(float _deltaTime)
 	mMeshData->m_RotationTM = (rotLocal);
 	mMeshData->m_TranslateTM = (posLocal);
 	mMeshData->m_ScaleTM = (scaleLocal);
+
+	return mMeshData->m_IsNegative;
 }
 
 void MeshObject::Render()
 {
+	if (mMeshData->m_is_skinningobject)
+		return;
+
 	mWorld = mMeshData->m_WorldTM;
+	mInputLayout = InputLayouts::Basic32;
 
 	// 입력 배치 객체 셋팅
 	md3dImmediateContext->IASetInputLayout(InputLayouts::Basic32);
@@ -403,7 +442,7 @@ void MeshObject::Render()
 	Effects::BasicTexFX->SetEyePosW(mEyePosW);
 
 	// Figure out which technique to use.
-	ID3DX11EffectTechnique* mTech = Effects::BasicTexFX->Light1Tech;
+	mTech = Effects::BasicTexFX->Light1Tech;
 	switch (mLightCount)
 	{
 	case 1:
@@ -453,8 +492,32 @@ void MeshObject::Render()
 		md3dImmediateContext->PSSetShaderResources(0, 1, &mDiffuseMapSRV);
 		md3dImmediateContext->PSSetSamplers(0, 1, &m_pSamplerLinear);
 
-		md3dImmediateContext->DrawIndexed(IndexCount, 0, 0);
+		if (mMeshData->m_type == eObjectType::eObjectType_Shape)
+		{
+			md3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
+			md3dImmediateContext->Draw(VertexCount, 0);
+		}
+		else
+		{
+			md3dImmediateContext->DrawIndexed(IndexCount, 0, 0);
+		}
 	}
+}
+
+void MeshObject::BuildVertexLayout()
+{
+	//// Create the vertex input layout.
+	//D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
+	//{
+	//	{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	//	{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
+	//};
+
+	//// Create the input layout
+	//D3DX11_PASS_DESC passDesc;
+	//mTech->GetPassByIndex(0)->GetDesc(&passDesc);
+	//HR(md3dDevice->CreateInputLayout(vertexDesc, 2, passDesc.pIAInputSignature,
+	//	passDesc.IAInputSignatureSize, &mInputLayout));
 }
 
 void MeshObject::BuildGeometryBuffers2()

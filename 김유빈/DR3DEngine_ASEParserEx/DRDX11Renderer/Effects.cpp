@@ -84,8 +84,8 @@ LightTexEffect* Effects::BasicTexFX = 0;
 
 void Effects::InitAll(ID3D11Device* device)
 {
-	BasicFX = new BasicEffect(device, L"../FX/Basic.cso");
-	BasicTexFX = new LightTexEffect(device, L"../FX/BasicTex.cso");
+	BasicFX = new BasicEffect(device, L"../debug/Basic.cso");
+	BasicTexFX = new LightTexEffect(device, L"../debug/BasicTex.cso");
 }
 
 void Effects::DestroyAll()

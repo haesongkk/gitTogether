@@ -33,14 +33,16 @@ public:
 	void Initialize(ASEParser::Mesh* meshData);
 	void LoadGeomerty();
 	void Update(DRCamera* pCamera, float _deltaTime);
-	void UpdateAnimation(float _deltaTime);
+	bool UpdateAnimation(float _deltaTime);
 	void Render();
+	void BuildVertexLayout();
 
 	ASEParser::Mesh* GetMesh() { return mMeshData; }
 
 public:
 	void BuildGeometryBuffers2();		// 기하구조로부터 버텍스/인덱스버퍼를 만든다.
 	XMFLOAT4X4 mWorld;	// Define transformations from local spaces to world space.
+	vector<MeshObject*> m_Children;
 
 
 private:
@@ -64,6 +66,7 @@ private:
 	ID3D11RasterizerState* m_pRenderstate;
 
 	UINT IndexCount;
+	UINT VertexCount;
 	Material m_Material;
 
 	/// 빛은 외부에서 받아오도록 하자
@@ -77,6 +80,8 @@ private:
 	/// 텍스쳐에서 추가된 부분
 	ID3D11ShaderResourceView* mDiffuseMapSRV;
 	ID3D11SamplerState* m_pSamplerLinear;
+	ID3DX11EffectTechnique* mTech;
+	ID3D11InputLayout* mInputLayout;
 
 	XMFLOAT4X4 mTexTransform;
 	XMFLOAT4X4 mBoxWorld;

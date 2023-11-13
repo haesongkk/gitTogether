@@ -66,7 +66,9 @@ namespace ASEParser
 
 		/// Skinned Mesh 에서 추가
 		// weight 3개
-		float m_bw1, m_bw2, m_bw3;
+		float m_bw[4] = {0.f, 0.f, 0.f, 0.f};
+		// bone index
+		int m_boneIndexNum[4];
 
 		// 인덱스
 		int m_indices;
@@ -348,6 +350,9 @@ namespace ASEParser
 		Vector3 m_ScaleTM;
 
 		bool m_IsHelper = false;
+		bool m_IsNegative = false;
+		bool m_IsNegativeRoot = false;
+		bool m_IsNegativeNotRoot = false;
 
 
 		///----------------------------------
@@ -444,11 +449,10 @@ namespace ASEParser
 		// BONE_LIST
 		bool					m_is_skinningobject;	// 스키닝 오브젝트인가?
 
-		Bone* m_bone;									// Bone 한개의 포인터 (파서 내부에서 임시 공간으로 쓰임)
-		VertexWeight* m_wvertex;						// Weight_Vertex 한개의 포인터 (마찬가지로 임시공간)
-		vector<Bone*>			m_vector_bone_list;		// 이건 그냥 번호와 이름 관계이다. 이 안에 포인터를 넣어놓아도 괜찮겠구나(참조하기 편하게 - 그렇지 않으면 매번 이름으로 검색을 해야될지도. 아니면 인덱스가 있으니 상수 시간대로 접근을 할수도?)
-		vector<VertexWeight*>	m_vector_wvertexs;		// 버텍스 하나에 달라붙어있는 가중치들
-
+		Bone* m_bone;		// 임시 변수					
+		VertexWeight* m_wvertex;					
+		vector<Bone*>			m_vector_bone_list;		// 내가 영향을 받는 본의 리스트
+		vector<VertexWeight*>	m_vector_wvertexs;		
 
 	public:
 		Mesh();
