@@ -111,6 +111,30 @@ bool CASEParser::ConvertAll(Mesh* pMesh)
 			}
 		}
 	}
+
+	for (int i = 0; i < pMesh->m_meshvertex.size(); i++)
+	{
+		int keyToFind = i;
+
+		auto lower = m_NonSplitVertexIndex.lower_bound(keyToFind);
+		auto upper = m_NonSplitVertexIndex.upper_bound(keyToFind);
+
+		// keyToFind에 해당하는 모든 값을 출력
+		for (auto j = lower; j != upper; j++) 
+		{
+			j->second->m_boneIndexNum[0] = pMesh->m_meshvertex[i]->m_boneIndexNum[0];
+			j->second->m_boneIndexNum[1] = pMesh->m_meshvertex[i]->m_boneIndexNum[1];
+			j->second->m_boneIndexNum[2] = pMesh->m_meshvertex[i]->m_boneIndexNum[2];
+			j->second->m_boneIndexNum[3] = pMesh->m_meshvertex[i]->m_boneIndexNum[3];
+
+			j->second->m_bw[0] = pMesh->m_meshvertex[i]->m_bw[0];
+			j->second->m_bw[1] = pMesh->m_meshvertex[i]->m_bw[1];
+			j->second->m_bw[2] = pMesh->m_meshvertex[i]->m_bw[2];
+			j->second->m_bw[3] = pMesh->m_meshvertex[i]->m_bw[3];
+		}
+	}
+
+
 	//float determinant = DirectX::XMVectorGetX(DirectX::XMMatrixDeterminant(pMesh->m_WorldTM));
 
 	//if (determinant < 0.f)
@@ -237,14 +261,13 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 		{
 			Bone* bone = new Bone;
 			bone->m_bone_number = Parsing_NumberInt();
-			m_OneMesh->m_bone = bone;
-			m_OneMesh->m_vector_bone_list.push_back(m_OneMesh->m_bone);
+			m_OneMesh->m_vector_bone_list.push_back(bone);
 		}
 		break;
 
 		case TOKENR_BONE_NAME:
 		{
-			m_OneMesh->m_bone->m_bone_name = Parsing_String();
+			m_OneMesh->m_vector_bone_list.back()->m_bone_name = Parsing_String();
 		}
 		break;
 
@@ -255,8 +278,8 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 			VertexWeight* vWeight = new VertexWeight;
 			// 가중치를 반영시킬 정점의 인덱스
 			vWeight->m_wvertex_number = Parsing_NumberInt();
-			m_OneMesh->m_wvertex = vWeight;
-			m_OneMesh->m_vector_wvertexs.push_back(m_OneMesh->m_wvertex);
+			// m_wvertex 는 임시변수이다.
+			m_OneMesh->m_vector_wvertexs.push_back(vWeight);
 		}
 		break;
 
@@ -266,15 +289,20 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 			// 가중치를 반영할 본의 인덱스
 			w->m_bone_number = Parsing_NumberInt();
 			w->m_bone_weight = Parsing_NumberFloat();
-			m_OneMesh->m_wvertex->m_bone_blending_weight.push_back(w);
+			m_OneMesh->m_vector_wvertexs.back()->m_bone_blending_weight.push_back(w);
 
 			// 가중치가 여럿일때 순차적으로 넣어주기 위한 인덱스
-			int weightIndex = m_OneMesh->m_wvertex->m_bone_blending_weight.size();
+			VertexWeight* vWeight = m_OneMesh->m_vector_wvertexs.back();
+			int weightIndex = vWeight->m_bone_blending_weight.size();
 			int boneNum = w->m_bone_number;
 			float weight = w->m_bone_weight;
 
-			m_OneMesh->m_opt_vertex[m_OneMesh->m_wvertex->m_wvertex_number]->m_boneIndexNum[weightIndex - 1] = boneNum;
-			m_OneMesh->m_opt_vertex[m_OneMesh->m_wvertex->m_wvertex_number]->m_bw[weightIndex - 1] = weight;
+			m_OneMesh->m_meshvertex[vWeight->m_wvertex_number]->m_boneIndexNum[weightIndex - 1] = boneNum;
+			m_OneMesh->m_meshvertex[vWeight->m_wvertex_number]->m_bw[weightIndex - 1] = weight;
+
+			int a = 1;
+			//m_OneMesh->m_opt_vertex[m_OneMesh->m_wvertex->m_wvertex_number]->m_boneIndexNum[weightIndex - 1] = boneNum;
+			//m_OneMesh->m_opt_vertex[m_OneMesh->m_wvertex->m_wvertex_number]->m_bw[weightIndex - 1] = weight;
 		}
 		break;
 
@@ -650,6 +678,7 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 
 
 		case TOKENR_MESH_NUMTVERTEX:
+			m_OneMesh->m_mesh_numvertex = Parsing_NumberInt();
 			break;
 
 ///------------------------텍스쳐용-------------------------------------
@@ -752,7 +781,7 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 				// FACENORMAL 에서 받아온 면 번호로 해당 면을 m_meshface 에서 찾고, 거기 있는 텍스쳐 인덱스 값을 순차적으로 받아와 집어 넣는다 ㅋ 진짜 킹받네
 				vertex->u = (m_OneMesh->m_mesh_tvertex[(m_OneMesh->m_meshface[iv])->m_TFace[verIndex]])->m_u;
 				vertex->v = m_OneMesh->m_mesh_tvertex[(m_OneMesh->m_meshface[iv])->m_TFace[verIndex]]->m_v;
-
+				m_NonSplitVertexIndex.insert(make_pair(num, vertex));
 				m_OneMesh->m_opt_vertex.push_back(vertex);
 				m_OneMesh->m_mesh_numvertex++;
 

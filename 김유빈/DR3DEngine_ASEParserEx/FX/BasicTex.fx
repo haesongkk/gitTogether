@@ -141,7 +141,7 @@ float4 PS(VertexOut pin, uniform int gLightCount, uniform bool gUseTexure) : SV_
 	// Common to take alpha from diffuse material and texture.
 	litColor.a = gMaterial.Diffuse.a * texColor.a;
 
-	//return litColor;
+	return litColor;
 	return float4(1.0f, 1.0f, 1.0f, 1.0f);
 }
 

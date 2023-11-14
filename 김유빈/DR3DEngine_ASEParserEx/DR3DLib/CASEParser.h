@@ -88,6 +88,8 @@ public:
 	Mesh* m_OneMesh;						// 메시 하나의 데이터가 들어갈 구조체
 	vector<Mesh*> m_MeshList;				// 메시들
 
+	std::multimap<int, Vertex*> m_NonSplitVertexIndex;
+	
 	/// 쉐이프 오브젝트를 파싱할 때 필요한 중간 변수
 	//( 파서 내부에서 쉐이프 오브젝트는 GeomObject와 동일하게 취급된다)
 	ShapeLine* m_nowshapeline;				// 현재 읽고 있는 Line
