@@ -97,17 +97,13 @@ bool CASEParser::ConvertAll(Mesh* pMesh)
 			pMesh->m_Animation = *a;
 	}
 	
-
-	for (int i = 0; i < m_MeshList.size(); i++)
+	for (auto bone : pMesh->m_vector_bone_list)
 	{
-		for (auto bone : m_MeshList[i]->m_vector_bone_list)
+		for (int i = 0; i < m_MeshList.size(); i++)
 		{
-			if (pMesh->m_nodename == bone->m_bone_name)
+			if (bone->m_bone_name == m_MeshList[i]->m_nodename)
 			{
-				m_MeshList[i]->m_vector_boneMesh_list.push_back(pMesh);
-
-				bone->m_boneTM_NodeTM = new Matrix(pMesh->m_WorldTM);
-				bone->m_boneTM_WorldTM = new Matrix(pMesh->m_WorldTM);
+				pMesh->m_vector_boneMesh_list.push_back(m_MeshList[i]);
 			}
 		}
 	}
@@ -116,8 +112,8 @@ bool CASEParser::ConvertAll(Mesh* pMesh)
 	{
 		int keyToFind = i;
 
-		auto lower = m_NonSplitVertexIndex.lower_bound(keyToFind);
-		auto upper = m_NonSplitVertexIndex.upper_bound(keyToFind);
+		auto lower = pMesh->m_NonSplitVertexIndex.lower_bound(keyToFind);
+		auto upper = pMesh->m_NonSplitVertexIndex.upper_bound(keyToFind);
 
 		// keyToFind에 해당하는 모든 값을 출력
 		for (auto j = lower; j != upper; j++) 
@@ -134,6 +130,7 @@ bool CASEParser::ConvertAll(Mesh* pMesh)
 		}
 	}
 
+	pMesh->m_NonSplitVertexIndex.clear();
 
 	//float determinant = DirectX::XMVectorGetX(DirectX::XMMatrixDeterminant(pMesh->m_WorldTM));
 
@@ -678,7 +675,7 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 
 
 		case TOKENR_MESH_NUMTVERTEX:
-			m_OneMesh->m_mesh_numvertex = Parsing_NumberInt();
+			m_OneMesh->m_mesh_numtvertex = Parsing_NumberInt();
 			break;
 
 ///------------------------텍스쳐용-------------------------------------
@@ -692,7 +689,7 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 			COneTVertex* ver = new COneTVertex();
 
 			ver->m_u = Parsing_NumberFloat();
-			ver->m_v = Parsing_NumberFloat();
+			ver->m_v = 1.f - Parsing_NumberFloat();
 
 			m_OneMesh->m_mesh_tvertex.push_back(ver);
 
@@ -745,10 +742,13 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 		{
 			if (m_OneMesh->m_mesh_tvfaces == 0)
 			{
+				int num = Parsing_NumberInt();
+
 				Vertex* vertex = new Vertex;
-				vertex->m_pos = (m_OneMesh->m_meshvertex[Parsing_NumberInt()])->m_pos;
+				vertex->m_pos = (m_OneMesh->m_meshvertex[num])->m_pos;
 				vertex->m_normal = Parsing_NumberVector3();
 				vertex->m_pos = XMVector3Transform(vertex->m_pos, m_OneMesh->m_WorldTM.Invert());
+				m_OneMesh->m_NonSplitVertexIndex.insert(make_pair(num, vertex));
 				m_OneMesh->m_opt_vertex.push_back(vertex);
 				m_OneMesh->m_mesh_numvertex++;
 
@@ -781,7 +781,7 @@ void CASEParser::Parsing_DivergeRecursiveALL(int depth)
 				// FACENORMAL 에서 받아온 면 번호로 해당 면을 m_meshface 에서 찾고, 거기 있는 텍스쳐 인덱스 값을 순차적으로 받아와 집어 넣는다 ㅋ 진짜 킹받네
 				vertex->u = (m_OneMesh->m_mesh_tvertex[(m_OneMesh->m_meshface[iv])->m_TFace[verIndex]])->m_u;
 				vertex->v = m_OneMesh->m_mesh_tvertex[(m_OneMesh->m_meshface[iv])->m_TFace[verIndex]]->m_v;
-				m_NonSplitVertexIndex.insert(make_pair(num, vertex));
+				m_OneMesh->m_NonSplitVertexIndex.insert(make_pair(num, vertex));
 				m_OneMesh->m_opt_vertex.push_back(vertex);
 				m_OneMesh->m_mesh_numvertex++;
 

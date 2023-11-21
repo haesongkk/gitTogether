@@ -53,10 +53,9 @@ void MeshObject::Initialize(ASEParser::Mesh* meshData)
 	/// Texture
 	ID3D11Resource* texResource = nullptr;
 	HR(CreateDDSTextureFromFile(md3dDevice,
-	//L"../ASEFile/000000002405_reverse.dds", &texResource, &mDiffuseMapSRV));
-	L"../ASEFile/WoodCrate01.dds", & texResource, & mDiffuseMapSRV));
-
-	//L"Textures/WoodCrate01.dds", & texResource, & mDiffuseMapSRV));
+		//L"../ASEFile/000000002405_reverse.dds", &texResource, &mDiffuseMapSRV));
+		//L"../ASEFile/WoodCrate01.dds", &texResource, &mDiffuseMapSRV));
+	L"../ASEFile/RainbowTree_Texture01.dds", & texResource, & mDiffuseMapSRV));
 	assert(mDiffuseMapSRV);
 
 	D3D11_SAMPLER_DESC sampDesc = {};
@@ -379,9 +378,9 @@ bool MeshObject::UpdateAnimation(float _deltaTime)
 {
 	/// animation
 	// 총 누적 시간 계산
-	m_AnimationTime[0] += _deltaTime * 1000;
-	m_AnimationTime[1] += _deltaTime * 1000;
-	m_AnimationTime[2] += _deltaTime * 1000;
+	m_AnimationTime[0] += _deltaTime * 3000;
+	m_AnimationTime[1] += _deltaTime * 3000;
+	m_AnimationTime[2] += _deltaTime * 3000;
 
 	Quaternion rot;
 	Vector3 pos;

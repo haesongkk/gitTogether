@@ -388,6 +388,7 @@ namespace ASEParser
 		IndexList* m_opt_index;			/// 최적화 후의 인덱스들
 
 		Animation m_Animation;
+		std::multimap<int, Vertex*> m_NonSplitVertexIndex;
 
 		///----------------------------------
 		/// Shape Object

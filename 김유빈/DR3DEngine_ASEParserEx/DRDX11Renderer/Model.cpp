@@ -14,7 +14,9 @@ Model::Model(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11R
 {
 	m_pASEParser = new CASEParser();
 	m_pASEParser->Init();
-	m_pASEParser->Load((LPSTR)"../ASEFile/Cylinder.ASE");
+	m_pASEParser->Load((LPSTR)"../ASEFile/babypig_idle_6x.ASE");
+	//m_pASEParser->Load((LPSTR)"../ASEFile/babypig_walk_6x.ASE");
+	//m_pASEParser->Load((LPSTR)"../ASEFile/Cylinder.ASE");
 }
 
 Model::~Model()
