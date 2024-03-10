@@ -38,9 +38,6 @@
     <Filter Include="Resource">
       <UniqueIdentifier>{d648e77f-3d95-48a0-88d8-3d469638ed87}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource\FbxLoader">
-      <UniqueIdentifier>{1b999462-8369-4699-b097-58d0dfb5fc40}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Manager">
       <UniqueIdentifier>{3ec4ffe8-9b41-4004-8043-e4ba1fd50f3a}</UniqueIdentifier>
     </Filter>
@@ -52,6 +49,33 @@
     </Filter>
     <Filter Include="Component">
       <UniqueIdentifier>{e7d98b5c-db25-4eb5-b70d-400325e346af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameObject">
+      <UniqueIdentifier>{11b8492f-7677-4c64-99b2-81d35a64fc8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component\TransformComp">
+      <UniqueIdentifier>{956db970-a7aa-4e73-9c20-2954f2dd25a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component\PhysicsComp">
+      <UniqueIdentifier>{638eb7a2-dfb8-4aad-897a-b0c2827b708f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource\Loader">
+      <UniqueIdentifier>{dd725150-b4f4-49bd-bb35-d46a3fcf5f46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource\Loader\FbxLoader">
+      <UniqueIdentifier>{1b999462-8369-4699-b097-58d0dfb5fc40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource\Store">
+      <UniqueIdentifier>{39971922-f02a-4af3-9c28-b461b79be183}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component\Render">
+      <UniqueIdentifier>{c0b040e8-147e-407f-a18f-5d350bd670d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component\Render\SkinnedAnimation">
+      <UniqueIdentifier>{7aa55918-e0cc-4214-8007-d7ba9c4f2752}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="State">
+      <UniqueIdentifier>{c687e2ba-67ff-4117-aab6-7f4e15c0186b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -77,7 +101,7 @@
       <Filter>Model</Filter>
     </ClInclude>
     <ClInclude Include="FbxLoader.h">
-      <Filter>Resource\FbxLoader</Filter>
+      <Filter>Resource\Loader\FbxLoader</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>Model\Material</Filter>
@@ -97,9 +121,25 @@
     <ClInclude Include="Vertex.h">
       <Filter>Model\Mesh\Vertex</Filter>
     </ClInclude>
-    <ClInclude Include="Component.h" />
-    <ClInclude Include="Transform.h" />
-    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GameObject.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Component.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Component\TransformComp</Filter>
+    </ClInclude>
+    <ClInclude Include="Render.h">
+      <Filter>Component\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="SkinnedAnimation.h">
+      <Filter>Component\Render\SkinnedAnimation</Filter>
+    </ClInclude>
+    <ClInclude Include="State.h">
+      <Filter>State</Filter>
+    </ClInclude>
+    <ClInclude Include="Base.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectX.rc">
@@ -128,7 +168,7 @@
       <Filter>Model</Filter>
     </ClCompile>
     <ClCompile Include="FbxLoader.cpp">
-      <Filter>Resource\FbxLoader</Filter>
+      <Filter>Resource\Loader\FbxLoader</Filter>
     </ClCompile>
     <ClCompile Include="Helper.cpp">
       <Filter>Helper</Filter>
@@ -151,9 +191,26 @@
     <ClCompile Include="Vertex.cpp">
       <Filter>Model\Mesh\Vertex</Filter>
     </ClCompile>
-    <ClCompile Include="Component.cpp" />
-    <ClCompile Include="Transform.cpp" />
-    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="GameObject.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>Component\TransformComp</Filter>
+    </ClCompile>
+    <ClCompile Include="Render.cpp">
+      <Filter>Component\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="SkinnedAnimation.cpp">
+      <Filter>Component\Render\SkinnedAnimation</Filter>
+    </ClCompile>
+    <ClCompile Include="State.cpp">
+      <Filter>State</Filter>
+    </ClCompile>
+    <ClCompile Include="Base.cpp" />
+    <ClCompile Include="Resource.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Output\Shader\BasicPixelShader.hlsl">

@@ -1,42 +1,40 @@
 #pragma once
 class Component;
-class GameObject
+class State;
+#include "Base.h"
+class GameObject : public ObjectBase
 {
-	vector<shared_ptr<Component>> m_spComponents;
-
 public:
-	// 생성자
-	GameObject();
+	enum ComponentType
+	{
+		CT_Transform,
+		CT_Render,
+		CT_Physics,
+		CT_End,
+	};
 
-public:
-	// 소멸자
-	~GameObject();
+	enum RenderType
+	{
+		RT_SkinnedAnimation,
+		RT_None,
+	};
 
-public:
-	// 업데이트
-	void Run();
+	enum PhysicsType
+	{
+		eNone,
+	};
+
+private:
+	string m_name;
+	spVector<Component> m_spComponents;
+	spVector<State> m_spStates;
 	
 public:
-	template<class Comp>
-	shared_ptr<Comp> AddComponent()
-	{
-		shared_ptr<Comp> spComponent = make_shared<Comp>(GetSharedPtr());
-		return spComponent;
-	}
+	shared_ptr<Component> GetComponent(ComponentType ct);
 
-	template<class Comp>
-	shared_ptr<Comp> GetComponent()
-	{
-		for (auto comp : m_spComponents)
-			if(auto castComp = dynamic_pointer_cast<Comp>(comp))
-				return castComp;
-		return nullptr;
-	}
+public:
+	void Create(string name, RenderType rt, PhysicsType pt);
+	virtual void Run();
 
-
-	shared_ptr<GameObject> GetSharedPtr()
-	{
-		return shared_ptr<GameObject>(this);
-	}
 };
 

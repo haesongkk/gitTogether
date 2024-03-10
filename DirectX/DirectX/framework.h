@@ -34,3 +34,6 @@ using namespace DirectX::SimpleMath;
 
 template<class T>
 using wpVector = vector<weak_ptr<T>>;
+
+template<class T>
+using spVector = vector<shared_ptr<T>>;
